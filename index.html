@@ -685,7 +685,7 @@
     <div class="flex items-center gap-2 overflow-x-auto pb-2 border-b border-slate-800" id="admin-tabs-nav">
       <button type="button" onclick="switchAdminTab('orders')" id="tab-btn-orders" class="admin-tab-btn px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 bg-brand-600 text-white cursor-pointer">
         <i data-lucide="clipboard-list" class="w-4 h-4"></i>
-        <span>Pedidos (<span id="admin-orders-count">0</span>)</span>
+        <span>Pedidos & Caja (<span id="admin-orders-count">0</span>)</span>
       </button>
 
       <button type="button" onclick="switchAdminTab('products')" id="tab-btn-products" class="admin-tab-btn px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 bg-slate-900 text-slate-400 hover:text-white border border-slate-800 cursor-pointer">
@@ -719,14 +719,142 @@
       </button>
     </div>
 
-    <!-- SECCIÓN BACKEND 1: PEDIDOS Y DESPACHO AL MOTORIZADO -->
-    <section id="admin-section-orders" class="admin-section-tab space-y-4">
-      <div class="flex items-center justify-between">
+    <!-- ======================================================== -->
+    <!-- SECCIÓN BACKEND 1: PEDIDOS, MOTORIZADO Y CIERRE DE CAJA  -->
+    <!-- ======================================================== -->
+    <section id="admin-section-orders" class="admin-section-tab space-y-6">
+
+      <!-- PANEL DE CONTROL DE CAJA DIARIO EN VIVO -->
+      <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 sm:p-6 shadow-xl space-y-5">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30 shrink-0">
+              <i data-lucide="calculator" class="w-6 h-6"></i>
+            </div>
+            <div>
+              <h3 class="text-base font-extrabold text-white flex items-center gap-2">
+                <span>Control y Cierre de Caja Diario</span>
+                <span id="cash-current-date-badge" class="text-[10px] bg-slate-800 text-slate-300 px-2.5 py-0.5 rounded-full font-semibold">Hoy</span>
+              </h3>
+              <p class="text-xs text-slate-400">Resumen en tiempo real de los pedidos activos del turno (excluye pedidos cancelados)</p>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2">
+            <button 
+              type="button" 
+              onclick="openCashClosingModal()" 
+              class="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold shadow-lg flex items-center gap-2 active:scale-95 transition-all cursor-pointer"
+            >
+              <i data-lucide="lock" class="w-4 h-4"></i>
+              <span>Realizar Cierre de Caja Diario</span>
+            </button>
+
+            <button 
+              type="button" 
+              onclick="toggleClosingHistoryPanel()" 
+              class="px-3.5 py-2.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer border border-slate-700"
+            >
+              <i data-lucide="history" class="w-4 h-4 text-brand-400"></i>
+              <span>Historial de Cierres (<span id="closings-history-count">0</span>)</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Tarjetas de Resumen de Caja por Método de Pago -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+          <!-- Venta Total Neta -->
+          <div class="p-3.5 rounded-2xl bg-slate-950 border border-brand-500/30">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Total Venta Turno</span>
+            <span id="cash-kpi-total" class="text-lg font-black text-brand-500 mt-1 block">$0.00</span>
+            <span id="cash-kpi-orders" class="text-[10px] text-slate-500">0 pedidos válidos</span>
+          </div>
+
+          <!-- Efectivo en Caja -->
+          <div class="p-3.5 rounded-2xl bg-slate-950 border border-slate-800">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1">
+              <span>💵 Efectivo</span>
+            </span>
+            <span id="cash-kpi-efectivo" class="text-lg font-black text-white mt-1 block">$0.00</span>
+            <span id="cash-kpi-efectivo-count" class="text-[10px] text-slate-500">0 órdenes</span>
+          </div>
+
+          <!-- Transferencia Bancaria -->
+          <div class="p-3.5 rounded-2xl bg-slate-950 border border-slate-800">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-sky-400 flex items-center gap-1">
+              <span>🏦 Transferencia</span>
+            </span>
+            <span id="cash-kpi-transfer" class="text-lg font-black text-white mt-1 block">$0.00</span>
+            <span id="cash-kpi-transfer-count" class="text-[10px] text-slate-500">0 órdenes</span>
+          </div>
+
+          <!-- De Una! QR -->
+          <div class="p-3.5 rounded-2xl bg-slate-950 border border-purple-500/30">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-purple-400 flex items-center gap-1">
+              <span>📲 De Una! (QR)</span>
+            </span>
+            <span id="cash-kpi-deuna" class="text-lg font-black text-white mt-1 block">$0.00</span>
+            <span id="cash-kpi-deuna-count" class="text-[10px] text-slate-500">0 órdenes</span>
+          </div>
+
+          <!-- Total Envíos Recaudados -->
+          <div class="p-3.5 rounded-2xl bg-slate-950 border border-slate-800">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-amber-400 block">🛵 Envíos Cobrados</span>
+            <span id="cash-kpi-shipping" class="text-lg font-black text-white mt-1 block">$0.00</span>
+            <span class="text-[10px] text-slate-500">Domicilios</span>
+          </div>
+
+          <!-- Descuentos & Cancelados -->
+          <div class="p-3.5 rounded-2xl bg-slate-950 border border-slate-800">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-rose-400 block">🎟️ Descuentos / Canc.</span>
+            <span id="cash-kpi-discounts" class="text-sm font-black text-rose-400 mt-1 block">-$0.00</span>
+            <span id="cash-kpi-cancelled" class="text-[10px] text-slate-500">0 cancelados</span>
+          </div>
+        </div>
+
+        <!-- Panel Desplegable: Historial de Cierres Diarios -->
+        <div id="closing-history-panel" class="hidden pt-4 border-t border-slate-800 space-y-3">
+          <div class="flex items-center justify-between">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-brand-400 flex items-center gap-1.5">
+              <i data-lucide="archive" class="w-4 h-4"></i>
+              <span>Bitácora de Cierres de Caja Anteriores</span>
+            </h4>
+            <button type="button" onclick="clearCashClosingsHistory()" class="text-[11px] text-rose-400 hover:underline cursor-pointer">
+              Borrar historial de cierres
+            </button>
+          </div>
+
+          <div class="overflow-x-auto rounded-2xl border border-slate-800 bg-slate-950">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-900 text-slate-400 uppercase border-b border-slate-800 text-[10px]">
+                <tr>
+                  <th class="p-3">ID / Fecha y Hora</th>
+                  <th class="p-3">Cajero</th>
+                  <th class="p-3">Pedidos</th>
+                  <th class="p-3">Efectivo (Esp. / Físico)</th>
+                  <th class="p-3">Transf. / De Una!</th>
+                  <th class="p-3">Diferencia</th>
+                  <th class="p-3">Venta Total</th>
+                  <th class="p-3 text-right">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="closing-history-tbody" class="divide-y divide-slate-800/80">
+                <!-- Inyectado por JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cabecera de Lista de Pedidos en Vivo -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <h3 class="text-base font-bold text-white flex items-center gap-2">
-          <span>Gestión de Pedidos en Vivo</span>
-          <span class="text-xs text-slate-400 font-normal">Envía los pedidos directamente al repartidor</span>
+          <span>Comandas y Pedidos del Turno</span>
+          <span class="text-xs text-slate-400 font-normal">Cambia el estado o despacha con 1 clic al motorizado</span>
         </h3>
-        <button type="button" onclick="clearCompletedOrders()" class="text-xs text-rose-400 hover:underline cursor-pointer">Limpiar pedidos cancelados</button>
+        <button type="button" onclick="clearCompletedOrders()" class="text-xs text-rose-400 hover:underline cursor-pointer self-end sm:self-auto">
+          Limpiar pedidos cancelados
+        </button>
       </div>
 
       <div id="admin-orders-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -1008,7 +1136,7 @@
             </div>
             <div>
               <h3 class="text-base font-bold text-white">Base de Datos en Tiempo Real - Google Cloud Firestore</h3>
-              <p class="text-xs text-slate-400" id="admin-cloud-desc">Sincroniza productos, categorías, extras, cupones, QR De Una! y pedidos en la nube gratuita de Google.</p>
+              <p class="text-xs text-slate-400" id="admin-cloud-desc">Sincroniza productos, categorías, extras, cupones, QR De Una!, cierres de caja y pedidos en la nube gratuita de Google.</p>
             </div>
           </div>
           <div class="flex items-center gap-2">
@@ -1062,6 +1190,135 @@
       </div>
     </section>
 
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: ARQUEO Y CIERRE DE CAJA DIARIO                    -->
+  <!-- ======================================================== -->
+  <div id="cash-closing-modal" class="fixed inset-0 z-[125] bg-black/85 backdrop-blur-sm hidden items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-xl w-full p-6 space-y-4 my-6 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30">
+            <i data-lucide="calculator" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h4 class="font-bold text-white text-base">Arqueo y Cierre de Caja Diario</h4>
+            <p class="text-[11px] text-slate-400">Verifica los montos por forma de pago y cuadra el efectivo físico</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeCashClosingModal()" class="w-7 h-7 rounded-lg bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <form onsubmit="handleConfirmCashClosing(event)" class="space-y-4">
+        <!-- Resumen del Sistema -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
+          <div class="p-3 rounded-2xl bg-slate-950 border border-slate-800">
+            <span class="text-[10px] text-slate-400 block">💵 Efectivo Esperado</span>
+            <span id="modal-close-expected-cash" class="text-sm font-black text-emerald-400 mt-0.5 block">$0.00</span>
+          </div>
+          <div class="p-3 rounded-2xl bg-slate-950 border border-slate-800">
+            <span class="text-[10px] text-slate-400 block">🏦 Transferencias</span>
+            <span id="modal-close-transfer" class="text-sm font-black text-sky-400 mt-0.5 block">$0.00</span>
+          </div>
+          <div class="p-3 rounded-2xl bg-slate-950 border border-slate-800">
+            <span class="text-[10px] text-slate-400 block">📲 De Una! (QR)</span>
+            <span id="modal-close-deuna" class="text-sm font-black text-purple-400 mt-0.5 block">$0.00</span>
+          </div>
+          <div class="p-3 rounded-2xl bg-slate-950 border border-brand-500/30">
+            <span class="text-[10px] text-slate-400 block">💰 Venta Total Turno</span>
+            <span id="modal-close-grand-total" class="text-sm font-black text-brand-500 mt-0.5 block">$0.00</span>
+          </div>
+        </div>
+
+        <!-- Calculadora de Cuadre de Efectivo -->
+        <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-3">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">
+                Fondo de Caja Inicial / Base ($)
+              </label>
+              <input 
+                type="number" 
+                step="0.01" 
+                min="0"
+                id="close-opening-cash" 
+                value="0.00"
+                oninput="updateCashClosingDiffUI()"
+                class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white focus:outline-none focus:border-brand-500"
+              >
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-emerald-400 mb-1">
+                Efectivo Físico Contado en Gaveta ($) *
+              </label>
+              <input 
+                type="number" 
+                step="0.01" 
+                min="0"
+                id="close-counted-cash" 
+                required
+                placeholder="Ej. 125.50"
+                oninput="updateCashClosingDiffUI()"
+                class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-emerald-500/50 text-xs text-white font-bold focus:outline-none focus:border-emerald-400"
+              >
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between pt-2 border-t border-slate-800 text-xs">
+            <span class="text-slate-400">Efectivo total esperado en gaveta (Base + Ventas Efectivo):</span>
+            <span id="close-total-drawer-expected" class="font-bold text-white">$0.00</span>
+          </div>
+
+          <div id="close-diff-banner" class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between text-xs">
+            <span class="font-semibold text-slate-300">Estado del Arqueo:</span>
+            <span id="close-diff-text" class="font-black text-emerald-400">Caja Cuadrada ($0.00)</span>
+          </div>
+        </div>
+
+        <!-- Observaciones y Opciones de Limpieza de Turno -->
+        <div class="space-y-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Observaciones / Novedades del Turno</label>
+            <input 
+              type="text" 
+              id="close-notes-input" 
+              placeholder="Ej. Se pagó $5 a proveedor de hielo, turno sin novedades..." 
+              class="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-brand-500"
+            >
+          </div>
+
+          <label class="flex items-center gap-2.5 p-3 rounded-2xl bg-slate-950 border border-slate-800 cursor-pointer">
+            <input type="checkbox" id="close-archive-orders-cb" checked class="w-4 h-4 accent-brand-500 rounded">
+            <div class="text-xs">
+              <span class="font-bold text-white block">Archivar y reiniciar pedidos del turno actual al cerrar caja</span>
+              <span class="text-[11px] text-slate-400">Deja la bandeja de pedidos en $0.00 lista para el siguiente día/turno</span>
+            </div>
+          </label>
+
+          <label class="flex items-center gap-2.5 p-3 rounded-2xl bg-slate-950 border border-slate-800 cursor-pointer">
+            <input type="checkbox" id="close-send-whatsapp-cb" checked class="w-4 h-4 accent-emerald-500 rounded">
+            <div class="text-xs">
+              <span class="font-bold text-emerald-400 block">Enviar reporte de Cierre de Caja por WhatsApp al finalizar</span>
+              <span class="text-[11px] text-slate-400">Envía el desglose completo al número principal del negocio</span>
+            </div>
+          </label>
+        </div>
+
+        <div class="flex flex-wrap items-center justify-end gap-2 pt-3 border-t border-slate-800">
+          <button type="button" onclick="closeCashClosingModal()" class="px-4 py-2.5 rounded-xl bg-slate-800 text-slate-300 text-xs font-semibold cursor-pointer">
+            Cancelar
+          </button>
+          <button type="submit" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-1.5 shadow-lg cursor-pointer">
+            <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+            <span>Confirmar y Guardar Cierre de Caja</span>
+          </button>
+        </div>
+      </form>
+    </div>
   </div>
 
   <!-- ======================================================== -->
@@ -1239,7 +1496,7 @@
           <select id="edit-user-role" class="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white">
             <option value="master">Master (Control Total)</option>
             <option value="menu_admin">Editor de Menú (Productos, Categorías, Extras)</option>
-            <option value="cajero">Cajero / Operador (Pedidos y Despacho)</option>
+            <option value="cajero">Cajero / Operador (Pedidos, Cierre de Caja y Despacho)</option>
           </select>
         </div>
         <div class="flex justify-end gap-2 pt-2">
@@ -1305,10 +1562,10 @@
       appId: ""
     };
 
-    const STORAGE_KEY = "BURGER_BRUTAL_STATE_V4";
+    const STORAGE_KEY = "BURGER_BRUTAL_STATE_V5";
     const FIREBASE_CFG_STORAGE_KEY = "BURGER_FIREBASE_CONFIG_V1";
 
-    // Datos iniciales para La Brutal Burger & Salchipapas (con De Una! y Código QR editable)
+    // Datos iniciales para La Brutal Burger & Salchipapas
     const INITIAL_STATE = {
       settings: {
         businessName: "LA BRUTAL BURGER",
@@ -1434,7 +1691,8 @@
         { username: "cajero", password: "caja123", role: "cajero" },
         { username: "menu_admin", password: "menu123", role: "menu_admin" }
       ],
-      orders: []
+      orders: [],
+      cashClosings: []
     };
 
     // Estado en memoria
@@ -1446,7 +1704,7 @@
     let activeProductModal = null;
     let modalQuantity = 1;
     let clientGpsUrl = "";
-    let appliedCoupon = null; // { code, percent }
+    let appliedCoupon = null;
     let activeDispatchOrderId = null;
 
     // Variables Firebase Cloud
@@ -1466,7 +1724,8 @@
         return {
           ...structuredClone(INITIAL_STATE),
           ...parsed,
-          settings: { ...INITIAL_STATE.settings, ...(parsed.settings || {}) }
+          settings: { ...INITIAL_STATE.settings, ...(parsed.settings || {}) },
+          cashClosings: Array.isArray(parsed.cashClosings) ? parsed.cashClosings : []
         };
       } catch (e) {
         return structuredClone(INITIAL_STATE);
@@ -1561,7 +1820,8 @@
                 appState = {
                   ...structuredClone(INITIAL_STATE),
                   ...parsed,
-                  settings: { ...INITIAL_STATE.settings, ...(parsed.settings || {}) }
+                  settings: { ...INITIAL_STATE.settings, ...(parsed.settings || {}) },
+                  cashClosings: Array.isArray(parsed.cashClosings) ? parsed.cashClosings : []
                 };
                 saveState(false);
                 refreshAllUI();
@@ -1701,7 +1961,7 @@
         return;
       }
       await pushStateToFirestore();
-      showToast("¡Catálogo, QR De Una!, cupones y pedidos sincronizados en Google Cloud!", "success");
+      showToast("¡Catálogo, QR De Una!, cierres de caja y pedidos sincronizados en Google Cloud!", "success");
     };
 
     // ============================================================================
@@ -1758,7 +2018,6 @@
         if (logoIconWrap) logoIconWrap.classList.remove("hidden");
       }
 
-      // Actualizar datos de Transferencia y De Una! con QR en Checkout
       const bankEl = document.getElementById("bank-info-content");
       if (bankEl) bankEl.textContent = s.bankInfo || "";
 
@@ -2089,7 +2348,6 @@
       const emptyEl = document.getElementById("cart-empty-view");
       const footerEl = document.getElementById("cart-summary-footer");
 
-      // Barra de progreso de envío gratis
       const freeBanner = document.getElementById("free-shipping-banner");
       if (totals.threshold > 0 && cart.length > 0) {
         freeBanner.classList.remove("hidden");
@@ -2299,7 +2557,6 @@
       document.getElementById("gps-result-box").classList.add("hidden");
     };
 
-    // Copiar Datos Bancarios o De Una!
     function copyTextToClipboard(text, successMsg) {
       const textarea = document.createElement("textarea");
       textarea.value = text;
@@ -2349,7 +2606,6 @@
         paymentDetail = `De Una! (QR / Cuenta: ${appState.settings.deunaPhone || "Ver comprobante"})`;
       }
 
-      // Guardar pedido en el Backend y en Google Cloud Firestore
       const newOrder = {
         id: `ORD-${Date.now().toString().slice(-5)}`,
         createdAt: new Date().toLocaleString(),
@@ -2358,6 +2614,7 @@
         clientAddress: address,
         clientNotes: notes,
         gpsUrl: clientGpsUrl || "",
+        paymentBaseType: paymentMethod, // Efectivo | Transferencia | De Una!
         paymentMethod: paymentDetail,
         items: structuredClone(cart),
         subtotal: totals.subtotal,
@@ -2373,7 +2630,6 @@
       saveState(true);
       renderAdminAll();
 
-      // Construir mensaje de WhatsApp con el formato solicitado
       const lines = [
         `🛍️ *NUEVO PEDIDO EN LÍNEA - ${appState.settings.businessName}* 🛍️`,
         `👤 *Cliente:* ${name}`,
@@ -2405,7 +2661,6 @@
       const encodedMsg = encodeURIComponent(lines.join("\n"));
       const whatsappUrl = `https://wa.me/${targetPhone}?text=${encodedMsg}`;
 
-      // Limpiar carrito y redirigir
       cart = [];
       appliedCoupon = null;
       clearClientLocation();
@@ -2514,6 +2769,7 @@
     };
 
     function renderAdminAll() {
+      renderCashRegisterSummary();
       renderAdminOrders();
       renderAdminProducts();
       renderAdminCategories();
@@ -2525,8 +2781,320 @@
     }
 
     // ============================================================================
-    // 7. GESTIÓN DE PEDIDOS Y DESPACHO AL MOTORIZADO (BACKEND)
+    // 7. CIERRE DE CAJA DIARIO, ARQUEO Y GESTIÓN DE PEDIDOS (BACKEND)
     // ============================================================================
+    function classifyOrderPayment(order) {
+      if (order.paymentBaseType) return order.paymentBaseType;
+      const raw = String(order.paymentMethod || "").toLowerCase();
+      if (raw.includes("transferencia")) return "Transferencia";
+      if (raw.includes("de una") || raw.includes("yape") || raw.includes("qr")) return "De Una!";
+      return "Efectivo";
+    }
+
+    function calculateCurrentShiftTotals() {
+      let totalSales = 0;
+      let validOrdersCount = 0;
+      let cancelledCount = 0;
+
+      let cashTotal = 0;
+      let cashCount = 0;
+
+      let transferTotal = 0;
+      let transferCount = 0;
+
+      let deunaTotal = 0;
+      let deunaCount = 0;
+
+      let shippingTotal = 0;
+      let discountTotal = 0;
+
+      appState.orders.forEach((ord) => {
+        if (ord.status === "Cancelado") {
+          cancelledCount++;
+          return;
+        }
+        const amount = Number(ord.total) || 0;
+        totalSales += amount;
+        validOrdersCount++;
+
+        shippingTotal += Number(ord.shipping) || 0;
+        discountTotal += Number(ord.discountAmount) || 0;
+
+        const pType = classifyOrderPayment(ord);
+        if (pType === "Transferencia") {
+          transferTotal += amount;
+          transferCount++;
+        } else if (pType === "De Una!") {
+          deunaTotal += amount;
+          deunaCount++;
+        } else {
+          cashTotal += amount;
+          cashCount++;
+        }
+      });
+
+      return {
+        totalSales,
+        validOrdersCount,
+        cancelledCount,
+        cashTotal,
+        cashCount,
+        transferTotal,
+        transferCount,
+        deunaTotal,
+        deunaCount,
+        shippingTotal,
+        discountTotal
+      };
+    }
+
+    function renderCashRegisterSummary() {
+      const stats = calculateCurrentShiftTotals();
+      const dateBadge = document.getElementById("cash-current-date-badge");
+      if (dateBadge) {
+        dateBadge.textContent = new Date().toLocaleDateString("es-EC", {
+          weekday: "short",
+          day: "2-digit",
+          month: "short",
+          year: "numeric"
+        });
+      }
+
+      const setEl = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = val;
+      };
+
+      setEl("cash-kpi-total", `$${stats.totalSales.toFixed(2)}`);
+      setEl("cash-kpi-orders", `${stats.validOrdersCount} pedidos válidos`);
+      setEl("cash-kpi-efectivo", `$${stats.cashTotal.toFixed(2)}`);
+      setEl("cash-kpi-efectivo-count", `${stats.cashCount} órdenes`);
+      setEl("cash-kpi-transfer", `$${stats.transferTotal.toFixed(2)}`);
+      setEl("cash-kpi-transfer-count", `${stats.transferCount} órdenes`);
+      setEl("cash-kpi-deuna", `$${stats.deunaTotal.toFixed(2)}`);
+      setEl("cash-kpi-deuna-count", `${stats.deunaCount} órdenes`);
+      setEl("cash-kpi-shipping", `$${stats.shippingTotal.toFixed(2)}`);
+      setEl("cash-kpi-discounts", `-$${stats.discountTotal.toFixed(2)}`);
+      setEl("cash-kpi-cancelled", `${stats.cancelledCount} cancelados`);
+
+      const closings = Array.isArray(appState.cashClosings) ? appState.cashClosings : [];
+      setEl("closings-history-count", String(closings.length));
+      renderCashClosingsHistoryTable();
+    }
+
+    window.toggleClosingHistoryPanel = function () {
+      const panel = document.getElementById("closing-history-panel");
+      if (!panel) return;
+      panel.classList.toggle("hidden");
+    };
+
+    window.openCashClosingModal = function () {
+      const stats = calculateCurrentShiftTotals();
+
+      document.getElementById("modal-close-expected-cash").textContent = `$${stats.cashTotal.toFixed(2)}`;
+      document.getElementById("modal-close-transfer").textContent = `$${stats.transferTotal.toFixed(2)}`;
+      document.getElementById("modal-close-deuna").textContent = `$${stats.deunaTotal.toFixed(2)}`;
+      document.getElementById("modal-close-grand-total").textContent = `$${stats.totalSales.toFixed(2)}`;
+
+      document.getElementById("close-opening-cash").value = "0.00";
+      document.getElementById("close-counted-cash").value = stats.cashTotal.toFixed(2);
+      document.getElementById("close-notes-input").value = "";
+
+      updateCashClosingDiffUI();
+
+      const modal = document.getElementById("cash-closing-modal");
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+    };
+
+    window.closeCashClosingModal = function () {
+      const modal = document.getElementById("cash-closing-modal");
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+    };
+
+    window.updateCashClosingDiffUI = function () {
+      const stats = calculateCurrentShiftTotals();
+      const opening = parseFloat(document.getElementById("close-opening-cash").value) || 0;
+      const counted = parseFloat(document.getElementById("close-counted-cash").value) || 0;
+
+      const expectedInDrawer = opening + stats.cashTotal;
+      const diff = counted - expectedInDrawer;
+
+      document.getElementById("close-total-drawer-expected").textContent = `$${expectedInDrawer.toFixed(2)}`;
+      const diffTextEl = document.getElementById("close-diff-text");
+
+      if (Math.abs(diff) < 0.009) {
+        diffTextEl.textContent = "Caja Exacta / Cuadrada ($0.00)";
+        diffTextEl.className = "font-black text-emerald-400";
+      } else if (diff > 0) {
+        diffTextEl.textContent = `Sobrante en Caja (+$${diff.toFixed(2)})`;
+        diffTextEl.className = "font-black text-sky-400";
+      } else {
+        diffTextEl.textContent = `Faltante en Caja (-$${Math.abs(diff).toFixed(2)})`;
+        diffTextEl.className = "font-black text-rose-400";
+      }
+    };
+
+    window.handleConfirmCashClosing = function (e) {
+      e.preventDefault();
+      const stats = calculateCurrentShiftTotals();
+      const openingCash = parseFloat(document.getElementById("close-opening-cash").value) || 0;
+      const countedCash = parseFloat(document.getElementById("close-counted-cash").value) || 0;
+      const expectedInDrawer = openingCash + stats.cashTotal;
+      const difference = countedCash - expectedInDrawer;
+      const notes = document.getElementById("close-notes-input").value.trim() || "Sin novedades";
+      const archiveOrders = document.getElementById("close-archive-orders-cb").checked;
+      const sendWhatsapp = document.getElementById("close-send-whatsapp-cb").checked;
+
+      const closingRecord = {
+        id: `CIE-${Date.now().toString().slice(-5)}`,
+        closedAt: new Date().toLocaleString(),
+        closedBy: currentUser ? currentUser.username : "master",
+        validOrdersCount: stats.validOrdersCount,
+        cancelledCount: stats.cancelledCount,
+        openingCash,
+        expectedCashSales: stats.cashTotal,
+        expectedInDrawer,
+        countedCash,
+        difference,
+        transferTotal: stats.transferTotal,
+        deunaTotal: stats.deunaTotal,
+        shippingTotal: stats.shippingTotal,
+        discountTotal: stats.discountTotal,
+        totalSales: stats.totalSales,
+        notes
+      };
+
+      if (!Array.isArray(appState.cashClosings)) {
+        appState.cashClosings = [];
+      }
+      appState.cashClosings.unshift(closingRecord);
+
+      if (archiveOrders) {
+        appState.orders = [];
+      }
+
+      saveState(true);
+      closeCashClosingModal();
+      renderAdminAll();
+
+      const historyPanel = document.getElementById("closing-history-panel");
+      if (historyPanel) historyPanel.classList.remove("hidden");
+
+      showToast(`Cierre de caja ${closingRecord.id} registrado con éxito`);
+
+      if (sendWhatsapp) {
+        sendClosingReportWhatsApp(closingRecord.id);
+      }
+    };
+
+    function renderCashClosingsHistoryTable() {
+      const tbody = document.getElementById("closing-history-tbody");
+      if (!tbody) return;
+
+      const closings = Array.isArray(appState.cashClosings) ? appState.cashClosings : [];
+      if (closings.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-slate-500">Aún no se han registrado cierres de caja.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = closings
+        .map((c) => {
+          const diffVal = Number(c.difference) || 0;
+          const diffBadge =
+            Math.abs(diffVal) < 0.009
+              ? `<span class="text-emerald-400 font-bold">Cuadrada ($0.00)</span>`
+              : diffVal > 0
+              ? `<span class="text-sky-400 font-bold">+$${diffVal.toFixed(2)}</span>`
+              : `<span class="text-rose-400 font-bold">-$${Math.abs(diffVal).toFixed(2)}</span>`;
+
+          return `
+            <tr class="hover:bg-slate-900/60">
+              <td class="p-3">
+                <span class="font-black text-brand-400 block">${escapeHtml(c.id)}</span>
+                <span class="text-[10px] text-slate-400">${escapeHtml(c.closedAt)}</span>
+              </td>
+              <td class="p-3 font-semibold text-white uppercase">${escapeHtml(c.closedBy)}</td>
+              <td class="p-3 text-slate-300">${c.validOrdersCount} vál. / ${c.cancelledCount} canc.</td>
+              <td class="p-3 text-slate-300">
+                Esp: <b>$${Number(c.expectedInDrawer).toFixed(2)}</b><br>
+                Fís: <b class="text-emerald-400">$${Number(c.countedCash).toFixed(2)}</b>
+              </td>
+              <td class="p-3 text-slate-300">
+                🏦 $${Number(c.transferTotal).toFixed(2)}<br>
+                📲 $${Number(c.deunaTotal).toFixed(2)}
+              </td>
+              <td class="p-3">${diffBadge}</td>
+              <td class="p-3 font-black text-brand-500 text-sm">$${Number(c.totalSales).toFixed(2)}</td>
+              <td class="p-3 text-right space-x-1 whitespace-nowrap">
+                <button type="button" onclick="sendClosingReportWhatsApp('${escapeHtml(c.id)}')" class="px-2.5 py-1 rounded-lg bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 text-[11px] font-bold cursor-pointer">
+                  WhatsApp
+                </button>
+                <button type="button" onclick="deleteClosingRecord('${escapeHtml(c.id)}')" class="px-2 py-1 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 text-[11px] cursor-pointer">
+                  Borrar
+                </button>
+              </td>
+            </tr>
+          `;
+        })
+        .join("");
+    }
+
+    window.sendClosingReportWhatsApp = function (closingId) {
+      const c = (appState.cashClosings || []).find((x) => x.id === closingId);
+      if (!c) return;
+
+      const diffVal = Number(c.difference) || 0;
+      const diffTxt =
+        Math.abs(diffVal) < 0.009
+          ? "Caja Cuadrada ($0.00)"
+          : diffVal > 0
+          ? `Sobrante +$${diffVal.toFixed(2)}`
+          : `Faltante -$${Math.abs(diffVal).toFixed(2)}`;
+
+      const lines = [
+        `📊 *REPORTE DE CIERRE DE CAJA DIARIO - ${appState.settings.businessName}* 📊`,
+        `🆔 *Cierre:* ${c.id}`,
+        `📅 *Fecha y Hora:* ${c.closedAt}`,
+        `👤 *Responsable:* ${c.closedBy}`,
+        `----------------------------------`,
+        `📦 *Pedidos Válidos:* ${c.validOrdersCount} (Cancelados: ${c.cancelledCount})`,
+        `💵 *Ventas en Efectivo:* $${Number(c.expectedCashSales).toFixed(2)}`,
+        `🏦 *Ventas por Transferencia:* $${Number(c.transferTotal).toFixed(2)}`,
+        `📲 *Ventas por De Una! (QR):* $${Number(c.deunaTotal).toFixed(2)}`,
+        `🛵 *Total Envíos:* $${Number(c.shippingTotal).toFixed(2)}`,
+        `🎟️ *Descuentos Otorgados:* -$${Number(c.discountTotal).toFixed(2)}`,
+        `----------------------------------`,
+        `🔐 *ARQUEO DE GAVETA (EFECTIVO):*`,
+        `  • Base Inicial: $${Number(c.openingCash).toFixed(2)}`,
+        `  • Efectivo Esperado en Caja: $${Number(c.expectedInDrawer).toFixed(2)}`,
+        `  • Efectivo Físico Contado: $${Number(c.countedCash).toFixed(2)}`,
+        `  • Resultado Arqueo: *${diffTxt}*`,
+        `----------------------------------`,
+        `📝 *Observaciones:* ${c.notes}`,
+        `💰 *VENTA TOTAL DEL DÍA:* $${Number(c.totalSales).toFixed(2)}`
+      ];
+
+      const phone = (appState.settings.storeWhatsapp || STORE_WHATSAPP_PHONE).replace(/\D/g, "");
+      const url = `https://wa.me/${phone}?text=${encodeURIComponent(lines.join("\n"))}`;
+      window.open(url, "_blank");
+    };
+
+    window.deleteClosingRecord = function (closingId) {
+      appState.cashClosings = (appState.cashClosings || []).filter((c) => c.id !== closingId);
+      saveState(true);
+      renderCashRegisterSummary();
+      showToast("Registro de cierre eliminado");
+    };
+
+    window.clearCashClosingsHistory = function () {
+      appState.cashClosings = [];
+      saveState(true);
+      renderCashRegisterSummary();
+      showToast("Historial de cierres vaciado");
+    };
+
     function renderAdminOrders() {
       const countEl = document.getElementById("admin-orders-count");
       if (countEl) countEl.textContent = String(appState.orders.length);
@@ -2535,7 +3103,7 @@
       if (!listEl) return;
 
       if (appState.orders.length === 0) {
-        listEl.innerHTML = `<div class="col-span-full p-10 text-center bg-slate-900 border border-slate-800 rounded-3xl text-xs text-slate-400">Aún no hay pedidos registrados.</div>`;
+        listEl.innerHTML = `<div class="col-span-full p-10 text-center bg-slate-900 border border-slate-800 rounded-3xl text-xs text-slate-400">No hay pedidos activos en este turno.</div>`;
         return;
       }
 
@@ -2605,6 +3173,7 @@
       if (!ord) return;
       ord.status = newStatus;
       saveState(true);
+      renderCashRegisterSummary();
       renderAdminOrders();
       showToast(`Pedido ${orderId} actualizado a: ${newStatus}`);
     };
@@ -2612,6 +3181,7 @@
     window.clearCompletedOrders = function () {
       appState.orders = appState.orders.filter((o) => o.status !== "Cancelado");
       saveState(true);
+      renderCashRegisterSummary();
       renderAdminOrders();
       showToast("Pedidos cancelados eliminados");
     };
@@ -3044,7 +3614,7 @@
           <td class="p-3.5 font-bold text-white">${escapeHtml(u.username)}</td>
           <td class="p-3.5 uppercase text-brand-400 font-bold">${escapeHtml(u.role)}</td>
           <td class="p-3.5 text-slate-400">
-            ${u.role === "master" ? "Acceso Total" : u.role === "menu_admin" ? "Productos, Categorías y Extras" : "Pedidos y Despacho Motorizado"}
+            ${u.role === "master" ? "Acceso Total" : u.role === "menu_admin" ? "Productos, Categorías y Extras" : "Pedidos, Cierre de Caja y Despacho"}
           </td>
           <td class="p-3.5 text-right space-x-2">
             <button type="button" onclick="openUserModal('${escapeHtml(u.username)}')" class="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-200 cursor-pointer">Editar</button>
@@ -3112,7 +3682,6 @@
       renderAdminAll();
     }
 
-    // Inicialización al cargar la página
     window.addEventListener("DOMContentLoaded", () => {
       refreshAllUI();
       initGoogleCloudDatabase();
