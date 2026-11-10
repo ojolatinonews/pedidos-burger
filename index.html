@@ -33,9 +33,9 @@
               800: '#9a3412',
               900: '#7c2d12',
             },
-            yape: {
-              500: '#742284',
-              600: '#5c176b',
+            deuna: {
+              500: '#7c3aed',
+              600: '#5b21b6',
             }
           }
         }
@@ -70,10 +70,10 @@
   <div id="marquee-bar" class="bg-gradient-to-r from-brand-600 via-amber-600 to-brand-700 text-white text-xs font-bold py-1.5 overflow-hidden border-b border-brand-500/30 flex">
     <div class="animate-marquee cursor-pointer" onclick="handleAdminButtonClick()">
       <span id="marquee-text-display" class="px-6 inline-flex items-center gap-2">
-        🍔 ¡Bienvenidos a La Brutal Burger & Salchipapas! Papipollos crujientes, Burgers al carbón y Nuggets • Paga con Efectivo, Transferencia o Yape 🍟
+        🍔 ¡Bienvenidos a La Brutal Burger & Salchipapas! Papipollos crujientes, Burgers al carbón y Nuggets • Paga con Efectivo, Transferencia o De Una! 🍟
       </span>
       <span id="marquee-text-display-repeat" class="px-6 inline-flex items-center gap-2">
-        🍔 ¡Bienvenidos a La Brutal Burger & Salchipapas! Papipollos crujientes, Burgers al carbón y Nuggets • Paga con Efectivo, Transferencia o Yape 🍟
+        🍔 ¡Bienvenidos a La Brutal Burger & Salchipapas! Papipollos crujientes, Burgers al carbón y Nuggets • Paga con Efectivo, Transferencia o De Una! 🍟
       </span>
     </div>
   </div>
@@ -386,7 +386,7 @@
   </aside>
 
   <!-- ======================================================== -->
-  <!-- MODAL CHECKOUT CON GPS Y FORMAS DE PAGO                  -->
+  <!-- MODAL CHECKOUT CON GPS Y FORMAS DE PAGO (INCL. DE UNA!)  -->
   <!-- ======================================================== -->
   <div id="checkout-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4 overflow-y-auto">
     <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl my-6">
@@ -460,7 +460,7 @@
           </div>
         </div>
 
-        <!-- Forma de Pago (Efectivo, Transferencia, Yape) -->
+        <!-- Forma de Pago (Efectivo, Transferencia, De Una!) -->
         <div class="pt-3 border-t border-slate-800 space-y-3">
           <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
             <i data-lucide="wallet" class="w-3.5 h-3.5 text-brand-500"></i>
@@ -482,11 +482,11 @@
               <span class="text-xs font-bold text-white">Transferencia</span>
             </label>
 
-            <!-- Yape -->
-            <label class="flex flex-col items-center justify-center p-3 rounded-2xl border border-slate-800 bg-slate-950 cursor-pointer hover:border-yape-500 text-center has-[:checked]:border-purple-500 has-[:checked]:bg-purple-500/10 transition-all">
-              <input type="radio" name="payment-method" value="Yape" onchange="handlePaymentSelection(this.value)" class="sr-only">
+            <!-- De Una! con Código QR -->
+            <label class="flex flex-col items-center justify-center p-3 rounded-2xl border border-slate-800 bg-slate-950 cursor-pointer hover:border-purple-500 text-center has-[:checked]:border-purple-500 has-[:checked]:bg-purple-500/10 transition-all">
+              <input type="radio" name="payment-method" value="De Una!" onchange="handlePaymentSelection(this.value)" class="sr-only">
               <span class="text-xl mb-0.5">📲</span>
-              <span class="text-xs font-bold text-white">Yape</span>
+              <span class="text-xs font-bold text-white">De Una! (QR)</span>
             </label>
           </div>
 
@@ -510,28 +510,39 @@
                 </button>
               </div>
               <div id="bank-info-content" class="p-3 bg-slate-900 rounded-xl font-mono text-[11px] text-slate-300 leading-relaxed border border-slate-800/80 whitespace-pre-line">
-                Banco: BCP
-                Cuenta: 191-98765432-0-88
+                Banco: Pichincha
+                Cuenta: 2204567890
                 Titular: La Brutal Burger
               </div>
             </div>
 
-            <!-- Yape -->
-            <div id="payment-yape-box" class="hidden p-3.5 bg-slate-950 rounded-2xl border border-purple-500/30 text-xs space-y-2 bg-gradient-to-br from-purple-950/20 to-slate-950">
+            <!-- De Una! con Código QR -->
+            <div id="payment-deuna-box" class="hidden p-4 bg-slate-950 rounded-2xl border border-purple-500/40 text-xs space-y-3 bg-gradient-to-br from-purple-950/30 to-slate-950">
               <div class="flex items-center justify-between">
-                <span class="font-bold text-purple-400 flex items-center gap-1">
-                  <span>💜</span> Datos de Yape:
+                <span class="font-bold text-purple-300 flex items-center gap-1.5 text-sm">
+                  <i data-lucide="qr-code" class="w-4 h-4 text-purple-400"></i>
+                  <span>Paga con De Una!</span>
                 </span>
-                <button type="button" onclick="copyYapeDetails()" class="text-[11px] text-purple-200 bg-purple-900/40 hover:bg-purple-900/70 border border-purple-500/30 px-2.5 py-1 rounded-lg flex items-center gap-1 transition-colors cursor-pointer">
+                <button type="button" onclick="copyDeUnaDetails()" class="text-[11px] text-purple-200 bg-purple-900/50 hover:bg-purple-900/80 border border-purple-500/40 px-2.5 py-1 rounded-lg flex items-center gap-1 transition-colors cursor-pointer">
                   <i data-lucide="copy" class="w-3 h-3"></i>
                   <span>Copiar Número</span>
                 </button>
               </div>
-              <div id="yape-info-content" class="p-3 bg-slate-900 rounded-xl font-mono text-xs text-purple-200 border border-purple-500/20">
-                Número Yape: <span id="yape-phone-display" class="font-bold text-white">987654321</span><br>
-                Titular: <span id="yape-name-display" class="font-bold text-white">La Brutal Burger</span>
+
+              <!-- Contenedor del Código QR de De Una! -->
+              <div id="deuna-qr-checkout-wrap" class="flex flex-col items-center justify-center p-3 bg-white rounded-2xl shadow-lg mx-auto max-w-[200px]">
+                <img id="deuna-qr-checkout-img" src="" alt="Código QR De Una!" class="w-40 h-40 object-contain rounded-lg">
+                <span class="text-[10px] font-extrabold text-purple-900 mt-1.5 uppercase tracking-wider">Escanea con De Una!</span>
               </div>
-              <p class="text-[10px] text-slate-400">Envía la captura de tu Yape en el chat de WhatsApp al confirmar tu orden.</p>
+              <div id="deuna-no-qr-notice" class="hidden text-center py-2 text-[11px] text-slate-400 italic">
+                (Sin código QR activo — realiza el pago al número indicado abajo)
+              </div>
+
+              <div id="deuna-info-content" class="p-3 bg-slate-900/90 rounded-xl font-mono text-xs text-purple-200 border border-purple-500/20">
+                Número / Celular De Una!: <span id="deuna-phone-display" class="font-bold text-white">0987654321</span><br>
+                Beneficiario: <span id="deuna-name-display" class="font-bold text-white">La Brutal Burger</span>
+              </div>
+              <p class="text-[10px] text-slate-400 text-center">Escanea el código QR desde tu app <b>De Una!</b> y envía el comprobante en el chat de WhatsApp.</p>
             </div>
           </div>
         </div>
@@ -694,7 +705,7 @@
 
       <button type="button" onclick="switchAdminTab('identity')" id="tab-btn-identity" class="admin-tab-btn px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 bg-slate-900 text-slate-400 hover:text-white border border-slate-800 cursor-pointer">
         <i data-lucide="store" class="w-4 h-4"></i>
-        <span>Identidad del Negocio</span>
+        <span>Identidad & Pagos (De Una!)</span>
       </button>
 
       <button type="button" onclick="switchAdminTab('users')" id="tab-btn-users" class="admin-tab-btn px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 bg-slate-900 text-slate-400 hover:text-white border border-slate-800 cursor-pointer">
@@ -783,7 +794,7 @@
       </div>
     </section>
 
-    <!-- SECCIÓN BACKEND 5: IDENTIDAD DEL NEGOCIO & NÚMEROS DE WHATSAPP -->
+    <!-- SECCIÓN BACKEND 5: IDENTIDAD DEL NEGOCIO, DE UNA! QR & WHATSAPP -->
     <section id="admin-section-identity" class="admin-section-tab hidden space-y-4">
       <form onsubmit="handleSaveBusinessSettings(event)" class="bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-6 shadow-xl">
         <h3 class="text-base font-bold text-white flex items-center gap-2">
@@ -806,7 +817,7 @@
             <label class="block text-xs font-semibold text-slate-300 mb-1">
               WhatsApp para Recibir Pedidos de Clientes (con código de país)
             </label>
-            <input type="text" id="cfg-store-whatsapp" required placeholder="Ej. 593987654321 o 51987654321" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-brand-500">
+            <input type="text" id="cfg-store-whatsapp" required placeholder="Ej. 593987654321" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-brand-500">
           </div>
 
           <div>
@@ -872,20 +883,77 @@
           </div>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-3 border-t border-slate-800">
-          <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1">Datos de Cuenta Bancaria (Transferencias)</label>
-            <textarea id="cfg-bank-info" rows="3" class="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-brand-500 font-mono"></textarea>
+        <!-- Configuración de Formas de Pago: Transferencia y De Una! con QR Editable y Eliminable -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-4 border-t border-slate-800">
+          <!-- Transferencia Bancaria -->
+          <div class="p-4 bg-slate-950 rounded-2xl border border-slate-800 space-y-3">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-brand-400 flex items-center gap-1.5">
+              <i data-lucide="landmark" class="w-4 h-4"></i>
+              <span>Datos de Cuenta Bancaria (Transferencias)</span>
+            </h4>
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Información de Banco, Cuenta y Cédula/RUC</label>
+              <textarea id="cfg-bank-info" rows="5" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white focus:outline-none focus:border-brand-500 font-mono"></textarea>
+            </div>
           </div>
 
-          <div class="space-y-2">
-            <div>
-              <label class="block text-xs font-semibold text-slate-300 mb-1">Número de Celular para Yape</label>
-              <input type="text" id="cfg-yape-phone" class="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-brand-500">
+          <!-- De Una! con Gestión de Código QR (Editar / Subir / Eliminar) -->
+          <div class="p-4 bg-slate-950 rounded-2xl border border-purple-500/30 space-y-3">
+            <div class="flex items-center justify-between">
+              <h4 class="text-xs font-bold uppercase tracking-wider text-purple-400 flex items-center gap-1.5">
+                <i data-lucide="qr-code" class="w-4 h-4"></i>
+                <span>Configuración de Pago "De Una!" y Código QR</span>
+              </h4>
+              <span class="text-[10px] bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded-full border border-purple-500/30 font-bold">Editable</span>
             </div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-300 mb-1">Titular de la cuenta Yape</label>
-              <input type="text" id="cfg-yape-name" class="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-brand-500">
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 mb-1">Número Celular / Cuenta De Una!</label>
+                <input type="text" id="cfg-deuna-phone" placeholder="Ej. 0987654321" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white focus:outline-none focus:border-purple-500">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 mb-1">Titular de la cuenta De Una!</label>
+                <input type="text" id="cfg-deuna-name" placeholder="Ej. La Brutal Burger" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white focus:outline-none focus:border-purple-500">
+              </div>
+            </div>
+
+            <!-- Editor y Previsualizador del Código QR -->
+            <div class="p-3 bg-slate-900 rounded-xl border border-slate-800 space-y-3">
+              <div class="flex flex-col sm:flex-row items-center gap-4">
+                <!-- Vista previa actual del QR -->
+                <div class="w-28 h-28 rounded-xl bg-white p-1.5 flex items-center justify-center shrink-0 border border-slate-700 overflow-hidden relative">
+                  <img id="cfg-deuna-qr-preview" src="" alt="Vista previa QR De Una!" class="w-full h-full object-contain">
+                  <div id="cfg-deuna-qr-empty" class="hidden text-[10px] text-slate-500 text-center font-semibold px-1">
+                    Sin QR activo
+                  </div>
+                </div>
+
+                <!-- Controles para Editar, Subir imagen o Eliminar el QR -->
+                <div class="flex-1 space-y-2 w-full">
+                  <div>
+                    <label class="block text-[11px] font-semibold text-slate-300 mb-1">Subir o Cambiar Imagen del Código QR</label>
+                    <input type="file" id="cfg-deuna-qr-file" accept="image/*" onchange="handleDeUnaQrUpload(event)" class="w-full text-[11px] text-slate-400 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-[11px] file:font-bold file:bg-purple-600 file:text-white hover:file:bg-purple-500 cursor-pointer">
+                  </div>
+
+                  <div>
+                    <label class="block text-[11px] font-semibold text-slate-400 mb-1">O pegar URL de imagen QR / editar enlace:</label>
+                    <input type="text" id="cfg-deuna-qr-url" oninput="handleDeUnaQrUrlInput(this.value)" placeholder="https://api.qrserver.com/..." class="w-full px-2.5 py-1.5 rounded-lg bg-slate-950 border border-slate-800 text-[11px] text-white font-mono focus:outline-none focus:border-purple-500">
+                  </div>
+
+                  <div class="flex items-center gap-2 pt-1">
+                    <button type="button" onclick="generateDefaultDeUnaQr()" class="px-2.5 py-1 rounded-lg bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 border border-purple-500/30 text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1">
+                      <i data-lucide="refresh-cw" class="w-3 h-3"></i>
+                      <span>Generar QR Automático</span>
+                    </button>
+
+                    <button type="button" onclick="removeDeUnaQr()" class="px-2.5 py-1 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 border border-rose-500/30 text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1">
+                      <i data-lucide="trash-2" class="w-3 h-3"></i>
+                      <span>Eliminar QR</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -896,7 +964,7 @@
         </div>
 
         <button type="submit" class="px-5 py-3 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-2xl text-xs transition-all shadow-lg active:scale-95 cursor-pointer">
-          Guardar Cambios de Identidad
+          Guardar Cambios de Identidad y Pagos
         </button>
       </form>
     </section>
@@ -940,7 +1008,7 @@
             </div>
             <div>
               <h3 class="text-base font-bold text-white">Base de Datos en Tiempo Real - Google Cloud Firestore</h3>
-              <p class="text-xs text-slate-400" id="admin-cloud-desc">Sincroniza productos, categorías, extras, cupones y pedidos en la nube gratuita de Google.</p>
+              <p class="text-xs text-slate-400" id="admin-cloud-desc">Sincroniza productos, categorías, extras, cupones, QR De Una! y pedidos en la nube gratuita de Google.</p>
             </div>
           </div>
           <div class="flex items-center gap-2">
@@ -1223,7 +1291,7 @@
     import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     // ============================================================================
-    // 1. VARIABLE GLOBAL DEL TELÉFONO RECEPTOR DE WHATSAPP Y CONFIGURACIÓNFIREBASE
+    // 1. VARIABLE GLOBAL DEL TELÉFONO RECEPTOR DE WHATSAPP Y CONFIGURACIÓN FIREBASE
     // ============================================================================
     let STORE_WHATSAPP_PHONE = "593987654321"; // <-- CAMBIA AQUÍ EL NÚMERO POR DEFECTO
 
@@ -1237,10 +1305,10 @@
       appId: ""
     };
 
-    const STORAGE_KEY = "BURGER_BRUTAL_STATE_V3";
+    const STORAGE_KEY = "BURGER_BRUTAL_STATE_V4";
     const FIREBASE_CFG_STORAGE_KEY = "BURGER_FIREBASE_CONFIG_V1";
 
-    // Datos iniciales para La Brutal Burger & Salchipapas
+    // Datos iniciales para La Brutal Burger & Salchipapas (con De Una! y Código QR editable)
     const INITIAL_STATE = {
       settings: {
         businessName: "LA BRUTAL BURGER",
@@ -1250,10 +1318,11 @@
         shippingCost: 2.50,
         freeShippingThreshold: 20.00,
         logoDataUrl: "",
-        bankInfo: "Banco: Pichincha / BCP\nTipo: Cuenta Ahorros\nNúmero: 2204567890\nRUC/Cédula: 1790012345001\nTitular: La Brutal Burger",
-        yapePhone: "987654321",
-        yapeName: "La Brutal Burger",
-        marqueeText: "🍔 ¡Bienvenidos a La Brutal Burger & Salchipapas! Envío GRATIS en compras desde $20.00 • Usa el cupón BRUTAL10 para 10% DCTO 🍟",
+        bankInfo: "Banco: Banco Pichincha\nTipo: Cuenta Ahorros\nNúmero: 2204567890\nCédula/RUC: 1790012345001\nTitular: La Brutal Burger",
+        deunaPhone: "0987654321",
+        deunaName: "La Brutal Burger",
+        deunaQrImage: "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=DeUna-LaBrutalBurger-0987654321",
+        marqueeText: "🍔 ¡Bienvenidos a La Brutal Burger & Salchipapas! Envío GRATIS en compras desde $20.00 • Paga rápido con De Una! QR • Usa el cupón BRUTAL10 🍟",
         coupons: {
           10: "BRUTAL10",
           20: "BRUTAL20",
@@ -1501,7 +1570,6 @@
               }
             }
           } else {
-            // Si la base de datos en Google está vacía, subimos el catálogo inicial automáticamente
             pushStateToFirestore();
           }
         },
@@ -1633,7 +1701,7 @@
         return;
       }
       await pushStateToFirestore();
-      showToast("¡Catálogo, cupones y pedidos sincronizados en Google Cloud!", "success");
+      showToast("¡Catálogo, QR De Una!, cupones y pedidos sincronizados en Google Cloud!", "success");
     };
 
     // ============================================================================
@@ -1690,13 +1758,29 @@
         if (logoIconWrap) logoIconWrap.classList.remove("hidden");
       }
 
-      // Actualizar datos de Transferencia y Yape en Checkout
+      // Actualizar datos de Transferencia y De Una! con QR en Checkout
       const bankEl = document.getElementById("bank-info-content");
       if (bankEl) bankEl.textContent = s.bankInfo || "";
-      const yapePhoneEl = document.getElementById("yape-phone-display");
-      if (yapePhoneEl) yapePhoneEl.textContent = s.yapePhone || "";
-      const yapeNameEl = document.getElementById("yape-name-display");
-      if (yapeNameEl) yapeNameEl.textContent = s.yapeName || "";
+
+      const deunaPhoneEl = document.getElementById("deuna-phone-display");
+      if (deunaPhoneEl) deunaPhoneEl.textContent = s.deunaPhone || s.yapePhone || "";
+
+      const deunaNameEl = document.getElementById("deuna-name-display");
+      if (deunaNameEl) deunaNameEl.textContent = s.deunaName || s.yapeName || "";
+
+      const qrCheckoutWrap = document.getElementById("deuna-qr-checkout-wrap");
+      const qrCheckoutImg = document.getElementById("deuna-qr-checkout-img");
+      const noQrNotice = document.getElementById("deuna-no-qr-notice");
+
+      if (s.deunaQrImage && s.deunaQrImage.trim() !== "") {
+        if (qrCheckoutImg) qrCheckoutImg.src = s.deunaQrImage;
+        if (qrCheckoutWrap) qrCheckoutWrap.classList.remove("hidden");
+        if (noQrNotice) noQrNotice.classList.add("hidden");
+      } else {
+        if (qrCheckoutImg) qrCheckoutImg.src = "";
+        if (qrCheckoutWrap) qrCheckoutWrap.classList.add("hidden");
+        if (noQrNotice) noQrNotice.classList.remove("hidden");
+      }
     }
 
     function renderCategoryFilters() {
@@ -2092,7 +2176,7 @@
     }
 
     // ============================================================================
-    // 5. CHECKOUT, CUPONES DE DESCUENTO, GPS Y ENVÍO POR WHATSAPP
+    // 5. CHECKOUT, CUPONES DE DESCUENTO, DE UNA! QR, GPS Y ENVÍO POR WHATSAPP
     // ============================================================================
     window.openCheckoutModal = function () {
       if (cart.length === 0) {
@@ -2100,6 +2184,7 @@
         return;
       }
       toggleCart(false);
+      applyBusinessIdentity();
       updateCheckoutTotalsUI();
       const modal = document.getElementById("checkout-modal");
       modal.classList.remove("hidden");
@@ -2115,7 +2200,7 @@
     window.handlePaymentSelection = function (method) {
       document.getElementById("payment-cash-box").classList.toggle("hidden", method !== "Efectivo");
       document.getElementById("payment-transfer-box").classList.toggle("hidden", method !== "Transferencia");
-      document.getElementById("payment-yape-box").classList.toggle("hidden", method !== "Yape");
+      document.getElementById("payment-deuna-box").classList.toggle("hidden", method !== "De Una!");
     };
 
     window.applyDiscountCoupon = function () {
@@ -2214,7 +2299,7 @@
       document.getElementById("gps-result-box").classList.add("hidden");
     };
 
-    // Copiar Datos Bancarios o Yape
+    // Copiar Datos Bancarios o De Una!
     function copyTextToClipboard(text, successMsg) {
       const textarea = document.createElement("textarea");
       textarea.value = text;
@@ -2229,8 +2314,8 @@
       copyTextToClipboard(appState.settings.bankInfo, "Datos bancarios copiados al portapapeles");
     };
 
-    window.copyYapeDetails = function () {
-      copyTextToClipboard(appState.settings.yapePhone, "Número de Yape copiado al portapapeles");
+    window.copyDeUnaDetails = function () {
+      copyTextToClipboard(appState.settings.deunaPhone || "", "Número de De Una! copiado al portapapeles");
     };
 
     // Envío del Pedido por WhatsApp y Registro en Backend/Cloud
@@ -2260,6 +2345,8 @@
         } else {
           paymentDetail = "Efectivo (Pago exacto)";
         }
+      } else if (paymentMethod === "De Una!") {
+        paymentDetail = `De Una! (QR / Cuenta: ${appState.settings.deunaPhone || "Ver comprobante"})`;
       }
 
       // Guardar pedido en el Backend y en Google Cloud Firestore
@@ -2579,7 +2666,7 @@
     };
 
     // ============================================================================
-    // 8. CRUD DE PRODUCTOS, CATEGORÍAS INFINITAS, EXTRAS, IDENTIDAD Y USUARIOS
+    // 8. CRUD DE PRODUCTOS, CATEGORÍAS INFINITAS, EXTRAS, DE UNA! QR Y USUARIOS
     // ============================================================================
     function renderAdminProducts() {
       const tbody = document.getElementById("admin-products-table-body");
@@ -2818,7 +2905,71 @@
       showToast("Extra eliminado");
     };
 
-    // Identidad del Negocio y Cupones
+    // ============================================================================
+    // GESTIÓN DE IDENTIDAD DEL NEGOCIO, DE UNA! QR (EDITAR/SUBIR/ELIMINAR) Y CUPONES
+    // ============================================================================
+    function renderDeUnaQrAdminPreview() {
+      const s = appState.settings;
+      const previewImg = document.getElementById("cfg-deuna-qr-preview");
+      const emptyBox = document.getElementById("cfg-deuna-qr-empty");
+      const urlInput = document.getElementById("cfg-deuna-qr-url");
+
+      if (s.deunaQrImage && s.deunaQrImage.trim() !== "") {
+        previewImg.src = s.deunaQrImage;
+        previewImg.classList.remove("hidden");
+        emptyBox.classList.add("hidden");
+        if (urlInput && !s.deunaQrImage.startsWith("data:")) {
+          urlInput.value = s.deunaQrImage;
+        }
+      } else {
+        previewImg.src = "";
+        previewImg.classList.add("hidden");
+        emptyBox.classList.remove("hidden");
+        if (urlInput) urlInput.value = "";
+      }
+    }
+
+    window.handleDeUnaQrUpload = function (e) {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function (evt) {
+        appState.settings.deunaQrImage = evt.target.result;
+        saveState(true);
+        renderDeUnaQrAdminPreview();
+        applyBusinessIdentity();
+        showToast("Código QR de De Una! cargado y actualizado");
+      };
+      reader.readAsDataURL(file);
+    };
+
+    window.handleDeUnaQrUrlInput = function (urlVal) {
+      appState.settings.deunaQrImage = (urlVal || "").trim();
+      renderDeUnaQrAdminPreview();
+      applyBusinessIdentity();
+    };
+
+    window.generateDefaultDeUnaQr = function () {
+      const phone = document.getElementById("cfg-deuna-phone").value.trim() || appState.settings.deunaPhone || "0987654321";
+      const name = document.getElementById("cfg-deuna-name").value.trim() || appState.settings.deunaName || "LaBrutalBurger";
+      const qrData = encodeURIComponent(`DeUna-Pago-${name}-${phone}`);
+      appState.settings.deunaQrImage = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${qrData}`;
+      saveState(true);
+      renderDeUnaQrAdminPreview();
+      applyBusinessIdentity();
+      showToast("Código QR generado automáticamente");
+    };
+
+    window.removeDeUnaQr = function () {
+      appState.settings.deunaQrImage = "";
+      const fileInput = document.getElementById("cfg-deuna-qr-file");
+      if (fileInput) fileInput.value = "";
+      saveState(true);
+      renderDeUnaQrAdminPreview();
+      applyBusinessIdentity();
+      showToast("Código QR de De Una! eliminado");
+    };
+
     function renderAdminIdentityForm() {
       const s = appState.settings;
       document.getElementById("cfg-business-name").value = s.businessName || "";
@@ -2828,9 +2979,11 @@
       document.getElementById("cfg-shipping-cost").value = s.shippingCost ?? 2.5;
       document.getElementById("cfg-free-shipping-threshold").value = s.freeShippingThreshold ?? 20.0;
       document.getElementById("cfg-bank-info").value = s.bankInfo || "";
-      document.getElementById("cfg-yape-phone").value = s.yapePhone || "";
-      document.getElementById("cfg-yape-name").value = s.yapeName || "";
+      document.getElementById("cfg-deuna-phone").value = s.deunaPhone || s.yapePhone || "";
+      document.getElementById("cfg-deuna-name").value = s.deunaName || s.yapeName || "";
       document.getElementById("cfg-marquee-text").value = s.marqueeText || "";
+
+      renderDeUnaQrAdminPreview();
 
       const coupons = s.coupons || {};
       [10, 20, 30, 40, 50].forEach((pct) => {
@@ -2862,8 +3015,8 @@
       s.shippingCost = parseFloat(document.getElementById("cfg-shipping-cost").value) || 0;
       s.freeShippingThreshold = parseFloat(document.getElementById("cfg-free-shipping-threshold").value) || 0;
       s.bankInfo = document.getElementById("cfg-bank-info").value.trim();
-      s.yapePhone = document.getElementById("cfg-yape-phone").value.trim();
-      s.yapeName = document.getElementById("cfg-yape-name").value.trim();
+      s.deunaPhone = document.getElementById("cfg-deuna-phone").value.trim();
+      s.deunaName = document.getElementById("cfg-deuna-name").value.trim();
       s.marqueeText = document.getElementById("cfg-marquee-text").value.trim();
 
       s.coupons = {
@@ -2876,7 +3029,7 @@
 
       saveState(true);
       refreshAllUI();
-      showToast("Identidad, envío gratis y cupones actualizados");
+      showToast("Identidad, De Una! QR, envío gratis y cupones actualizados");
     };
 
     // Gestión de Usuarios
