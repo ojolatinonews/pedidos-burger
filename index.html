@@ -1,1 +1,2970 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title id="page-title">Pedidos Online - Sistema de Gestión</title>
 
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#fff7ed',
+              100: '#ffedd5',
+              500: '#f97316',
+              600: '#ea580c',
+              700: '#c2410c',
+              800: '#9a3412',
+              900: '#7c2d12',
+            },
+            yape: {
+              500: '#742284',
+              600: '#5c176b',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #090d16; }
+    ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #334155; }
+    .animate-marquee {
+      display: inline-block;
+      white-space: nowrap;
+      animation: marquee 25s linear infinite;
+    }
+    .animate-marquee:hover {
+      animation-play-state: paused;
+    }
+    @keyframes marquee {
+      0% { transform: translate3d(0, 0, 0); }
+      100% { transform: translate3d(-50%, 0, 0); }
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans antialiased min-h-screen flex flex-col selection:bg-brand-600 selection:text-white">
+
+  <!-- ======================================================== -->
+  <!-- MARQUESINA DINÁMICA DE PROMOCIONES                       -->
+  <!-- ======================================================== -->
+  <div id="marquee-bar" class="bg-gradient-to-r from-brand-600 via-amber-600 to-brand-700 text-white text-xs font-bold py-1.5 overflow-hidden border-b border-brand-500/30 flex">
+    <div class="animate-marquee cursor-pointer" onclick="handleAdminButtonClick()">
+      <span id="marquee-text-display" class="px-6 inline-flex items-center gap-2">
+        🍔 ¡Bienvenidos a La Brutal Burger & Salchipapas! Papipollos crujientes, Burgers al carbón y Nuggets • Paga con Efectivo, Transferencia o Yape 🍟
+      </span>
+      <span id="marquee-text-display-repeat" class="px-6 inline-flex items-center gap-2">
+        🍔 ¡Bienvenidos a La Brutal Burger & Salchipapas! Papipollos crujientes, Burgers al carbón y Nuggets • Paga con Efectivo, Transferencia o Yape 🍟
+      </span>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- NOTIFICACIÓN TOAST FLOTANTE                              -->
+  <!-- ======================================================== -->
+  <div id="toast" class="fixed top-5 right-5 z-[150] pointer-events-none transition-all duration-300 opacity-0 transform -translate-y-4 max-w-sm w-full bg-slate-900 border border-slate-700 text-white p-4 rounded-2xl shadow-2xl flex items-center gap-3">
+    <div id="toast-icon-wrap" class="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+      <i data-lucide="check-circle" class="w-5 h-5"></i>
+    </div>
+    <div class="flex-1 text-sm font-medium" id="toast-message">Operación exitosa</div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- HEADER & NAVEGACIÓN PRINCIPAL                            -->
+  <!-- ======================================================== -->
+  <header class="sticky top-0 z-40 bg-slate-950/90 backdrop-blur-md border-b border-slate-800 transition-all">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
+      
+      <!-- Identidad Dinámica del Negocio -->
+      <div class="flex items-center gap-3 cursor-pointer" onclick="resetFilters()">
+        <div id="header-logo-container" class="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand-500 to-amber-600 flex items-center justify-center text-white shadow-lg shadow-brand-950 overflow-hidden shrink-0 border border-brand-500/30">
+          <span id="header-logo-icon-wrap" class="flex items-center justify-center">
+            <i data-lucide="flame" class="w-6 h-6"></i>
+          </span>
+          <img id="header-logo-img" src="" alt="Logo" class="w-full h-full object-cover hidden">
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 id="brand-name-display" class="font-extrabold text-lg sm:text-xl text-white tracking-tight">LA BRUTAL BURGER</h1>
+            <span class="text-[10px] bg-brand-500/20 text-brand-400 px-2 py-0.5 rounded-full border border-brand-500/30 uppercase font-black tracking-wider">Fast Food</span>
+          </div>
+          <p id="brand-address-display" class="text-xs text-slate-400 truncate max-w-[200px] sm:max-w-xs">Av. Las Américas y Calle 10</p>
+        </div>
+      </div>
+
+      <!-- Acciones de Cabecera: Admin Login & Carrito -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        <!-- Indicador de Estado de Base de Datos Google Cloud -->
+        <button 
+          type="button"
+          onclick="openFirebaseConfigModal()" 
+          id="cloud-status-badge"
+          class="flex items-center gap-1.5 px-2.5 py-2 rounded-2xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-[11px] font-bold text-slate-400 transition-all cursor-pointer"
+          title="Estado de conexión con Google Cloud Firestore"
+        >
+          <span id="cloud-status-dot" class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+          <span id="cloud-status-text" class="hidden md:inline">Modo Local</span>
+        </button>
+
+        <!-- Botón Acceso Administrativo / Sesión -->
+        <button 
+          id="btn-admin-access" 
+          onclick="handleAdminButtonClick()" 
+          class="flex items-center gap-1.5 px-3 sm:px-3.5 py-2 rounded-2xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 text-xs font-semibold transition-all cursor-pointer"
+        >
+          <i data-lucide="shield" class="w-4 h-4 text-brand-500"></i>
+          <span id="admin-btn-label" class="hidden sm:inline">Admin</span>
+        </button>
+
+        <!-- Botón Carrito en Cabecera -->
+        <button 
+          onclick="toggleCart(true)" 
+          class="relative flex items-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-2xl bg-brand-600 hover:bg-brand-500 text-white shadow-lg shadow-brand-950/50 active:scale-95 transition-all text-xs sm:text-sm font-bold cursor-pointer"
+        >
+          <i data-lucide="shopping-bag" class="w-4 h-4"></i>
+          <span class="hidden sm:inline">Carrito</span>
+          <span id="cart-counter-badge" class="px-2 py-0.5 text-xs font-black bg-white text-slate-950 rounded-full">0</span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ======================================================== -->
+  <!-- VISTA CLIENTE: CATÁLOGO, HERO Y FILTROS                  -->
+  <!-- ======================================================== -->
+  <main id="client-view" class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full space-y-8">
+    
+    <!-- Hero Banner Promocional -->
+    <section class="relative rounded-3xl bg-gradient-to-r from-slate-900 via-slate-900 to-brand-950/60 p-6 sm:p-10 border border-slate-800 overflow-hidden shadow-2xl">
+      <div class="absolute -right-12 -bottom-12 w-80 h-80 bg-brand-600/10 rounded-full blur-3xl pointer-events-none"></div>
+      
+      <div class="relative z-10 max-w-2xl space-y-3">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-brand-500/10 text-brand-400 border border-brand-500/20">
+          <i data-lucide="flame" class="w-3.5 h-3.5"></i>
+          <span>Sabor brutal a la parrilla • Papas 100% crujientes</span>
+        </div>
+        <h2 id="hero-title" class="text-3xl sm:text-4xl font-black text-white tracking-tight leading-tight">
+          Hamburguesas, Salchipapas y <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-500 to-amber-400">Papipollos recién salidos</span>
+        </h2>
+        <p class="text-slate-400 text-xs sm:text-sm leading-relaxed">
+          Personaliza tu pedido con doble queso cheddar, tocino ahumado, huevo frito o nuestras salsas de la casa. ¡Pide ahora y recíbelo caliente en minutos!
+        </p>
+      </div>
+    </section>
+
+    <!-- Barra de Búsqueda y Filtros de Categoría -->
+    <section class="space-y-4">
+      <div class="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center justify-between">
+        <!-- Buscador Reactivo -->
+        <div class="relative flex-1 max-w-md">
+          <i data-lucide="search" class="w-4 h-4 text-slate-500 absolute left-4 top-1/2 -translate-y-1/2"></i>
+          <input 
+            type="text" 
+            id="search-input" 
+            placeholder="Buscar por plato, ingrediente o categoría..." 
+            oninput="handleSearch(this.value)"
+            class="w-full pl-11 pr-4 py-3 bg-slate-900 border border-slate-800 rounded-2xl text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition-all"
+          >
+        </div>
+
+        <span id="products-count-badge" class="text-xs text-slate-400 font-semibold self-end sm:self-center">
+          Cargando catálogo...
+        </span>
+      </div>
+
+      <!-- Filtros por Categoría Dinámicas -->
+      <div id="category-filters-container" class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+        <!-- Inyectado por JS -->
+      </div>
+    </section>
+
+    <!-- Catálogo de Productos -->
+    <section>
+      <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <!-- Inyectado por JS -->
+      </div>
+
+      <!-- Estado Vacío -->
+      <div id="empty-state" class="hidden flex-col items-center justify-center py-20 text-center">
+        <div class="w-16 h-16 rounded-3xl bg-slate-900 text-slate-500 flex items-center justify-center mb-4 border border-slate-800">
+          <i data-lucide="package-search" class="w-8 h-8"></i>
+        </div>
+        <h3 class="text-base font-bold text-white">No encontramos ningún producto</h3>
+        <p class="text-xs text-slate-400 mt-1 max-w-sm">Prueba con otra palabra o selecciona otra categoría.</p>
+        <button onclick="resetFilters()" class="mt-4 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-brand-500 text-xs font-bold rounded-xl border border-slate-800 transition-all cursor-pointer">
+          Ver todo el menú
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ======================================================== -->
+  <!-- BARRA FIJA MÓVIL DEL CARRITO                             -->
+  <!-- ======================================================== -->
+  <div id="mobile-cart-bar" class="sm:hidden fixed bottom-0 inset-x-0 bg-slate-950/95 backdrop-blur-lg border-t border-slate-800 p-3 z-30 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-brand-600 flex items-center justify-center text-white relative">
+        <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+        <span id="mobile-counter-badge" class="absolute -top-1.5 -right-1.5 bg-amber-400 text-slate-950 text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center">0</span>
+      </div>
+      <div>
+        <span class="text-[10px] text-slate-400 uppercase tracking-wider block font-semibold">Total</span>
+        <span id="mobile-total-display" class="font-black text-brand-500 text-base leading-none">$0.00</span>
+      </div>
+    </div>
+    <button 
+      onclick="toggleCart(true)"
+      class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-brand-600 to-amber-600 text-white font-bold text-xs shadow-lg active:scale-95 flex items-center gap-1.5 cursor-pointer"
+    >
+      <span>Ver Carrito</span>
+      <i data-lucide="arrow-right" class="w-4 h-4"></i>
+    </button>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL PARA AGREGAR PRODUCTO CON EXTRAS                   -->
+  <!-- ======================================================== -->
+  <div id="product-detail-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl my-6 flex flex-col">
+      <div class="relative h-48 sm:h-56 w-full bg-slate-950">
+        <img id="modal-product-img" src="" alt="Producto" class="w-full h-full object-cover">
+        <button type="button" onclick="closeProductDetailModal()" class="absolute top-3 right-3 w-8 h-8 rounded-full bg-slate-950/80 text-white flex items-center justify-center hover:bg-slate-900 transition-colors cursor-pointer">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+        <span id="modal-product-cat" class="absolute bottom-3 left-3 bg-slate-950/80 backdrop-blur-md text-brand-400 text-[11px] font-bold px-3 py-1 rounded-xl border border-brand-500/20">
+          Categoría
+        </span>
+      </div>
+
+      <div class="p-6 space-y-4 flex-1">
+        <div>
+          <div class="flex items-center justify-between">
+            <h3 id="modal-product-title" class="text-lg font-bold text-white">Nombre del Plato</h3>
+            <span id="modal-product-base-price" class="text-lg font-black text-brand-500">$0.00</span>
+          </div>
+          <p id="modal-product-desc" class="text-xs text-slate-400 mt-1 leading-relaxed">Descripción detallada</p>
+        </div>
+
+        <!-- Sección de Extras Disponibles -->
+        <div id="modal-extras-section" class="pt-3 border-t border-slate-800 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+              <i data-lucide="plus-circle" class="w-3.5 h-3.5 text-brand-500"></i>
+              <span>¿Deseas agregar extras?</span>
+            </h4>
+            <span class="text-[10px] text-slate-500">Opcional</span>
+          </div>
+          <div id="modal-extras-list" class="space-y-2 max-h-48 overflow-y-auto pr-1">
+            <!-- Inyectado dinámicamente -->
+          </div>
+        </div>
+
+        <!-- Instrucciones especiales -->
+        <div class="pt-2 border-t border-slate-800">
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Notas especiales para este plato</label>
+          <input type="text" id="modal-item-notes" placeholder="Ej: Sin cebolla, extra picante..." class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-brand-500">
+        </div>
+
+        <!-- Cantidad y Botón de Añadir -->
+        <div class="pt-3 border-t border-slate-800 flex items-center justify-between gap-4">
+          <div class="flex items-center gap-2 bg-slate-950 border border-slate-800 p-1 rounded-2xl">
+            <button type="button" onclick="changeModalQty(-1)" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold flex items-center justify-center transition-colors cursor-pointer">-</button>
+            <span id="modal-qty-display" class="w-6 text-center text-sm font-bold text-white">1</span>
+            <button type="button" onclick="changeModalQty(1)" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold flex items-center justify-center transition-colors cursor-pointer">+</button>
+          </div>
+
+          <button type="button" onclick="confirmAddToCart()" class="flex-1 py-3 px-4 bg-gradient-to-r from-brand-600 to-amber-600 hover:from-brand-500 hover:to-amber-500 text-white font-bold rounded-2xl text-xs sm:text-sm shadow-xl flex items-center justify-center gap-2 active:scale-95 transition-all cursor-pointer">
+            <span>Agregar</span>
+            <span id="modal-final-price-btn" class="font-black">$0.00</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- DRAWER DEL CARRITO LATERAL                               -->
+  <!-- ======================================================== -->
+  <div id="cart-backdrop" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 opacity-0 pointer-events-none transition-opacity duration-300" onclick="toggleCart(false)"></div>
+  
+  <aside id="cart-drawer" class="fixed top-0 right-0 bottom-0 w-full sm:w-[440px] bg-slate-900 z-50 border-l border-slate-800 shadow-2xl transform translate-x-full transition-transform duration-300 flex flex-col">
+    
+    <div class="p-5 border-b border-slate-800 flex items-center justify-between bg-slate-950">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-brand-500/20 text-brand-500 flex items-center justify-center border border-brand-500/30">
+          <i data-lucide="shopping-bag" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h3 class="font-bold text-white text-base">Carrito de Compras</h3>
+          <p id="drawer-counter-label" class="text-xs text-slate-400">0 ítems agregados</p>
+        </div>
+      </div>
+      <button type="button" onclick="toggleCart(false)" class="w-8 h-8 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer">
+        <i data-lucide="x" class="w-4 h-4"></i>
+      </button>
+    </div>
+
+    <!-- Lista de Items en Carrito -->
+    <div id="cart-items-list" class="flex-1 overflow-y-auto p-4 space-y-3">
+      <!-- Inyectado por JS -->
+    </div>
+
+    <!-- Vista Vacía -->
+    <div id="cart-empty-view" class="hidden flex-1 flex-col items-center justify-center p-6 text-center">
+      <div class="w-16 h-16 rounded-2xl bg-slate-800/60 text-slate-500 flex items-center justify-center mb-3">
+        <i data-lucide="shopping-bag" class="w-8 h-8"></i>
+      </div>
+      <h4 class="font-bold text-white text-base">Tu carrito está vacío</h4>
+      <p class="text-xs text-slate-400 mt-1 max-w-xs">Añade los platos y extras que desees para tu orden.</p>
+    </div>
+
+    <!-- Resumen y Checkout -->
+    <div id="cart-summary-footer" class="p-5 bg-slate-950 border-t border-slate-800 space-y-3">
+      <!-- Barra de Progreso de Envío Gratis -->
+      <div id="free-shipping-banner" class="hidden p-3 rounded-2xl bg-slate-900 border border-slate-800 space-y-1.5">
+        <div class="flex items-center justify-between text-[11px]">
+          <span id="free-shipping-msg" class="font-semibold text-slate-300">Te faltan $0.00 para envío gratis</span>
+          <span id="free-shipping-pct" class="font-black text-brand-400">0%</span>
+        </div>
+        <div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+          <div id="free-shipping-bar" class="h-full bg-gradient-to-r from-brand-500 to-emerald-400 transition-all duration-300" style="width: 0%"></div>
+        </div>
+      </div>
+
+      <div class="space-y-1.5 text-xs text-slate-400">
+        <div class="flex justify-between">
+          <span>Subtotal</span>
+          <span class="font-bold text-white" id="summary-subtotal">$0.00</span>
+        </div>
+        <div id="summary-discount-row" class="hidden justify-between text-emerald-400">
+          <span id="summary-discount-label">Descuento</span>
+          <span class="font-bold" id="summary-discount-amount">-$0.00</span>
+        </div>
+        <div class="flex justify-between">
+          <span>Envío a Domicilio</span>
+          <span class="font-bold text-white" id="summary-shipping">$0.00</span>
+        </div>
+        <div class="flex justify-between text-base font-black text-white pt-2 border-t border-slate-800">
+          <span>Total a Pagar</span>
+          <span class="text-brand-500 text-xl" id="summary-grand-total">$0.00</span>
+        </div>
+      </div>
+
+      <button 
+        id="btn-checkout-step"
+        type="button"
+        onclick="openCheckoutModal()" 
+        class="w-full py-3.5 px-4 bg-gradient-to-r from-brand-600 to-amber-600 hover:from-brand-500 hover:to-amber-500 text-white font-bold rounded-2xl text-xs sm:text-sm shadow-xl flex items-center justify-center gap-2 active:scale-95 transition-all cursor-pointer"
+      >
+        <span>Proceder al Despacho</span>
+        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+      </button>
+    </div>
+
+  </aside>
+
+  <!-- ======================================================== -->
+  <!-- MODAL CHECKOUT CON GPS Y FORMAS DE PAGO                  -->
+  <!-- ======================================================== -->
+  <div id="checkout-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl my-6">
+      
+      <div class="px-6 py-4 bg-slate-950 border-b border-slate-800 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-brand-500 text-white flex items-center justify-center font-bold text-xs">
+            <i data-lucide="truck" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-white text-base">Datos de Entrega y Pago</h3>
+            <p class="text-[11px] text-slate-400">Verifica tu pedido antes de enviarlo por WhatsApp</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeCheckoutModal()" class="w-8 h-8 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-400 flex items-center justify-center transition-colors cursor-pointer">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <form id="order-form" onsubmit="handleOrderSubmit(event)" class="p-6 space-y-4">
+        
+        <!-- Datos del Cliente -->
+        <div class="space-y-3">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+            <i data-lucide="user" class="w-3.5 h-3.5 text-brand-500"></i>
+            <span>Datos del Cliente</span>
+          </h4>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1" for="client-name">
+              Nombre Completo <span class="text-brand-500">*</span>
+            </label>
+            <input type="text" id="client-name" required placeholder="Ej. Carlos Mendoza" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-brand-500">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1" for="client-phone">
+              Teléfono WhatsApp <span class="text-brand-500">*</span>
+            </label>
+            <input type="tel" id="client-phone" required placeholder="Ej. 0987654321" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-brand-500">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1" for="client-address">
+              Dirección de Entrega Exacta <span class="text-brand-500">*</span>
+            </label>
+            <input type="text" id="client-address" required placeholder="Ej. Calle Los Álamos 450, Dpto 302" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-brand-500">
+          </div>
+
+          <!-- Captura de Ubicación Satelital GPS -->
+          <div class="p-3 bg-slate-950 rounded-2xl border border-slate-800 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                <i data-lucide="navigation" class="w-3.5 h-3.5 text-brand-500"></i>
+                <span>Ubicación Satelital (GPS)</span>
+              </span>
+              <button type="button" onclick="captureClientLocation()" id="btn-gps-action" class="px-2.5 py-1 bg-brand-600/20 hover:bg-brand-600/30 text-brand-400 border border-brand-500/30 rounded-lg text-[11px] font-bold flex items-center gap-1 transition-all cursor-pointer">
+                <i data-lucide="crosshair" class="w-3 h-3"></i>
+                <span id="gps-status-text">Adjuntar mi Ubicación GPS</span>
+              </button>
+            </div>
+            <div id="gps-result-box" class="hidden text-[11px] p-2 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-xl flex items-center justify-between">
+              <span class="truncate">📍 Ubicación fijada con éxito</span>
+              <button type="button" onclick="clearClientLocation()" class="text-slate-400 hover:text-white underline text-[10px]">Quitar</button>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1" for="client-notes">Notas / Referencias para la entrega</label>
+            <input type="text" id="client-notes" placeholder="Ej. Portón blanco, tocar timbre dos veces" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-brand-500">
+          </div>
+        </div>
+
+        <!-- Forma de Pago (Efectivo, Transferencia, Yape) -->
+        <div class="pt-3 border-t border-slate-800 space-y-3">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+            <i data-lucide="wallet" class="w-3.5 h-3.5 text-brand-500"></i>
+            <span>Forma de Pago</span>
+          </h4>
+
+          <div class="grid grid-cols-3 gap-2">
+            <!-- Efectivo -->
+            <label class="flex flex-col items-center justify-center p-3 rounded-2xl border border-slate-800 bg-slate-950 cursor-pointer hover:border-brand-500 text-center has-[:checked]:border-brand-500 has-[:checked]:bg-brand-500/10 transition-all">
+              <input type="radio" name="payment-method" value="Efectivo" checked onchange="handlePaymentSelection(this.value)" class="sr-only">
+              <span class="text-xl mb-0.5">💵</span>
+              <span class="text-xs font-bold text-white">Efectivo</span>
+            </label>
+
+            <!-- Transferencia -->
+            <label class="flex flex-col items-center justify-center p-3 rounded-2xl border border-slate-800 bg-slate-950 cursor-pointer hover:border-brand-500 text-center has-[:checked]:border-brand-500 has-[:checked]:bg-brand-500/10 transition-all">
+              <input type="radio" name="payment-method" value="Transferencia" onchange="handlePaymentSelection(this.value)" class="sr-only">
+              <span class="text-xl mb-0.5">🏦</span>
+              <span class="text-xs font-bold text-white">Transferencia</span>
+            </label>
+
+            <!-- Yape -->
+            <label class="flex flex-col items-center justify-center p-3 rounded-2xl border border-slate-800 bg-slate-950 cursor-pointer hover:border-yape-500 text-center has-[:checked]:border-purple-500 has-[:checked]:bg-purple-500/10 transition-all">
+              <input type="radio" name="payment-method" value="Yape" onchange="handlePaymentSelection(this.value)" class="sr-only">
+              <span class="text-xl mb-0.5">📲</span>
+              <span class="text-xs font-bold text-white">Yape</span>
+            </label>
+          </div>
+
+          <!-- Paneles Condicionales de Pago -->
+          <div>
+            <!-- Efectivo -->
+            <div id="payment-cash-box" class="p-3.5 bg-slate-950 rounded-2xl border border-slate-800 space-y-1.5">
+              <label class="block text-xs font-semibold text-slate-300" for="cash-amount">
+                ¿Con cuánto vas a pagar para llevarte el cambio? (Opcional):
+              </label>
+              <input type="number" step="0.01" id="cash-amount" placeholder="Ej. 20.00 (deja en blanco si es monto exacto)" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-brand-500">
+            </div>
+
+            <!-- Transferencia -->
+            <div id="payment-transfer-box" class="hidden p-3.5 bg-slate-950 rounded-2xl border border-slate-800 text-xs space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-brand-500">Datos para Transferencia:</span>
+                <button type="button" onclick="copyBankDetails()" class="text-[11px] text-slate-300 bg-slate-800 hover:bg-slate-700 px-2.5 py-1 rounded-lg flex items-center gap-1 transition-colors cursor-pointer">
+                  <i data-lucide="copy" class="w-3 h-3"></i>
+                  <span>Copiar</span>
+                </button>
+              </div>
+              <div id="bank-info-content" class="p-3 bg-slate-900 rounded-xl font-mono text-[11px] text-slate-300 leading-relaxed border border-slate-800/80 whitespace-pre-line">
+                Banco: BCP
+                Cuenta: 191-98765432-0-88
+                Titular: La Brutal Burger
+              </div>
+            </div>
+
+            <!-- Yape -->
+            <div id="payment-yape-box" class="hidden p-3.5 bg-slate-950 rounded-2xl border border-purple-500/30 text-xs space-y-2 bg-gradient-to-br from-purple-950/20 to-slate-950">
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-purple-400 flex items-center gap-1">
+                  <span>💜</span> Datos de Yape:
+                </span>
+                <button type="button" onclick="copyYapeDetails()" class="text-[11px] text-purple-200 bg-purple-900/40 hover:bg-purple-900/70 border border-purple-500/30 px-2.5 py-1 rounded-lg flex items-center gap-1 transition-colors cursor-pointer">
+                  <i data-lucide="copy" class="w-3 h-3"></i>
+                  <span>Copiar Número</span>
+                </button>
+              </div>
+              <div id="yape-info-content" class="p-3 bg-slate-900 rounded-xl font-mono text-xs text-purple-200 border border-purple-500/20">
+                Número Yape: <span id="yape-phone-display" class="font-bold text-white">987654321</span><br>
+                Titular: <span id="yape-name-display" class="font-bold text-white">La Brutal Burger</span>
+              </div>
+              <p class="text-[10px] text-slate-400">Envía la captura de tu Yape en el chat de WhatsApp al confirmar tu orden.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cupón de Descuento (10%, 20%, 30%, 40%, 50%) -->
+        <div class="pt-3 border-t border-slate-800 space-y-2">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+            <i data-lucide="ticket" class="w-3.5 h-3.5 text-brand-500"></i>
+            <span>Código de Descuento</span>
+          </h4>
+          <div class="flex items-center gap-2">
+            <input 
+              type="text" 
+              id="coupon-code-input" 
+              placeholder="Ingresa tu cupón promocional..." 
+              class="flex-1 px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white uppercase placeholder-slate-500 focus:outline-none focus:border-brand-500"
+            >
+            <button 
+              type="button" 
+              onclick="applyDiscountCoupon()" 
+              class="px-4 py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-xl text-xs transition-all cursor-pointer shrink-0"
+            >
+              Aplicar
+            </button>
+          </div>
+          <div id="coupon-applied-badge" class="hidden items-center justify-between p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs">
+            <span id="coupon-applied-text" class="font-bold">🎉 Cupón aplicado</span>
+            <button type="button" onclick="removeDiscountCoupon()" class="text-[11px] text-slate-400 hover:text-white underline cursor-pointer">Quitar</button>
+          </div>
+        </div>
+
+        <!-- Desglose y Total de la Orden en Checkout -->
+        <div class="p-3.5 bg-slate-950 rounded-2xl border border-slate-800 space-y-1.5">
+          <div class="flex items-center justify-between text-xs text-slate-400">
+            <span>Subtotal de productos:</span>
+            <span id="checkout-subtotal-display" class="font-semibold text-white">$0.00</span>
+          </div>
+          <div id="checkout-discount-row" class="hidden items-center justify-between text-xs text-emerald-400">
+            <span id="checkout-discount-label">Descuento aplicado:</span>
+            <span id="checkout-discount-display" class="font-bold">-$0.00</span>
+          </div>
+          <div class="flex items-center justify-between text-xs text-slate-400">
+            <span>Costo de envío:</span>
+            <span id="checkout-shipping-display" class="font-semibold text-white">$0.00</span>
+          </div>
+          <div class="flex items-center justify-between pt-2 border-t border-slate-800">
+            <span class="text-xs font-bold text-slate-200">Total a liquidar:</span>
+            <span id="checkout-total-display" class="text-xl font-black text-brand-500">$0.00</span>
+          </div>
+        </div>
+
+        <button 
+          type="submit" 
+          class="w-full py-3.5 px-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-2xl text-xs sm:text-sm shadow-xl flex items-center justify-center gap-2 active:scale-95 transition-all cursor-pointer"
+        >
+          <i data-lucide="message-circle" class="w-5 h-5"></i>
+          <span>Confirmar y Enviar Pedido por WhatsApp</span>
+        </button>
+
+      </form>
+
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL DE LOGIN ADMINISTRATIVO                           -->
+  <!-- ======================================================== -->
+  <div id="login-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-sm w-full overflow-hidden shadow-2xl p-6 space-y-4">
+      <div class="text-center space-y-1">
+        <div class="w-12 h-12 rounded-2xl bg-brand-500/20 text-brand-500 flex items-center justify-center mx-auto border border-brand-500/30">
+          <i data-lucide="lock" class="w-6 h-6"></i>
+        </div>
+        <h3 class="text-lg font-bold text-white">Acceso al Sistema</h3>
+        <p class="text-xs text-slate-400">Ingresa tus credenciales para administrar el negocio</p>
+      </div>
+
+      <form id="login-form" onsubmit="handleLoginSubmit(event)" class="space-y-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Usuario</label>
+          <input type="text" id="login-username" required placeholder="master / cajero / menu_admin" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-brand-500">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Contraseña</label>
+          <input type="password" id="login-password" required placeholder="••••••••" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-brand-500">
+        </div>
+
+        <button type="submit" class="w-full py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-xl text-xs transition-all shadow-lg active:scale-95 cursor-pointer">
+          Ingresar al Panel
+        </button>
+      </form>
+
+      <div class="p-3 bg-slate-950 rounded-xl border border-slate-800/80 text-[11px] text-slate-400 space-y-1">
+        <p class="font-bold text-slate-300">Cuentas Demostrativas:</p>
+        <p><span class="text-brand-400">master</span> / <span class="text-white">master123</span> (Acceso Total)</p>
+        <p><span class="text-brand-400">cajero</span> / <span class="text-white">caja123</span> (Pedidos y Motorizado)</p>
+        <p><span class="text-brand-400">menu_admin</span> / <span class="text-white">menu123</span> (Productos y Extras)</p>
+      </div>
+
+      <button type="button" onclick="closeLoginModal()" class="w-full text-center text-xs text-slate-500 hover:text-white transition-colors cursor-pointer">
+        Cancelar y volver a la tienda
+      </button>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- PANEL ADMINISTRATIVO COMPLETO (BACKEND)                  -->
+  <!-- ======================================================== -->
+  <div id="admin-panel-view" class="hidden flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full space-y-6">
+    
+    <!-- Barra Superior del Backend -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 bg-slate-900 border border-slate-800 rounded-3xl shadow-xl">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-brand-500/20 text-brand-500 flex items-center justify-center border border-brand-500/30">
+          <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            <span>Panel de Administración</span>
+            <span id="current-user-role-badge" class="text-[10px] bg-brand-500/20 text-brand-400 px-2 py-0.5 rounded-full border border-brand-500/30 uppercase font-bold">Rol</span>
+          </h2>
+          <p class="text-xs text-slate-400">Sesión iniciada como: <span id="current-username-display" class="font-bold text-white">usuario</span></p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button type="button" onclick="switchView('client')" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer">
+          <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+          <span>Ver Tienda</span>
+        </button>
+        <button type="button" onclick="handleLogout()" class="px-3.5 py-2 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 border border-rose-500/30 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer">
+          <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+          <span>Salir</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Pestañas de Navegación del Backend -->
+    <div class="flex items-center gap-2 overflow-x-auto pb-2 border-b border-slate-800" id="admin-tabs-nav">
+      <button type="button" onclick="switchAdminTab('orders')" id="tab-btn-orders" class="admin-tab-btn px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 bg-brand-600 text-white cursor-pointer">
+        <i data-lucide="clipboard-list" class="w-4 h-4"></i>
+        <span>Pedidos (<span id="admin-orders-count">0</span>)</span>
+      </button>
+
+      <button type="button" onclick="switchAdminTab('products')" id="tab-btn-products" class="admin-tab-btn px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 bg-slate-900 text-slate-400 hover:text-white border border-slate-800 cursor-pointer">
+        <i data-lucide="utensils" class="w-4 h-4"></i>
+        <span>Productos</span>
+      </button>
+
+      <button type="button" onclick="switchAdminTab('categories')" id="tab-btn-categories" class="admin-tab-btn px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 bg-slate-900 text-slate-400 hover:text-white border border-slate-800 cursor-pointer">
+        <i data-lucide="layers" class="w-4 h-4"></i>
+        <span>Categorías</span>
+      </button>
+
+      <button type="button" onclick="switchAdminTab('extras')" id="tab-btn-extras" class="admin-tab-btn px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 bg-slate-900 text-slate-400 hover:text-white border border-slate-800 cursor-pointer">
+        <i data-lucide="plus-circle" class="w-4 h-4"></i>
+        <span>Extras & Adicionales</span>
+      </button>
+
+      <button type="button" onclick="switchAdminTab('identity')" id="tab-btn-identity" class="admin-tab-btn px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 bg-slate-900 text-slate-400 hover:text-white border border-slate-800 cursor-pointer">
+        <i data-lucide="store" class="w-4 h-4"></i>
+        <span>Identidad del Negocio</span>
+      </button>
+
+      <button type="button" onclick="switchAdminTab('users')" id="tab-btn-users" class="admin-tab-btn px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 bg-slate-900 text-slate-400 hover:text-white border border-slate-800 cursor-pointer">
+        <i data-lucide="users" class="w-4 h-4"></i>
+        <span>Usuarios & Roles</span>
+      </button>
+
+      <button type="button" onclick="switchAdminTab('cloud')" id="tab-btn-cloud" class="admin-tab-btn px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 bg-slate-900 text-emerald-400 hover:text-white border border-emerald-500/30 cursor-pointer">
+        <i data-lucide="database" class="w-4 h-4"></i>
+        <span>Google Cloud DB</span>
+      </button>
+    </div>
+
+    <!-- SECCIÓN BACKEND 1: PEDIDOS Y DESPACHO AL MOTORIZADO -->
+    <section id="admin-section-orders" class="admin-section-tab space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="text-base font-bold text-white flex items-center gap-2">
+          <span>Gestión de Pedidos en Vivo</span>
+          <span class="text-xs text-slate-400 font-normal">Envía los pedidos directamente al repartidor</span>
+        </h3>
+        <button type="button" onclick="clearCompletedOrders()" class="text-xs text-rose-400 hover:underline cursor-pointer">Limpiar pedidos cancelados</button>
+      </div>
+
+      <div id="admin-orders-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <!-- Inyectado por JS -->
+      </div>
+    </section>
+
+    <!-- SECCIÓN BACKEND 2: CRUD DE PRODUCTOS -->
+    <section id="admin-section-products" class="admin-section-tab hidden space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="text-base font-bold text-white">Catálogo de Productos</h3>
+        <button type="button" onclick="openProductEditModal(null)" class="px-3.5 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer">
+          <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+          <span>Nuevo Producto</span>
+        </button>
+      </div>
+
+      <div class="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-xl">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-950 text-slate-400 uppercase border-b border-slate-800">
+              <tr>
+                <th class="p-3.5">Plato</th>
+                <th class="p-3.5">Categoría</th>
+                <th class="p-3.5">Precio</th>
+                <th class="p-3.5">Extras Asignados</th>
+                <th class="p-3.5 text-right">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="admin-products-table-body" class="divide-y divide-slate-800/80">
+              <!-- Inyectado por JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECCIÓN BACKEND 3: CRUD CATEGORÍAS INFINITAS -->
+    <section id="admin-section-categories" class="admin-section-tab hidden space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="text-base font-bold text-white">Categorías del Menú</h3>
+        <button type="button" onclick="openCategoryEditModal(null)" class="px-3.5 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer">
+          <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+          <span>Nueva Categoría</span>
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" id="admin-categories-cards">
+        <!-- Inyectado por JS -->
+      </div>
+    </section>
+
+    <!-- SECCIÓN BACKEND 4: CRUD DE EXTRAS -->
+    <section id="admin-section-extras" class="admin-section-tab hidden space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="text-base font-bold text-white">Gestión de Extras y Adicionales</h3>
+        <button type="button" onclick="openExtraEditModal(null)" class="px-3.5 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer">
+          <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+          <span>Nuevo Extra</span>
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4" id="admin-extras-cards">
+        <!-- Inyectado por JS -->
+      </div>
+    </section>
+
+    <!-- SECCIÓN BACKEND 5: IDENTIDAD DEL NEGOCIO & NÚMEROS DE WHATSAPP -->
+    <section id="admin-section-identity" class="admin-section-tab hidden space-y-4">
+      <form onsubmit="handleSaveBusinessSettings(event)" class="bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-6 shadow-xl">
+        <h3 class="text-base font-bold text-white flex items-center gap-2">
+          <i data-lucide="sliders" class="w-4 h-4 text-brand-500"></i>
+          <span>Identidad del Restaurante & Configuración General</span>
+        </h3>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Nombre Comercial del Negocio</label>
+            <input type="text" id="cfg-business-name" required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-brand-500">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Dirección del Local</label>
+            <input type="text" id="cfg-business-address" required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-brand-500">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">
+              WhatsApp para Recibir Pedidos de Clientes (con código de país)
+            </label>
+            <input type="text" id="cfg-store-whatsapp" required placeholder="Ej. 593987654321 o 51987654321" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-brand-500">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">
+              WhatsApp del Motorizado / Repartidor por Defecto
+            </label>
+            <input type="text" id="cfg-rider-whatsapp" placeholder="Ej. 593912345678" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-brand-500">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Costo Fijo de Envío ($)</label>
+            <input type="number" step="0.01" id="cfg-shipping-cost" required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-brand-500">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">
+              Envío Gratis a partir de compra de ($) <span class="text-[10px] text-slate-500">(0 = desactivado)</span>
+            </label>
+            <input type="number" step="0.01" min="0" id="cfg-free-shipping-threshold" required placeholder="Ej. 20.00" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-brand-500">
+          </div>
+
+          <div class="sm:col-span-2">
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Logotipo del Negocio (Subir Imagen)</label>
+            <input type="file" id="cfg-logo-file" accept="image/*" onchange="handleLogoUpload(event)" class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-brand-600 file:text-white hover:file:bg-brand-500 cursor-pointer">
+          </div>
+        </div>
+
+        <!-- Configuración de Códigos de Descuento (10%, 20%, 30%, 40%, 50%) -->
+        <div class="pt-4 border-t border-slate-800 space-y-3">
+          <div class="flex items-center justify-between">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-brand-400 flex items-center gap-1.5">
+              <i data-lucide="ticket" class="w-4 h-4"></i>
+              <span>Códigos de Descuento Configurables (10% a 50%)</span>
+            </h4>
+            <span class="text-[11px] text-slate-400">Deja vacío un código si deseas desactivar ese porcentaje</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-5 gap-3">
+            <div class="p-3 bg-slate-950 rounded-2xl border border-slate-800 space-y-1">
+              <label class="block text-[11px] font-black text-emerald-400">Descuento 10%</label>
+              <input type="text" id="cfg-coupon-10" placeholder="Ej. BRUTAL10" class="w-full px-2.5 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white uppercase font-mono focus:outline-none focus:border-brand-500">
+            </div>
+
+            <div class="p-3 bg-slate-950 rounded-2xl border border-slate-800 space-y-1">
+              <label class="block text-[11px] font-black text-emerald-400">Descuento 20%</label>
+              <input type="text" id="cfg-coupon-20" placeholder="Ej. BRUTAL20" class="w-full px-2.5 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white uppercase font-mono focus:outline-none focus:border-brand-500">
+            </div>
+
+            <div class="p-3 bg-slate-950 rounded-2xl border border-slate-800 space-y-1">
+              <label class="block text-[11px] font-black text-emerald-400">Descuento 30%</label>
+              <input type="text" id="cfg-coupon-30" placeholder="Ej. BRUTAL30" class="w-full px-2.5 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white uppercase font-mono focus:outline-none focus:border-brand-500">
+            </div>
+
+            <div class="p-3 bg-slate-950 rounded-2xl border border-slate-800 space-y-1">
+              <label class="block text-[11px] font-black text-emerald-400">Descuento 40%</label>
+              <input type="text" id="cfg-coupon-40" placeholder="Ej. BRUTAL40" class="w-full px-2.5 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white uppercase font-mono focus:outline-none focus:border-brand-500">
+            </div>
+
+            <div class="p-3 bg-slate-950 rounded-2xl border border-slate-800 space-y-1">
+              <label class="block text-[11px] font-black text-emerald-400">Descuento 50%</label>
+              <input type="text" id="cfg-coupon-50" placeholder="Ej. BRUTAL50" class="w-full px-2.5 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white uppercase font-mono focus:outline-none focus:border-brand-500">
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-3 border-t border-slate-800">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Datos de Cuenta Bancaria (Transferencias)</label>
+            <textarea id="cfg-bank-info" rows="3" class="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-brand-500 font-mono"></textarea>
+          </div>
+
+          <div class="space-y-2">
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Número de Celular para Yape</label>
+              <input type="text" id="cfg-yape-phone" class="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-brand-500">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Titular de la cuenta Yape</label>
+              <input type="text" id="cfg-yape-name" class="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-brand-500">
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-3 border-t border-slate-800">
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Texto de la Marquesina Superior</label>
+          <input type="text" id="cfg-marquee-text" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-brand-500">
+        </div>
+
+        <button type="submit" class="px-5 py-3 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-2xl text-xs transition-all shadow-lg active:scale-95 cursor-pointer">
+          Guardar Cambios de Identidad
+        </button>
+      </form>
+    </section>
+
+    <!-- SECCIÓN BACKEND 6: USUARIOS Y JERARQUÍA -->
+    <section id="admin-section-users" class="admin-section-tab hidden space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="text-base font-bold text-white">Usuarios del Sistema y Jerarquía</h3>
+        <button type="button" onclick="openUserModal(null)" class="px-3.5 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer">
+          <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
+          <span>Nuevo Usuario</span>
+        </button>
+      </div>
+
+      <div class="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-xl">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-950 text-slate-400 uppercase border-b border-slate-800">
+              <tr>
+                <th class="p-3.5">Usuario</th>
+                <th class="p-3.5">Rol / Jerarquía</th>
+                <th class="p-3.5">Permisos Clave</th>
+                <th class="p-3.5 text-right">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="admin-users-table-body" class="divide-y divide-slate-800/80">
+              <!-- Inyectado por JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECCIÓN BACKEND 7: CONEXIÓN A BASE DE DATOS GRATUITA DE GOOGLE (FIRESTORE) -->
+    <section id="admin-section-cloud" class="admin-section-tab hidden space-y-4">
+      <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-6 shadow-xl">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30">
+              <i data-lucide="cloud" class="w-6 h-6"></i>
+            </div>
+            <div>
+              <h3 class="text-base font-bold text-white">Base de Datos en Tiempo Real - Google Cloud Firestore</h3>
+              <p class="text-xs text-slate-400" id="admin-cloud-desc">Sincroniza productos, categorías, extras, cupones y pedidos en la nube gratuita de Google.</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button type="button" onclick="openFirebaseConfigModal()" class="px-4 py-2.5 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer">
+              <i data-lucide="key" class="w-4 h-4"></i>
+              <span>Configurar Credenciales Google</span>
+            </button>
+            <button type="button" onclick="forcePushAllToCloud()" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer">
+              <i data-lucide="upload-cloud" class="w-4 h-4"></i>
+              <span>Subir Datos Locales a la Nube</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Métricas de Documentos Sincronizados -->
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
+          <div class="p-4 bg-slate-950 rounded-2xl border border-slate-800">
+            <span class="text-[11px] text-slate-400 block">Estado Conexión</span>
+            <span id="metric-cloud-state" class="text-sm font-black text-amber-400 mt-1 block">Local / Pendiente</span>
+          </div>
+          <div class="p-4 bg-slate-950 rounded-2xl border border-slate-800">
+            <span class="text-[11px] text-slate-400 block">Platos en Catálogo</span>
+            <span id="metric-cloud-products" class="text-lg font-black text-white mt-1 block">0</span>
+          </div>
+          <div class="p-4 bg-slate-950 rounded-2xl border border-slate-800">
+            <span class="text-[11px] text-slate-400 block">Categorías</span>
+            <span id="metric-cloud-cats" class="text-lg font-black text-white mt-1 block">0</span>
+          </div>
+          <div class="p-4 bg-slate-950 rounded-2xl border border-slate-800">
+            <span class="text-[11px] text-slate-400 block">Extras</span>
+            <span id="metric-cloud-extras" class="text-lg font-black text-white mt-1 block">0</span>
+          </div>
+          <div class="p-4 bg-slate-950 rounded-2xl border border-slate-800">
+            <span class="text-[11px] text-slate-400 block">Pedidos Registrados</span>
+            <span id="metric-cloud-orders" class="text-lg font-black text-brand-500 mt-1 block">0</span>
+          </div>
+        </div>
+
+        <div class="p-4 bg-slate-950 rounded-2xl border border-slate-800 text-xs text-slate-300 space-y-2">
+          <p class="font-bold text-white flex items-center gap-1.5">
+            <i data-lucide="info" class="w-4 h-4 text-brand-500"></i>
+            <span>¿Cómo conectar tu propia base de datos gratuita de Google Firebase en 2 minutos?</span>
+          </p>
+          <ol class="list-decimal list-inside space-y-1 text-slate-400">
+            <li>Entra a <a href="https://console.firebase.google.com/" target="_blank" class="text-brand-400 underline">console.firebase.google.com</a> y crea un proyecto gratuito.</li>
+            <li>En el menú izquierdo ve a <b>Compilación &gt; Firestore Database</b> y créala en <b>Modo de Prueba (Test Mode)</b>.</li>
+            <li>En el menú izquierdo ve a <b>Compilación &gt; Authentication &gt; Sign-in method</b> y habilita el proveedor <b>Anónimo (Anonymous)</b>.</li>
+            <li>En Configuración del Proyecto (⚙️), registra una app Web <code>&lt;/&gt;</code>, copia el bloque <code>firebaseConfig</code> y pégalo haciendo clic en el botón naranja <b>"Configurar Credenciales Google"</b> de arriba.</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: CONEXIÓN A GOOGLE CLOUD FIRESTORE (FIREBASE)      -->
+  <!-- ======================================================== -->
+  <div id="firebase-config-modal" class="fixed inset-0 z-[130] bg-black/85 backdrop-blur-sm hidden items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full p-6 space-y-4 my-6 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30">
+            <i data-lucide="database" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h4 class="font-bold text-white text-sm">Conectar Google Cloud Firestore</h4>
+            <p class="text-[11px] text-slate-400">Pega el bloque firebaseConfig de tu consola de Google Firebase</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeFirebaseConfigModal()" class="w-7 h-7 rounded-lg bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Pegar bloque completo de Firebase (Auto-detector inteligente)</label>
+          <textarea 
+            id="fb-raw-snippet" 
+            rows="4" 
+            oninput="parseFirebaseSnippet(this.value)"
+            placeholder="Pega aquí const firebaseConfig = { apiKey: '...', projectId: '...' };" 
+            class="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-emerald-400 font-mono focus:outline-none focus:border-brand-500"
+          ></textarea>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-400 mb-1">apiKey *</label>
+            <input type="text" id="fb-apiKey" placeholder="AIzaSy..." class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white font-mono">
+          </div>
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-400 mb-1">projectId *</label>
+            <input type="text" id="fb-projectId" placeholder="mi-burger-db" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white font-mono">
+          </div>
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-400 mb-1">authDomain</label>
+            <input type="text" id="fb-authDomain" placeholder="mi-burger-db.firebaseapp.com" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white font-mono">
+          </div>
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-400 mb-1">appId</label>
+            <input type="text" id="fb-appId" placeholder="1:123456:web:abcdef" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white font-mono">
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-800">
+          <button type="button" onclick="disconnectFirebase()" class="px-3 py-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 text-xs font-semibold cursor-pointer mr-auto">
+            Usar Solo Modo Local
+          </button>
+          <button type="button" onclick="closeFirebaseConfigModal()" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 text-xs font-semibold cursor-pointer">
+            Cancelar
+          </button>
+          <button type="button" onclick="saveAndConnectFirebase()" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-lg">
+            <i data-lucide="plug-zap" class="w-4 h-4"></i>
+            <span>Guardar y Conectar Nube</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODALES AUXILIARES DEL BACKEND (PRODUCTO, CATEGORÍA, ETC)-->
+  <!-- ======================================================== -->
+
+  <!-- Modal Crear/Editar Producto -->
+  <div id="admin-product-modal" class="fixed inset-0 z-[110] bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full p-6 space-y-4 my-6 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h4 id="admin-product-modal-title" class="font-bold text-white text-base">Nuevo Producto</h4>
+        <button type="button" onclick="closeProductEditModal()" class="w-7 h-7 rounded-lg bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+      <form onsubmit="handleSaveProduct(event)" class="space-y-3">
+        <input type="hidden" id="edit-prod-id">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Nombre del Plato *</label>
+            <input type="text" id="edit-prod-name" required class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Precio ($) *</label>
+            <input type="number" step="0.01" id="edit-prod-price" required class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white">
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Categoría *</label>
+          <select id="edit-prod-category" required class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white"></select>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Descripción corta *</label>
+          <textarea id="edit-prod-desc" rows="2" required class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white"></textarea>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">URL de Imagen (o deja vacío para Placeholder automático)</label>
+          <input type="text" id="edit-prod-img" placeholder="https://images.unsplash.com/..." class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Extras permitidos en este producto</label>
+          <div id="edit-prod-extras-checks" class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-36 overflow-y-auto p-2.5 bg-slate-950 rounded-xl border border-slate-800"></div>
+        </div>
+        <div class="flex justify-end gap-2 pt-3 border-t border-slate-800">
+          <button type="button" onclick="closeProductEditModal()" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 text-xs font-semibold cursor-pointer">Cancelar</button>
+          <button type="submit" class="px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold cursor-pointer">Guardar Producto</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Crear/Editar Categoría -->
+  <div id="admin-category-modal" class="fixed inset-0 z-[110] bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-sm w-full p-6 space-y-4 shadow-2xl">
+      <h4 id="admin-cat-modal-title" class="font-bold text-white text-base">Categoría</h4>
+      <form onsubmit="handleSaveCategory(event)" class="space-y-3">
+        <input type="hidden" id="edit-cat-old-name">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Nombre de la Categoría *</label>
+          <input type="text" id="edit-cat-name" required placeholder="Ej. Hamburguesas" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white">
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="closeCategoryEditModal()" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 text-xs font-semibold cursor-pointer">Cancelar</button>
+          <button type="submit" class="px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold cursor-pointer">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Crear/Editar Extra -->
+  <div id="admin-extra-modal" class="fixed inset-0 z-[110] bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-sm w-full p-6 space-y-4 shadow-2xl">
+      <h4 id="admin-extra-modal-title" class="font-bold text-white text-base">Extra / Adicional</h4>
+      <form onsubmit="handleSaveExtra(event)" class="space-y-3">
+        <input type="hidden" id="edit-extra-id">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Nombre del Extra *</label>
+          <input type="text" id="edit-extra-name" required placeholder="Ej. Doble Queso Cheddar" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Precio Adicional ($) *</label>
+          <input type="number" step="0.01" id="edit-extra-price" required placeholder="1.50" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white">
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="closeExtraEditModal()" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 text-xs font-semibold cursor-pointer">Cancelar</button>
+          <button type="submit" class="px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold cursor-pointer">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Crear/Editar Usuario -->
+  <div id="admin-user-modal" class="fixed inset-0 z-[110] bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-sm w-full p-6 space-y-4 shadow-2xl">
+      <h4 id="admin-user-modal-title" class="font-bold text-white text-base">Usuario del Sistema</h4>
+      <form onsubmit="handleSaveUser(event)" class="space-y-3">
+        <input type="hidden" id="edit-user-original">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Nombre de Usuario *</label>
+          <input type="text" id="edit-user-username" required class="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Contraseña *</label>
+          <input type="text" id="edit-user-password" required class="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Rol / Jerarquía *</label>
+          <select id="edit-user-role" class="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white">
+            <option value="master">Master (Control Total)</option>
+            <option value="menu_admin">Editor de Menú (Productos, Categorías, Extras)</option>
+            <option value="cajero">Cajero / Operador (Pedidos y Despacho)</option>
+          </select>
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="closeUserModal()" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 text-xs font-semibold cursor-pointer">Cancelar</button>
+          <button type="submit" class="px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold cursor-pointer">Guardar Usuario</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Despacho al Motorizado -->
+  <div id="rider-dispatch-modal" class="fixed inset-0 z-[120] bg-black/85 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">🛵</span>
+          <h4 class="font-bold text-white text-base">Despachar Pedido al Motorizado</h4>
+        </div>
+        <button type="button" onclick="closeRiderDispatchModal()" class="w-7 h-7 rounded-lg bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+      <div class="space-y-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">WhatsApp del Motorizado (con código de país)</label>
+          <input type="text" id="dispatch-rider-phone" placeholder="Ej. 593987654321" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Vista previa de la ficha de entrega</label>
+          <pre id="dispatch-preview-text" class="p-3 rounded-xl bg-slate-950 border border-slate-800 text-[11px] text-slate-300 whitespace-pre-wrap max-h-56 overflow-y-auto font-mono"></pre>
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="closeRiderDispatchModal()" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 text-xs font-semibold cursor-pointer">Cancelar</button>
+          <button type="button" onclick="confirmSendToRider()" class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer">
+            <i data-lucide="send" class="w-3.5 h-3.5"></i>
+            <span>Enviar por WhatsApp al Motorizado</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- SCRIPTS DE FIREBASE Y LÓGICA DE LA APLICACIÓN            -->
+  <!-- ======================================================== -->
+  <script type="module">
+    import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    // ============================================================================
+    // 1. VARIABLE GLOBAL DEL TELÉFONO RECEPTOR DE WHATSAPP Y CONFIGURACIÓNFIREBASE
+    // ============================================================================
+    let STORE_WHATSAPP_PHONE = "593987654321"; // <-- CAMBIA AQUÍ EL NÚMERO POR DEFECTO
+
+    // Si deseas dejar tus credenciales fijas en el código para GitHub Pages, pégalas aquí:
+    const DEFAULT_FIREBASE_CONFIG = {
+      apiKey: "",
+      authDomain: "",
+      projectId: "",
+      storageBucket: "",
+      messagingSenderId: "",
+      appId: ""
+    };
+
+    const STORAGE_KEY = "BURGER_BRUTAL_STATE_V3";
+    const FIREBASE_CFG_STORAGE_KEY = "BURGER_FIREBASE_CONFIG_V1";
+
+    // Datos iniciales para La Brutal Burger & Salchipapas
+    const INITIAL_STATE = {
+      settings: {
+        businessName: "LA BRUTAL BURGER",
+        address: "Av. Las Américas y Calle 10, Local 4",
+        storeWhatsapp: STORE_WHATSAPP_PHONE,
+        riderWhatsapp: "593912345678",
+        shippingCost: 2.50,
+        freeShippingThreshold: 20.00,
+        logoDataUrl: "",
+        bankInfo: "Banco: Pichincha / BCP\nTipo: Cuenta Ahorros\nNúmero: 2204567890\nRUC/Cédula: 1790012345001\nTitular: La Brutal Burger",
+        yapePhone: "987654321",
+        yapeName: "La Brutal Burger",
+        marqueeText: "🍔 ¡Bienvenidos a La Brutal Burger & Salchipapas! Envío GRATIS en compras desde $20.00 • Usa el cupón BRUTAL10 para 10% DCTO 🍟",
+        coupons: {
+          10: "BRUTAL10",
+          20: "BRUTAL20",
+          30: "BRUTAL30",
+          40: "BRUTAL40",
+          50: "BRUTAL50"
+        }
+      },
+      categories: [
+        "Hamburguesas",
+        "Salchipapas",
+        "Papipollos & Broaster",
+        "Nuggets & Alitas",
+        "Bebidas & Batidos"
+      ],
+      extras: [
+        { id: "ext1", name: "Queso Cheddar Fundido Extra", price: 1.00 },
+        { id: "ext2", name: "Tocino Ahumado Crocante", price: 1.50 },
+        { id: "ext3", name: "Huevo Frito Montado", price: 0.75 },
+        { id: "ext4", name: "Porción Extra de Papas Fritas", price: 2.00 },
+        { id: "ext5", name: "Salchicha Vienesa Adicional", price: 1.25 },
+        { id: "ext6", name: "Carne de Res 150g Adicional", price: 2.50 }
+      ],
+      products: [
+        {
+          id: "p1",
+          name: "Doble Smash Bacon Cheddar",
+          category: "Hamburguesas",
+          price: 7.50,
+          desc: "Doble carne smash de res a la parrilla, cuádruple queso cheddar americano, tocino ahumado, cebolla caramelizada y salsa brutal en pan brioche.",
+          img: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=800&q=80",
+          allowedExtras: ["ext1", "ext2", "ext3", "ext4", "ext6"]
+        },
+        {
+          id: "p2",
+          name: "Burger La Monstruosa Royal",
+          category: "Hamburguesas",
+          price: 8.90,
+          desc: "Carne artesanal 200g, chorizo parrillero, huevo frito, jamón inglés, queso mozzarella, papas al hilo y tártara de la casa.",
+          img: "https://images.unsplash.com/photo-1586190848861-99aa4a171e90?auto=format&fit=crop&w=800&q=80",
+          allowedExtras: ["ext1", "ext2", "ext3", "ext4", "ext6"]
+        },
+        {
+          id: "p3",
+          name: "Salchipapa Brutal Especial",
+          category: "Salchipapas",
+          price: 6.50,
+          desc: "Abundantes papas amarillas crujientes, salchicha frankfurt ahumada, chorizo fino, trozos de tocino, queso fundido y dos huevos fritos.",
+          img: "https://images.unsplash.com/photo-1585109649139-366815a0d713?auto=format&fit=crop&w=800&q=80",
+          allowedExtras: ["ext1", "ext2", "ext3", "ext4", "ext5"]
+        },
+        {
+          id: "p4",
+          name: "Salchipapa A lo Pobre con Carne",
+          category: "Salchipapas",
+          price: 8.00,
+          desc: "Cama de papas fritas con salchichas artesanales, lomo fino salteado al wok, plátano maduro frito y huevo montado.",
+          img: "https://images.unsplash.com/photo-1630384060421-cb20d0e0649d?auto=format&fit=crop&w=800&q=80",
+          allowedExtras: ["ext1", "ext3", "ext4", "ext5"]
+        },
+        {
+          id: "p5",
+          name: "Papipollo Clásico Broaster (1/4 Pollo)",
+          category: "Papipollos & Broaster",
+          price: 6.90,
+          desc: "Cuarto de pollo broaster ultra crujiente marinado en 12 especias, servido sobre montaña de papas fritas, ensalada fresca y cremas.",
+          img: "https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?auto=format&fit=crop&w=800&q=80",
+          allowedExtras: ["ext1", "ext3", "ext4", "ext5"]
+        },
+        {
+          id: "p6",
+          name: "Combo 10 Nuggets Crocantes + Papas",
+          category: "Nuggets & Alitas",
+          price: 5.90,
+          desc: "10 nuggets de pechuga de pollo empanizados al momento, acompañados de papas fritas doradas, salsa BBQ y miel mostaza.",
+          img: "https://images.unsplash.com/photo-1562967914-608f82629710?auto=format&fit=crop&w=800&q=80",
+          allowedExtras: ["ext1", "ext4"]
+        },
+        {
+          id: "p7",
+          name: "Alitas BBQ & Buffalo (8 Piezas)",
+          category: "Nuggets & Alitas",
+          price: 7.80,
+          desc: "8 alitas bañadas en salsa BBQ ahumada o picante Buffalo, servidas con bastones de apio, papas fritas y aderezo ranch.",
+          img: "https://images.unsplash.com/photo-1527477396000-e27163b481c2?auto=format&fit=crop&w=800&q=80",
+          allowedExtras: ["ext1", "ext4"]
+        },
+        {
+          id: "p8",
+          name: "Milkshake Cremoso de Oreo 16oz",
+          category: "Bebidas & Batidos",
+          price: 4.20,
+          desc: "Batido artesanal de helado de vainilla con galletas Oreo trituradas, crema chantilly y sirope de chocolate.",
+          img: "https://images.unsplash.com/photo-1572490122747-3968b75cc699?auto=format&fit=crop&w=800&q=80",
+          allowedExtras: []
+        },
+        {
+          id: "p9",
+          name: "Coca-Cola Original 1.5 Litros",
+          category: "Bebidas & Batidos",
+          price: 3.00,
+          desc: "Botella familiar de 1.5L bien helada para compartir.",
+          img: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=800&q=80",
+          allowedExtras: []
+        }
+      ],
+      users: [
+        { username: "master", password: "master123", role: "master" },
+        { username: "cajero", password: "caja123", role: "cajero" },
+        { username: "menu_admin", password: "menu123", role: "menu_admin" }
+      ],
+      orders: []
+    };
+
+    // Estado en memoria
+    let appState = loadLocalState();
+    let cart = [];
+    let currentCategory = "Todas";
+    let searchQuery = "";
+    let currentUser = null;
+    let activeProductModal = null;
+    let modalQuantity = 1;
+    let clientGpsUrl = "";
+    let appliedCoupon = null; // { code, percent }
+    let activeDispatchOrderId = null;
+
+    // Variables Firebase Cloud
+    let db = null;
+    let auth = null;
+    let isCloudConnected = false;
+    let unsubscribeCloud = null;
+
+    // ============================================================================
+    // 2. PERSISTENCIA LOCAL Y SINCRONIZACIÓN CON GOOGLE CLOUD FIRESTORE
+    // ============================================================================
+    function loadLocalState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return structuredClone(INITIAL_STATE);
+        const parsed = JSON.parse(raw);
+        return {
+          ...structuredClone(INITIAL_STATE),
+          ...parsed,
+          settings: { ...INITIAL_STATE.settings, ...(parsed.settings || {}) }
+        };
+      } catch (e) {
+        return structuredClone(INITIAL_STATE);
+      }
+    }
+
+    function saveState(syncToCloud = true) {
+      try {
+        STORE_WHATSAPP_PHONE = appState.settings.storeWhatsapp || STORE_WHATSAPP_PHONE;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+      } catch (e) {
+        console.warn("Almacenamiento local restringido:", e);
+      }
+      if (syncToCloud && isCloudConnected && db) {
+        pushStateToFirestore();
+      }
+      updateCloudMetricsUI();
+    }
+
+    function getActiveFirebaseConfig() {
+      try {
+        const saved = localStorage.getItem(FIREBASE_CFG_STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed && parsed.apiKey && parsed.projectId) return parsed;
+        }
+      } catch (e) {}
+      if (typeof __firebase_config !== "undefined" && __firebase_config) {
+        try {
+          const envCfg = typeof __firebase_config === "string" ? JSON.parse(__firebase_config) : __firebase_config;
+          if (envCfg && envCfg.apiKey) return envCfg;
+        } catch (e) {}
+      }
+      if (DEFAULT_FIREBASE_CONFIG.apiKey && DEFAULT_FIREBASE_CONFIG.projectId) {
+        return DEFAULT_FIREBASE_CONFIG;
+      }
+      return null;
+    }
+
+    async function initGoogleCloudDatabase() {
+      const cfg = getActiveFirebaseConfig();
+      if (!cfg || !cfg.apiKey || !cfg.projectId) {
+        updateCloudBadge(false, "Modo Local");
+        return;
+      }
+
+      try {
+        updateCloudBadge(false, "Conectando...");
+        const appInstance = getApps().length ? getApp() : initializeApp(cfg);
+        auth = getAuth(appInstance);
+        db = getFirestore(appInstance);
+
+        if (typeof __initial_auth_token !== "undefined" && __initial_auth_token) {
+          await signInWithCustomToken(auth, __initial_auth_token);
+        } else {
+          await signInAnonymously(auth);
+        }
+
+        onAuthStateChanged(auth, (user) => {
+          if (user) {
+            isCloudConnected = true;
+            updateCloudBadge(true, `Google Cloud (${cfg.projectId})`);
+            subscribeToCloudState();
+          }
+        });
+      } catch (err) {
+        console.error("Error conectando con Google Cloud Firestore:", err);
+        isCloudConnected = false;
+        updateCloudBadge(false, "Error Cloud");
+        showToast("No se pudo conectar a Firebase. Revisa tus claves o habilita Auth Anónimo.", "error");
+      }
+    }
+
+    function getCloudDocRef() {
+      const appId = typeof __app_id !== "undefined" && __app_id ? __app_id : "burger-brutal-store";
+      return doc(db, "artifacts", appId, "public", "data", "store_state", "main");
+    }
+
+    function subscribeToCloudState() {
+      if (!db) return;
+      if (unsubscribeCloud) unsubscribeCloud();
+
+      const docRef = getCloudDocRef();
+      unsubscribeCloud = onSnapshot(
+        docRef,
+        (snapshot) => {
+          if (snapshot.exists()) {
+            const cloudData = snapshot.data();
+            if (cloudData && cloudData.payload) {
+              try {
+                const parsed = JSON.parse(cloudData.payload);
+                appState = {
+                  ...structuredClone(INITIAL_STATE),
+                  ...parsed,
+                  settings: { ...INITIAL_STATE.settings, ...(parsed.settings || {}) }
+                };
+                saveState(false);
+                refreshAllUI();
+              } catch (e) {
+                console.error("Error leyendo payload de Firestore:", e);
+              }
+            }
+          } else {
+            // Si la base de datos en Google está vacía, subimos el catálogo inicial automáticamente
+            pushStateToFirestore();
+          }
+        },
+        (error) => {
+          console.error("Error en listener de Firestore:", error);
+          updateCloudBadge(false, "Sin Permisos DB");
+        }
+      );
+    }
+
+    async function pushStateToFirestore() {
+      if (!db || !isCloudConnected) return;
+      try {
+        const docRef = getCloudDocRef();
+        await setDoc(docRef, {
+          payload: JSON.stringify(appState),
+          updatedAt: new Date().toISOString()
+        });
+      } catch (e) {
+        console.error("Error guardando en Firestore:", e);
+      }
+    }
+
+    function updateCloudBadge(connected, label) {
+      const dot = document.getElementById("cloud-status-dot");
+      const text = document.getElementById("cloud-status-text");
+      const metricState = document.getElementById("metric-cloud-state");
+      if (dot) {
+        dot.className = connected
+          ? "w-2 h-2 rounded-full bg-emerald-400"
+          : "w-2 h-2 rounded-full bg-amber-400 animate-pulse";
+      }
+      if (text) text.textContent = label;
+      if (metricState) {
+        metricState.textContent = connected ? "Conectado en Vivo" : label;
+        metricState.className = connected
+          ? "text-sm font-black text-emerald-400 mt-1 block"
+          : "text-sm font-black text-amber-400 mt-1 block";
+      }
+      updateCloudMetricsUI();
+    }
+
+    function updateCloudMetricsUI() {
+      const pEl = document.getElementById("metric-cloud-products");
+      const cEl = document.getElementById("metric-cloud-cats");
+      const eEl = document.getElementById("metric-cloud-extras");
+      const oEl = document.getElementById("metric-cloud-orders");
+      if (pEl) pEl.textContent = appState.products.length;
+      if (cEl) cEl.textContent = appState.categories.length;
+      if (eEl) eEl.textContent = appState.extras.length;
+      if (oEl) oEl.textContent = appState.orders.length;
+    }
+
+    // Modal de Configuración Firebase
+    window.openFirebaseConfigModal = function () {
+      const cfg = getActiveFirebaseConfig() || {};
+      document.getElementById("fb-apiKey").value = cfg.apiKey || "";
+      document.getElementById("fb-projectId").value = cfg.projectId || "";
+      document.getElementById("fb-authDomain").value = cfg.authDomain || "";
+      document.getElementById("fb-appId").value = cfg.appId || "";
+      document.getElementById("fb-raw-snippet").value = "";
+      const modal = document.getElementById("firebase-config-modal");
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+    };
+
+    window.closeFirebaseConfigModal = function () {
+      const modal = document.getElementById("firebase-config-modal");
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+    };
+
+    window.parseFirebaseSnippet = function (rawText) {
+      if (!rawText) return;
+      const extract = (key) => {
+        const regex = new RegExp(`["']?${key}["']?\\s*:\\s*["']([^"']+)["']`);
+        const match = rawText.match(regex);
+        return match ? match[1].trim() : "";
+      };
+      const apiKey = extract("apiKey");
+      const projectId = extract("projectId");
+      const authDomain = extract("authDomain");
+      const appId = extract("appId");
+
+      if (apiKey) document.getElementById("fb-apiKey").value = apiKey;
+      if (projectId) document.getElementById("fb-projectId").value = projectId;
+      if (authDomain) document.getElementById("fb-authDomain").value = authDomain;
+      if (appId) document.getElementById("fb-appId").value = appId;
+    };
+
+    window.saveAndConnectFirebase = async function () {
+      const apiKey = document.getElementById("fb-apiKey").value.trim();
+      const projectId = document.getElementById("fb-projectId").value.trim();
+      const authDomain = document.getElementById("fb-authDomain").value.trim() || `${projectId}.firebaseapp.com`;
+      const appId = document.getElementById("fb-appId").value.trim();
+
+      if (!apiKey || !projectId) {
+        showToast("Ingresa al menos apiKey y projectId", "error");
+        return;
+      }
+
+      const newCfg = {
+        apiKey,
+        projectId,
+        authDomain,
+        storageBucket: `${projectId}.appspot.com`,
+        appId
+      };
+
+      localStorage.setItem(FIREBASE_CFG_STORAGE_KEY, JSON.stringify(newCfg));
+      closeFirebaseConfigModal();
+      showToast("Conectando con Google Cloud Firestore...", "success");
+      await initGoogleCloudDatabase();
+    };
+
+    window.disconnectFirebase = function () {
+      localStorage.removeItem(FIREBASE_CFG_STORAGE_KEY);
+      if (unsubscribeCloud) unsubscribeCloud();
+      isCloudConnected = false;
+      updateCloudBadge(false, "Modo Local");
+      closeFirebaseConfigModal();
+      showToast("Desconectado de la nube. Usando almacenamiento local.", "info");
+    };
+
+    window.forcePushAllToCloud = async function () {
+      if (!isCloudConnected || !db) {
+        showToast("Primero configura y conecta tus credenciales de Google Firebase", "error");
+        openFirebaseConfigModal();
+        return;
+      }
+      await pushStateToFirestore();
+      showToast("¡Catálogo, cupones y pedidos sincronizados en Google Cloud!", "success");
+    };
+
+    // ============================================================================
+    // 3. FUNCIONES DE UTILIDAD Y RENDERIZADO DEL CATÁLOGO (FRONTEND)
+    // ============================================================================
+    function escapeHtml(str) {
+      return String(str || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function showToast(message, type = "success") {
+      const toast = document.getElementById("toast");
+      const msgEl = document.getElementById("toast-message");
+      const iconWrap = document.getElementById("toast-icon-wrap");
+      if (!toast || !msgEl) return;
+
+      msgEl.textContent = message;
+      if (type === "error") {
+        iconWrap.className = "w-9 h-9 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center shrink-0";
+      } else {
+        iconWrap.className = "w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0";
+      }
+
+      toast.classList.remove("opacity-0", "-translate-y-4");
+      toast.classList.add("opacity-100", "translate-y-0");
+      setTimeout(() => {
+        toast.classList.add("opacity-0", "-translate-y-4");
+        toast.classList.remove("opacity-100", "translate-y-0");
+      }, 3200);
+    }
+
+    function applyBusinessIdentity() {
+      const s = appState.settings;
+      STORE_WHATSAPP_PHONE = s.storeWhatsapp || STORE_WHATSAPP_PHONE;
+
+      document.getElementById("page-title").textContent = `${s.businessName} - Pedidos Online`;
+      document.getElementById("brand-name-display").textContent = s.businessName;
+      document.getElementById("brand-address-display").textContent = s.address;
+      document.getElementById("marquee-text-display").textContent = s.marqueeText;
+      document.getElementById("marquee-text-display-repeat").textContent = s.marqueeText;
+
+      const logoImg = document.getElementById("header-logo-img");
+      const logoIconWrap = document.getElementById("header-logo-icon-wrap");
+      if (s.logoDataUrl) {
+        logoImg.src = s.logoDataUrl;
+        logoImg.classList.remove("hidden");
+        if (logoIconWrap) logoIconWrap.classList.add("hidden");
+      } else {
+        logoImg.classList.add("hidden");
+        if (logoIconWrap) logoIconWrap.classList.remove("hidden");
+      }
+
+      // Actualizar datos de Transferencia y Yape en Checkout
+      const bankEl = document.getElementById("bank-info-content");
+      if (bankEl) bankEl.textContent = s.bankInfo || "";
+      const yapePhoneEl = document.getElementById("yape-phone-display");
+      if (yapePhoneEl) yapePhoneEl.textContent = s.yapePhone || "";
+      const yapeNameEl = document.getElementById("yape-name-display");
+      if (yapeNameEl) yapeNameEl.textContent = s.yapeName || "";
+    }
+
+    function renderCategoryFilters() {
+      const container = document.getElementById("category-filters-container");
+      if (!container) return;
+
+      const allCategories = ["Todas", ...appState.categories];
+      container.innerHTML = allCategories
+        .map((cat) => {
+          const isActive = currentCategory === cat;
+          const count =
+            cat === "Todas"
+              ? appState.products.length
+              : appState.products.filter((p) => p.category === cat).length;
+
+          return `
+            <button
+              type="button"
+              onclick="selectCategory('${escapeHtml(cat)}')"
+              class="px-4 py-2.5 rounded-2xl text-xs font-bold whitespace-nowrap transition-all flex items-center gap-2 cursor-pointer ${
+                isActive
+                  ? "bg-brand-600 text-white shadow-lg shadow-brand-950"
+                  : "bg-slate-900 text-slate-400 hover:text-white border border-slate-800"
+              }"
+            >
+              <span>${escapeHtml(cat)}</span>
+              <span class="px-1.5 py-0.5 text-[10px] rounded-full ${
+                isActive ? "bg-white/20 text-white" : "bg-slate-800 text-slate-400"
+              }">${count}</span>
+            </button>
+          `;
+        })
+        .join("");
+    }
+
+    window.selectCategory = function (cat) {
+      currentCategory = cat;
+      renderCategoryFilters();
+      renderProductsGrid();
+    };
+
+    window.handleSearch = function (val) {
+      searchQuery = (val || "").trim().toLowerCase();
+      renderProductsGrid();
+    };
+
+    window.resetFilters = function () {
+      currentCategory = "Todas";
+      searchQuery = "";
+      const input = document.getElementById("search-input");
+      if (input) input.value = "";
+      renderCategoryFilters();
+      renderProductsGrid();
+    };
+
+    function renderProductsGrid() {
+      const grid = document.getElementById("products-grid");
+      const emptyState = document.getElementById("empty-state");
+      const badge = document.getElementById("products-count-badge");
+      if (!grid) return;
+
+      const filtered = appState.products.filter((p) => {
+        const matchesCat = currentCategory === "Todas" || p.category === currentCategory;
+        const matchesSearch =
+          !searchQuery ||
+          p.name.toLowerCase().includes(searchQuery) ||
+          p.desc.toLowerCase().includes(searchQuery) ||
+          p.category.toLowerCase().includes(searchQuery);
+        return matchesCat && matchesSearch;
+      });
+
+      if (badge) {
+        badge.textContent = `${filtered.length} ${filtered.length === 1 ? "producto disponible" : "productos disponibles"}`;
+      }
+
+      if (filtered.length === 0) {
+        grid.innerHTML = "";
+        emptyState.classList.remove("hidden");
+        emptyState.classList.add("flex");
+        return;
+      }
+
+      emptyState.classList.add("hidden");
+      emptyState.classList.remove("flex");
+
+      grid.innerHTML = filtered
+        .map((p) => {
+          const placeholderUrl = `https://placehold.co/600x400/1e293b/f97316?text=${encodeURIComponent(p.name)}`;
+          const imgUrl = p.img && p.img.trim() ? p.img : placeholderUrl;
+
+          return `
+            <article class="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-xl hover:border-brand-500/50 transition-all flex flex-col group">
+              <div class="relative h-48 overflow-hidden bg-slate-950">
+                <img
+                  src="${escapeHtml(imgUrl)}"
+                  alt="${escapeHtml(p.name)}"
+                  onerror="this.src='${placeholderUrl}'"
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                >
+                <span class="absolute top-3 left-3 bg-slate-950/85 backdrop-blur-md text-brand-400 text-[10px] font-bold px-2.5 py-1 rounded-xl border border-brand-500/20">
+                  ${escapeHtml(p.category)}
+                </span>
+                <span class="absolute bottom-3 right-3 bg-slate-950/90 text-white font-black text-sm px-3 py-1 rounded-xl border border-slate-700">
+                  $${Number(p.price).toFixed(2)}
+                </span>
+              </div>
+
+              <div class="p-5 flex-1 flex flex-col justify-between space-y-4">
+                <div>
+                  <h3 class="font-bold text-white text-base group-hover:text-brand-400 transition-colors">${escapeHtml(p.name)}</h3>
+                  <p class="text-xs text-slate-400 mt-1.5 line-clamp-2 leading-relaxed">${escapeHtml(p.desc)}</p>
+                </div>
+
+                <button
+                  type="button"
+                  onclick="openProductDetailModal('${escapeHtml(p.id)}')"
+                  class="w-full py-2.5 px-4 rounded-2xl bg-gradient-to-r from-brand-600 to-amber-600 hover:from-brand-500 hover:to-amber-500 text-white font-bold text-xs shadow-lg flex items-center justify-center gap-2 active:scale-95 transition-all cursor-pointer"
+                >
+                  <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                  <span>Agregar al carrito</span>
+                </button>
+              </div>
+            </article>
+          `;
+        })
+        .join("");
+
+      if (window.lucide) lucide.createIcons();
+    }
+
+    // ============================================================================
+    // 4. MODAL DE PERSONALIZACIÓN DE PRODUCTO Y CARRITO DE COMPRAS
+    // ============================================================================
+    window.openProductDetailModal = function (productId) {
+      const product = appState.products.find((p) => p.id === productId);
+      if (!product) return;
+
+      activeProductModal = product;
+      modalQuantity = 1;
+
+      const placeholderUrl = `https://placehold.co/600x400/1e293b/f97316?text=${encodeURIComponent(product.name)}`;
+      document.getElementById("modal-product-img").src = product.img || placeholderUrl;
+      document.getElementById("modal-product-cat").textContent = product.category;
+      document.getElementById("modal-product-title").textContent = product.name;
+      document.getElementById("modal-product-base-price").textContent = `$${Number(product.price).toFixed(2)}`;
+      document.getElementById("modal-product-desc").textContent = product.desc;
+      document.getElementById("modal-qty-display").textContent = "1";
+      document.getElementById("modal-item-notes").value = "";
+
+      const extrasSection = document.getElementById("modal-extras-section");
+      const extrasList = document.getElementById("modal-extras-list");
+
+      const allowedIds = Array.isArray(product.allowedExtras) ? product.allowedExtras : [];
+      const availableExtras = appState.extras.filter((e) => allowedIds.includes(e.id));
+
+      if (availableExtras.length === 0) {
+        extrasSection.classList.add("hidden");
+        extrasList.innerHTML = "";
+      } else {
+        extrasSection.classList.remove("hidden");
+        extrasList.innerHTML = availableExtras
+          .map(
+            (ext) => `
+          <label class="flex items-center justify-between p-2.5 rounded-xl bg-slate-950 border border-slate-800 hover:border-brand-500/40 cursor-pointer transition-all">
+            <div class="flex items-center gap-2.5">
+              <input type="checkbox" value="${escapeHtml(ext.id)}" onchange="updateModalDynamicPrice()" class="modal-extra-checkbox w-4 h-4 rounded accent-brand-500">
+              <span class="text-xs font-medium text-white">${escapeHtml(ext.name)}</span>
+            </div>
+            <span class="text-xs font-bold text-brand-400">+$${Number(ext.price).toFixed(2)}</span>
+          </label>
+        `
+          )
+          .join("");
+      }
+
+      updateModalDynamicPrice();
+      const modal = document.getElementById("product-detail-modal");
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+    };
+
+    window.closeProductDetailModal = function () {
+      const modal = document.getElementById("product-detail-modal");
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+      activeProductModal = null;
+    };
+
+    window.changeModalQty = function (delta) {
+      modalQuantity = Math.max(1, modalQuantity + delta);
+      document.getElementById("modal-qty-display").textContent = String(modalQuantity);
+      updateModalDynamicPrice();
+    };
+
+    window.updateModalDynamicPrice = function () {
+      if (!activeProductModal) return;
+      const checkedBoxes = document.querySelectorAll(".modal-extra-checkbox:checked");
+      let extrasSum = 0;
+      checkedBoxes.forEach((cb) => {
+        const found = appState.extras.find((e) => e.id === cb.value);
+        if (found) extrasSum += Number(found.price);
+      });
+      const unitPrice = Number(activeProductModal.price) + extrasSum;
+      const total = unitPrice * modalQuantity;
+      document.getElementById("modal-final-price-btn").textContent = `$${total.toFixed(2)}`;
+    };
+
+    window.confirmAddToCart = function () {
+      if (!activeProductModal || !activeProductModal.name) return;
+
+      const productSnapshot = { ...activeProductModal };
+      const checkedBoxes = document.querySelectorAll(".modal-extra-checkbox:checked");
+      const selectedExtras = [];
+      let extrasTotal = 0;
+
+      checkedBoxes.forEach((cb) => {
+        const found = appState.extras.find((e) => e.id === cb.value);
+        if (found) {
+          selectedExtras.push({ id: found.id, name: found.name, price: Number(found.price) });
+          extrasTotal += Number(found.price);
+        }
+      });
+
+      const notesInput = document.getElementById("modal-item-notes");
+      const itemNotes = notesInput ? notesInput.value.trim() : "";
+      const unitPrice = Number(productSnapshot.price) + extrasTotal;
+
+      const cartItem = {
+        cartItemId: `item_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+        productId: productSnapshot.id,
+        name: productSnapshot.name,
+        basePrice: Number(productSnapshot.price),
+        unitPrice: unitPrice,
+        quantity: modalQuantity,
+        extras: selectedExtras,
+        notes: itemNotes
+      };
+
+      cart.push(cartItem);
+      closeProductDetailModal();
+      renderCartUI();
+      showToast(`${productSnapshot.name} agregado al carrito`);
+    };
+
+    window.toggleCart = function (open) {
+      const drawer = document.getElementById("cart-drawer");
+      const backdrop = document.getElementById("cart-backdrop");
+      if (open) {
+        drawer.classList.remove("translate-x-full");
+        backdrop.classList.remove("opacity-0", "pointer-events-none");
+      } else {
+        drawer.classList.add("translate-x-full");
+        backdrop.classList.add("opacity-0", "pointer-events-none");
+      }
+    };
+
+    window.updateCartItemQty = function (cartItemId, delta) {
+      const idx = cart.findIndex((c) => c.cartItemId === cartItemId);
+      if (idx === -1) return;
+      cart[idx].quantity += delta;
+      if (cart[idx].quantity <= 0) {
+        cart.splice(idx, 1);
+      }
+      renderCartUI();
+    };
+
+    window.removeCartItem = function (cartItemId) {
+      cart = cart.filter((c) => c.cartItemId !== cartItemId);
+      renderCartUI();
+    };
+
+    function getCartTotals() {
+      const subtotal = cart.reduce((acc, item) => acc + item.unitPrice * item.quantity, 0);
+      const discountPercent = appliedCoupon ? Number(appliedCoupon.percent) : 0;
+      const discountAmount = subtotal * (discountPercent / 100);
+      const discountedSubtotal = Math.max(0, subtotal - discountAmount);
+
+      const threshold = Number(appState.settings.freeShippingThreshold) || 0;
+      const baseShipping = Number(appState.settings.shippingCost) || 0;
+
+      const qualifiesFreeShipping = threshold > 0 && subtotal >= threshold;
+      const shipping = cart.length === 0 ? 0 : qualifiesFreeShipping ? 0 : baseShipping;
+      const grandTotal = discountedSubtotal + shipping;
+
+      return {
+        subtotal,
+        discountPercent,
+        discountAmount,
+        shipping,
+        qualifiesFreeShipping,
+        threshold,
+        grandTotal
+      };
+    }
+
+    function renderCartUI() {
+      const totalItems = cart.reduce((acc, item) => acc + item.quantity, 0);
+      const totals = getCartTotals();
+
+      document.getElementById("cart-counter-badge").textContent = String(totalItems);
+      document.getElementById("mobile-counter-badge").textContent = String(totalItems);
+      document.getElementById("mobile-total-display").textContent = `$${totals.grandTotal.toFixed(2)}`;
+      document.getElementById("drawer-counter-label").textContent = `${totalItems} ${totalItems === 1 ? "ítem agregado" : "ítems agregados"}`;
+
+      const listEl = document.getElementById("cart-items-list");
+      const emptyEl = document.getElementById("cart-empty-view");
+      const footerEl = document.getElementById("cart-summary-footer");
+
+      // Barra de progreso de envío gratis
+      const freeBanner = document.getElementById("free-shipping-banner");
+      if (totals.threshold > 0 && cart.length > 0) {
+        freeBanner.classList.remove("hidden");
+        const pct = Math.min(100, Math.round((totals.subtotal / totals.threshold) * 100));
+        document.getElementById("free-shipping-bar").style.width = `${pct}%`;
+        document.getElementById("free-shipping-pct").textContent = `${pct}%`;
+        if (totals.qualifiesFreeShipping) {
+          document.getElementById("free-shipping-msg").innerHTML = `<span class="text-emerald-400 font-bold">🎉 ¡Felicidades! Tienes ENVÍO GRATIS</span>`;
+        } else {
+          const missing = (totals.threshold - totals.subtotal).toFixed(2);
+          document.getElementById("free-shipping-msg").textContent = `Te faltan $${missing} para Envío Gratis`;
+        }
+      } else {
+        freeBanner.classList.add("hidden");
+      }
+
+      if (cart.length === 0) {
+        listEl.classList.add("hidden");
+        emptyEl.classList.remove("hidden");
+        emptyEl.classList.add("flex");
+        footerEl.classList.add("opacity-50", "pointer-events-none");
+      } else {
+        listEl.classList.remove("hidden");
+        emptyEl.classList.add("hidden");
+        emptyEl.classList.remove("flex");
+        footerEl.classList.remove("opacity-50", "pointer-events-none");
+
+        listEl.innerHTML = cart
+          .map((item) => {
+            const extrasHtml =
+              item.extras && item.extras.length
+                ? `<div class="text-[11px] text-brand-400 mt-1">+ ${item.extras.map((e) => escapeHtml(e.name)).join(", ")}</div>`
+                : "";
+            const notesHtml = item.notes
+              ? `<div class="text-[10px] text-slate-400 italic mt-0.5">Nota: "${escapeHtml(item.notes)}"</div>`
+              : "";
+
+            return `
+              <div class="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 flex items-start justify-between gap-3">
+                <div class="flex-1">
+                  <h4 class="text-xs font-bold text-white">${escapeHtml(item.name)}</h4>
+                  ${extrasHtml}
+                  ${notesHtml}
+                  <div class="text-xs font-black text-brand-500 mt-1.5">
+                    $${(item.unitPrice * item.quantity).toFixed(2)}
+                    <span class="text-[10px] text-slate-500 font-normal">($${item.unitPrice.toFixed(2)} c/u)</span>
+                  </div>
+                </div>
+
+                <div class="flex items-center gap-1.5 bg-slate-900 border border-slate-800 p-1 rounded-xl">
+                  <button type="button" onclick="updateCartItemQty('${item.cartItemId}', -1)" class="w-6 h-6 rounded-lg bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold cursor-pointer">-</button>
+                  <span class="w-5 text-center text-xs font-bold text-white">${item.quantity}</span>
+                  <button type="button" onclick="updateCartItemQty('${item.cartItemId}', 1)" class="w-6 h-6 rounded-lg bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold cursor-pointer">+</button>
+                </div>
+
+                <button type="button" onclick="removeCartItem('${item.cartItemId}')" class="text-slate-500 hover:text-rose-400 p-1 cursor-pointer">
+                  <i data-lucide="trash-2" class="w-4 h-4"></i>
+                </button>
+              </div>
+            `;
+          })
+          .join("");
+      }
+
+      document.getElementById("summary-subtotal").textContent = `$${totals.subtotal.toFixed(2)}`;
+      const discRow = document.getElementById("summary-discount-row");
+      if (totals.discountPercent > 0) {
+        discRow.classList.remove("hidden");
+        discRow.classList.add("flex");
+        document.getElementById("summary-discount-label").textContent = `Descuento (${appliedCoupon.code} -${totals.discountPercent}%)`;
+        document.getElementById("summary-discount-amount").textContent = `-$${totals.discountAmount.toFixed(2)}`;
+      } else {
+        discRow.classList.add("hidden");
+        discRow.classList.remove("flex");
+      }
+
+      document.getElementById("summary-shipping").innerHTML = totals.qualifiesFreeShipping
+        ? `<span class="line-through text-slate-500 mr-1">$${Number(appState.settings.shippingCost).toFixed(2)}</span><span class="text-emerald-400 font-black">¡GRATIS!</span>`
+        : `$${totals.shipping.toFixed(2)}`;
+      document.getElementById("summary-grand-total").textContent = `$${totals.grandTotal.toFixed(2)}`;
+
+      updateCheckoutTotalsUI();
+      if (window.lucide) lucide.createIcons();
+    }
+
+    // ============================================================================
+    // 5. CHECKOUT, CUPONES DE DESCUENTO, GPS Y ENVÍO POR WHATSAPP
+    // ============================================================================
+    window.openCheckoutModal = function () {
+      if (cart.length === 0) {
+        showToast("Agrega al menos un producto al carrito", "error");
+        return;
+      }
+      toggleCart(false);
+      updateCheckoutTotalsUI();
+      const modal = document.getElementById("checkout-modal");
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+    };
+
+    window.closeCheckoutModal = function () {
+      const modal = document.getElementById("checkout-modal");
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+    };
+
+    window.handlePaymentSelection = function (method) {
+      document.getElementById("payment-cash-box").classList.toggle("hidden", method !== "Efectivo");
+      document.getElementById("payment-transfer-box").classList.toggle("hidden", method !== "Transferencia");
+      document.getElementById("payment-yape-box").classList.toggle("hidden", method !== "Yape");
+    };
+
+    window.applyDiscountCoupon = function () {
+      const input = document.getElementById("coupon-code-input");
+      const rawCode = (input.value || "").trim().toUpperCase();
+      if (!rawCode) {
+        showToast("Escribe un código promocional", "error");
+        return;
+      }
+
+      const configuredCoupons = appState.settings.coupons || {};
+      let matchedPercent = null;
+
+      for (const [pct, code] of Object.entries(configuredCoupons)) {
+        if (code && String(code).trim().toUpperCase() === rawCode) {
+          matchedPercent = Number(pct);
+          break;
+        }
+      }
+
+      if (!matchedPercent) {
+        showToast("Cupón no válido o inactivo", "error");
+        return;
+      }
+
+      appliedCoupon = { code: rawCode, percent: matchedPercent };
+      document.getElementById("coupon-applied-text").textContent = `🎉 Cupón ${rawCode} (${matchedPercent}% DCTO) aplicado`;
+      const badge = document.getElementById("coupon-applied-badge");
+      badge.classList.remove("hidden");
+      badge.classList.add("flex");
+      renderCartUI();
+      showToast(`¡Descuento del ${matchedPercent}% aplicado!`);
+    };
+
+    window.removeDiscountCoupon = function () {
+      appliedCoupon = null;
+      document.getElementById("coupon-code-input").value = "";
+      const badge = document.getElementById("coupon-applied-badge");
+      badge.classList.add("hidden");
+      badge.classList.remove("flex");
+      renderCartUI();
+    };
+
+    function updateCheckoutTotalsUI() {
+      const totals = getCartTotals();
+      const subEl = document.getElementById("checkout-subtotal-display");
+      if (!subEl) return;
+
+      subEl.textContent = `$${totals.subtotal.toFixed(2)}`;
+      const discRow = document.getElementById("checkout-discount-row");
+      if (totals.discountPercent > 0) {
+        discRow.classList.remove("hidden");
+        discRow.classList.add("flex");
+        document.getElementById("checkout-discount-label").textContent = `Descuento (${appliedCoupon.code} -${totals.discountPercent}%):`;
+        document.getElementById("checkout-discount-display").textContent = `-$${totals.discountAmount.toFixed(2)}`;
+      } else {
+        discRow.classList.add("hidden");
+        discRow.classList.remove("flex");
+      }
+
+      document.getElementById("checkout-shipping-display").innerHTML = totals.qualifiesFreeShipping
+        ? `<span class="text-emerald-400 font-black">¡GRATIS!</span>`
+        : `$${totals.shipping.toFixed(2)}`;
+      document.getElementById("checkout-total-display").textContent = `$${totals.grandTotal.toFixed(2)}`;
+    }
+
+    // Ubicación Satelital GPS
+    window.captureClientLocation = function () {
+      if (!navigator.geolocation) {
+        showToast("Tu navegador no soporta geolocalización GPS", "error");
+        return;
+      }
+      const statusText = document.getElementById("gps-status-text");
+      statusText.textContent = "Obteniendo satélite...";
+
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const lat = pos.coords.latitude.toFixed(6);
+          const lng = pos.coords.longitude.toFixed(6);
+          clientGpsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
+          statusText.textContent = "Ubicación GPS Lista";
+          document.getElementById("gps-result-box").classList.remove("hidden");
+          showToast("Ubicación satelital adjuntada correctamente");
+        },
+        () => {
+          statusText.textContent = "Adjuntar mi Ubicación GPS";
+          showToast("Permite el acceso a tu ubicación para adjuntar el GPS", "error");
+        },
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+    };
+
+    window.clearClientLocation = function () {
+      clientGpsUrl = "";
+      document.getElementById("gps-status-text").textContent = "Adjuntar mi Ubicación GPS";
+      document.getElementById("gps-result-box").classList.add("hidden");
+    };
+
+    // Copiar Datos Bancarios o Yape
+    function copyTextToClipboard(text, successMsg) {
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textarea);
+      showToast(successMsg);
+    }
+
+    window.copyBankDetails = function () {
+      copyTextToClipboard(appState.settings.bankInfo, "Datos bancarios copiados al portapapeles");
+    };
+
+    window.copyYapeDetails = function () {
+      copyTextToClipboard(appState.settings.yapePhone, "Número de Yape copiado al portapapeles");
+    };
+
+    // Envío del Pedido por WhatsApp y Registro en Backend/Cloud
+    window.handleOrderSubmit = function (e) {
+      e.preventDefault();
+      if (cart.length === 0) return;
+
+      const name = document.getElementById("client-name").value.trim();
+      const phone = document.getElementById("client-phone").value.trim();
+      const address = document.getElementById("client-address").value.trim();
+      const notes = document.getElementById("client-notes").value.trim() || "Ninguna";
+      const paymentRadio = document.querySelector('input[name="payment-method"]:checked');
+      const paymentMethod = paymentRadio ? paymentRadio.value : "Efectivo";
+      const cashAmount = document.getElementById("cash-amount").value.trim();
+
+      if (!name || !phone || !address) {
+        showToast("Por favor completa los campos obligatorios (*)", "error");
+        return;
+      }
+
+      const totals = getCartTotals();
+      let paymentDetail = paymentMethod;
+      if (paymentMethod === "Efectivo") {
+        if (cashAmount && Number(cashAmount) > totals.grandTotal) {
+          const change = (Number(cashAmount) - totals.grandTotal).toFixed(2);
+          paymentDetail = `Efectivo (Paga con $${Number(cashAmount).toFixed(2)} -> Llevar cambio de $${change})`;
+        } else {
+          paymentDetail = "Efectivo (Pago exacto)";
+        }
+      }
+
+      // Guardar pedido en el Backend y en Google Cloud Firestore
+      const newOrder = {
+        id: `ORD-${Date.now().toString().slice(-5)}`,
+        createdAt: new Date().toLocaleString(),
+        clientName: name,
+        clientPhone: phone,
+        clientAddress: address,
+        clientNotes: notes,
+        gpsUrl: clientGpsUrl || "",
+        paymentMethod: paymentDetail,
+        items: structuredClone(cart),
+        subtotal: totals.subtotal,
+        discountCode: appliedCoupon ? appliedCoupon.code : null,
+        discountPercent: totals.discountPercent,
+        discountAmount: totals.discountAmount,
+        shipping: totals.shipping,
+        total: totals.grandTotal,
+        status: "Pendiente"
+      };
+
+      appState.orders.unshift(newOrder);
+      saveState(true);
+      renderAdminAll();
+
+      // Construir mensaje de WhatsApp con el formato solicitado
+      const lines = [
+        `🛍️ *NUEVO PEDIDO EN LÍNEA - ${appState.settings.businessName}* 🛍️`,
+        `👤 *Cliente:* ${name}`,
+        `📞 *Teléfono:* ${phone}`,
+        `📍 *Dirección:* ${address}`,
+        clientGpsUrl ? `🛰️ *Ubicación Satelital GPS:* ${clientGpsUrl}` : null,
+        `📄 *Notas:* ${notes}`,
+        `----------------------------------`,
+        `🛒 *Detalle del Pedido:*`
+      ].filter(Boolean);
+
+      cart.forEach((item) => {
+        const itemSubtotal = (item.unitPrice * item.quantity).toFixed(2);
+        const extrasTxt = item.extras && item.extras.length ? ` [+ ${item.extras.map((x) => x.name).join(", ")}]` : "";
+        const noteTxt = item.notes ? ` (Nota: ${item.notes})` : "";
+        lines.push(`  - ${item.quantity}x ${item.name}${extrasTxt}${noteTxt} ($${item.unitPrice.toFixed(2)}) -> $${itemSubtotal}`);
+      });
+
+      lines.push(`----------------------------------`);
+      lines.push(`🧾 *Subtotal:* $${totals.subtotal.toFixed(2)}`);
+      if (totals.discountPercent > 0) {
+        lines.push(`🎟️ *Descuento (${appliedCoupon.code} -${totals.discountPercent}%):* -$${totals.discountAmount.toFixed(2)}`);
+      }
+      lines.push(`🛵 *Envío:* ${totals.qualifiesFreeShipping ? "¡GRATIS!" : "$" + totals.shipping.toFixed(2)}`);
+      lines.push(`💵 *Forma de Pago:* ${paymentDetail}`);
+      lines.push(`💰 *TOTAL A PAGAR:* $${totals.grandTotal.toFixed(2)}`);
+
+      const targetPhone = (appState.settings.storeWhatsapp || STORE_WHATSAPP_PHONE).replace(/\D/g, "");
+      const encodedMsg = encodeURIComponent(lines.join("\n"));
+      const whatsappUrl = `https://wa.me/${targetPhone}?text=${encodedMsg}`;
+
+      // Limpiar carrito y redirigir
+      cart = [];
+      appliedCoupon = null;
+      clearClientLocation();
+      document.getElementById("order-form").reset();
+      closeCheckoutModal();
+      renderCartUI();
+      showToast("Redirigiendo a WhatsApp con tu pedido...");
+      window.open(whatsappUrl, "_blank");
+    };
+
+    // ============================================================================
+    // 6. AUTENTICACIÓN, JERARQUÍA DE USUARIOS Y PANEL ADMINISTRATIVO (BACKEND)
+    // ============================================================================
+    window.handleAdminButtonClick = function () {
+      if (currentUser) {
+        switchView("admin");
+      } else {
+        const modal = document.getElementById("login-modal");
+        modal.classList.remove("hidden");
+        modal.classList.add("flex");
+      }
+    };
+
+    window.closeLoginModal = function () {
+      const modal = document.getElementById("login-modal");
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+    };
+
+    window.handleLoginSubmit = function (e) {
+      e.preventDefault();
+      const u = document.getElementById("login-username").value.trim();
+      const p = document.getElementById("login-password").value.trim();
+
+      const found = appState.users.find((usr) => usr.username === u && usr.password === p);
+      if (!found) {
+        showToast("Usuario o contraseña incorrectos", "error");
+        return;
+      }
+
+      currentUser = found;
+      document.getElementById("admin-btn-label").textContent = `Panel (${found.username})`;
+      closeLoginModal();
+      applyRolePermissions();
+      switchView("admin");
+      showToast(`Bienvenido ${found.username} (${found.role.toUpperCase()})`);
+    };
+
+    window.handleLogout = function () {
+      currentUser = null;
+      document.getElementById("admin-btn-label").textContent = "Admin";
+      switchView("client");
+      showToast("Sesión cerrada correctamente");
+    };
+
+    window.switchView = function (view) {
+      const clientEl = document.getElementById("client-view");
+      const adminEl = document.getElementById("admin-panel-view");
+      if (view === "admin") {
+        clientEl.classList.add("hidden");
+        adminEl.classList.remove("hidden");
+        renderAdminAll();
+      } else {
+        adminEl.classList.add("hidden");
+        clientEl.classList.remove("hidden");
+      }
+    };
+
+    function applyRolePermissions() {
+      if (!currentUser) return;
+      const role = currentUser.role;
+      document.getElementById("current-user-role-badge").textContent = role;
+      document.getElementById("current-username-display").textContent = currentUser.username;
+
+      const tabs = {
+        orders: role === "master" || role === "cajero",
+        products: role === "master" || role === "menu_admin",
+        categories: role === "master" || role === "menu_admin",
+        extras: role === "master" || role === "menu_admin",
+        identity: role === "master",
+        users: role === "master",
+        cloud: role === "master"
+      };
+
+      Object.entries(tabs).forEach(([tabName, allowed]) => {
+        const btn = document.getElementById(`tab-btn-${tabName}`);
+        if (btn) btn.classList.toggle("hidden", !allowed);
+      });
+
+      const firstAllowed = Object.keys(tabs).find((k) => tabs[k]) || "orders";
+      switchAdminTab(firstAllowed);
+    }
+
+    window.switchAdminTab = function (tabName) {
+      document.querySelectorAll(".admin-section-tab").forEach((sec) => sec.classList.add("hidden"));
+      const target = document.getElementById(`admin-section-${tabName}`);
+      if (target) target.classList.remove("hidden");
+
+      document.querySelectorAll(".admin-tab-btn").forEach((btn) => {
+        btn.className = "admin-tab-btn px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 bg-slate-900 text-slate-400 hover:text-white border border-slate-800 cursor-pointer";
+      });
+      const activeBtn = document.getElementById(`tab-btn-${tabName}`);
+      if (activeBtn) {
+        activeBtn.className = "admin-tab-btn px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 bg-brand-600 text-white cursor-pointer";
+      }
+    };
+
+    function renderAdminAll() {
+      renderAdminOrders();
+      renderAdminProducts();
+      renderAdminCategories();
+      renderAdminExtras();
+      renderAdminIdentityForm();
+      renderAdminUsers();
+      updateCloudMetricsUI();
+      if (window.lucide) lucide.createIcons();
+    }
+
+    // ============================================================================
+    // 7. GESTIÓN DE PEDIDOS Y DESPACHO AL MOTORIZADO (BACKEND)
+    // ============================================================================
+    function renderAdminOrders() {
+      const countEl = document.getElementById("admin-orders-count");
+      if (countEl) countEl.textContent = String(appState.orders.length);
+
+      const listEl = document.getElementById("admin-orders-list");
+      if (!listEl) return;
+
+      if (appState.orders.length === 0) {
+        listEl.innerHTML = `<div class="col-span-full p-10 text-center bg-slate-900 border border-slate-800 rounded-3xl text-xs text-slate-400">Aún no hay pedidos registrados.</div>`;
+        return;
+      }
+
+      listEl.innerHTML = appState.orders
+        .map((ord) => {
+          const itemsHtml = ord.items
+            .map((it) => {
+              const ext = it.extras && it.extras.length ? ` (+${it.extras.map((e) => e.name).join(", ")})` : "";
+              return `<li>• ${it.quantity}x ${escapeHtml(it.name)}${escapeHtml(ext)} - $${(it.unitPrice * it.quantity).toFixed(2)}</li>`;
+            })
+            .join("");
+
+          const gpsBtn = ord.gpsUrl
+            ? `<a href="${escapeHtml(ord.gpsUrl)}" target="_blank" class="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-400 hover:underline mt-1">🛰️ Ver Ubicación Satelital GPS en Google Maps</a>`
+            : `<span class="text-[10px] text-slate-500 block mt-1">Sin GPS adjunto</span>`;
+
+          return `
+            <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 space-y-3 flex flex-col justify-between shadow-xl">
+              <div class="space-y-2">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                  <span class="font-black text-brand-400 text-xs">${escapeHtml(ord.id)}</span>
+                  <span class="text-[10px] text-slate-400">${escapeHtml(ord.createdAt)}</span>
+                </div>
+
+                <div class="text-xs space-y-1">
+                  <p class="font-bold text-white">👤 ${escapeHtml(ord.clientName)} (${escapeHtml(ord.clientPhone)})</p>
+                  <p class="text-slate-300">📍 ${escapeHtml(ord.clientAddress)}</p>
+                  <p class="text-slate-400 text-[11px]">📄 Notas: ${escapeHtml(ord.clientNotes)}</p>
+                  ${gpsBtn}
+                </div>
+
+                <ul class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-[11px] text-slate-300 space-y-1">
+                  ${itemsHtml}
+                </ul>
+
+                <div class="text-xs pt-1 space-y-0.5">
+                  <p class="text-slate-400">💳 Pago: <span class="text-white font-semibold">${escapeHtml(ord.paymentMethod)}</span></p>
+                  <p class="text-sm font-black text-brand-500">Total a Cobrar: $${Number(ord.total).toFixed(2)}</p>
+                </div>
+              </div>
+
+              <div class="pt-3 border-t border-slate-800 space-y-2">
+                <div class="flex items-center gap-2">
+                  <select onchange="updateOrderStatus('${escapeHtml(ord.id)}', this.value)" class="flex-1 px-2.5 py-1.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white">
+                    ${["Pendiente", "En Cocina", "En Camino", "Entregado", "Cancelado"]
+                      .map((st) => `<option value="${st}" ${ord.status === st ? "selected" : ""}>${st}</option>`)
+                      .join("")}
+                  </select>
+                </div>
+
+                <button
+                  type="button"
+                  onclick="openRiderDispatchModal('${escapeHtml(ord.id)}')"
+                  class="w-full py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-lg cursor-pointer"
+                >
+                  <span>🛵 Despachar Pedido al Motorizado</span>
+                </button>
+              </div>
+            </div>
+          `;
+        })
+        .join("");
+    }
+
+    window.updateOrderStatus = function (orderId, newStatus) {
+      const ord = appState.orders.find((o) => o.id === orderId);
+      if (!ord) return;
+      ord.status = newStatus;
+      saveState(true);
+      renderAdminOrders();
+      showToast(`Pedido ${orderId} actualizado a: ${newStatus}`);
+    };
+
+    window.clearCompletedOrders = function () {
+      appState.orders = appState.orders.filter((o) => o.status !== "Cancelado");
+      saveState(true);
+      renderAdminOrders();
+      showToast("Pedidos cancelados eliminados");
+    };
+
+    window.openRiderDispatchModal = function (orderId) {
+      const ord = appState.orders.find((o) => o.id === orderId);
+      if (!ord) return;
+      activeDispatchOrderId = orderId;
+
+      document.getElementById("dispatch-rider-phone").value = appState.settings.riderWhatsapp || "";
+
+      const msgLines = [
+        `🛵 *HOJA DE DESPACHO MOTORIZADO - ${appState.settings.businessName}*`,
+        `📦 *Orden:* ${ord.id}`,
+        `👤 *Cliente:* ${ord.clientName}`,
+        `📞 *Teléfono Cliente:* ${ord.clientPhone}`,
+        `📍 *Dirección:* ${ord.clientAddress}`,
+        `📄 *Referencias:* ${ord.clientNotes}`,
+        ord.gpsUrl ? `🛰️ *Mapa GPS Satelital:* ${ord.gpsUrl}` : `🛰️ *GPS:* No adjuntado`,
+        `----------------------------------`,
+        `🍔 *Detalle a Entregar:*`,
+        ...ord.items.map((it) => `  - ${it.quantity}x ${it.name}${it.extras && it.extras.length ? " (+" + it.extras.map((e) => e.name).join(", ") + ")" : ""}`),
+        `----------------------------------`,
+        `💵 *Forma de Pago:* ${ord.paymentMethod}`,
+        `💰 *TOTAL A COBRAR:* $${Number(ord.total).toFixed(2)}`
+      ];
+
+      document.getElementById("dispatch-preview-text").textContent = msgLines.join("\n");
+      const modal = document.getElementById("rider-dispatch-modal");
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+    };
+
+    window.closeRiderDispatchModal = function () {
+      const modal = document.getElementById("rider-dispatch-modal");
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+      activeDispatchOrderId = null;
+    };
+
+    window.confirmSendToRider = function () {
+      if (!activeDispatchOrderId) return;
+      const riderPhone = document.getElementById("dispatch-rider-phone").value.replace(/\D/g, "");
+      const text = document.getElementById("dispatch-preview-text").textContent;
+
+      updateOrderStatus(activeDispatchOrderId, "En Camino");
+      closeRiderDispatchModal();
+
+      const encoded = encodeURIComponent(text);
+      const url = riderPhone ? `https://wa.me/${riderPhone}?text=${encoded}` : `https://wa.me/?text=${encoded}`;
+      window.open(url, "_blank");
+    };
+
+    // ============================================================================
+    // 8. CRUD DE PRODUCTOS, CATEGORÍAS INFINITAS, EXTRAS, IDENTIDAD Y USUARIOS
+    // ============================================================================
+    function renderAdminProducts() {
+      const tbody = document.getElementById("admin-products-table-body");
+      if (!tbody) return;
+
+      tbody.innerHTML = appState.products
+        .map((p) => {
+          const extrasCount = Array.isArray(p.allowedExtras) ? p.allowedExtras.length : 0;
+          return `
+            <tr class="hover:bg-slate-950/60">
+              <td class="p-3.5 font-bold text-white">${escapeHtml(p.name)}</td>
+              <td class="p-3.5 text-brand-400">${escapeHtml(p.category)}</td>
+              <td class="p-3.5 font-black text-white">$${Number(p.price).toFixed(2)}</td>
+              <td class="p-3.5 text-slate-400">${extrasCount} extras habilitados</td>
+              <td class="p-3.5 text-right space-x-2">
+                <button type="button" onclick="openProductEditModal('${escapeHtml(p.id)}')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 cursor-pointer">Editar</button>
+                <button type="button" onclick="deleteProduct('${escapeHtml(p.id)}')" class="px-2.5 py-1 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 cursor-pointer">Eliminar</button>
+              </td>
+            </tr>
+          `;
+        })
+        .join("");
+    }
+
+    window.openProductEditModal = function (prodId) {
+      const prod = prodId ? appState.products.find((p) => p.id === prodId) : null;
+      document.getElementById("admin-product-modal-title").textContent = prod ? "Editar Producto" : "Nuevo Producto";
+      document.getElementById("edit-prod-id").value = prod ? prod.id : "";
+      document.getElementById("edit-prod-name").value = prod ? prod.name : "";
+      document.getElementById("edit-prod-price").value = prod ? prod.price : "";
+      document.getElementById("edit-prod-desc").value = prod ? prod.desc : "";
+      document.getElementById("edit-prod-img").value = prod ? prod.img : "";
+
+      const catSelect = document.getElementById("edit-prod-category");
+      catSelect.innerHTML = appState.categories
+        .map((c) => `<option value="${escapeHtml(c)}" ${prod && prod.category === c ? "selected" : ""}>${escapeHtml(c)}</option>`)
+        .join("");
+
+      const checksContainer = document.getElementById("edit-prod-extras-checks");
+      const selectedExtras = prod && Array.isArray(prod.allowedExtras) ? prod.allowedExtras : appState.extras.map((e) => e.id);
+      checksContainer.innerHTML = appState.extras
+        .map(
+          (ext) => `
+        <label class="flex items-center gap-2 text-xs text-slate-300 cursor-pointer">
+          <input type="checkbox" value="${escapeHtml(ext.id)}" class="edit-prod-extra-cb accent-brand-500" ${selectedExtras.includes(ext.id) ? "checked" : ""}>
+          <span>${escapeHtml(ext.name)} (+$${Number(ext.price).toFixed(2)})</span>
+        </label>
+      `
+        )
+        .join("");
+
+      const modal = document.getElementById("admin-product-modal");
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+    };
+
+    window.closeProductEditModal = function () {
+      const modal = document.getElementById("admin-product-modal");
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+    };
+
+    window.handleSaveProduct = function (e) {
+      e.preventDefault();
+      const id = document.getElementById("edit-prod-id").value;
+      const name = document.getElementById("edit-prod-name").value.trim();
+      const price = parseFloat(document.getElementById("edit-prod-price").value) || 0;
+      const category = document.getElementById("edit-prod-category").value;
+      const desc = document.getElementById("edit-prod-desc").value.trim();
+      const img = document.getElementById("edit-prod-img").value.trim();
+
+      const allowedExtras = Array.from(document.querySelectorAll(".edit-prod-extra-cb:checked")).map((cb) => cb.value);
+
+      if (id) {
+        const idx = appState.products.findIndex((p) => p.id === id);
+        if (idx !== -1) {
+          appState.products[idx] = { ...appState.products[idx], name, price, category, desc, img, allowedExtras };
+        }
+      } else {
+        appState.products.push({
+          id: `p_${Date.now()}`,
+          name,
+          price,
+          category,
+          desc,
+          img,
+          allowedExtras
+        });
+      }
+
+      saveState(true);
+      closeProductEditModal();
+      refreshAllUI();
+      showToast("Producto guardado correctamente");
+    };
+
+    window.deleteProduct = function (prodId) {
+      appState.products = appState.products.filter((p) => p.id !== prodId);
+      saveState(true);
+      refreshAllUI();
+      showToast("Producto eliminado");
+    };
+
+    // Categorías Infinitas
+    function renderAdminCategories() {
+      const container = document.getElementById("admin-categories-cards");
+      if (!container) return;
+
+      container.innerHTML = appState.categories
+        .map((cat) => {
+          const count = appState.products.filter((p) => p.category === cat).length;
+          return `
+            <div class="p-4 bg-slate-900 border border-slate-800 rounded-2xl flex items-center justify-between">
+              <div>
+                <h4 class="font-bold text-white text-sm">${escapeHtml(cat)}</h4>
+                <p class="text-[11px] text-slate-400">${count} productos</p>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <button type="button" onclick="openCategoryEditModal('${escapeHtml(cat)}')" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs cursor-pointer">Editar</button>
+                <button type="button" onclick="deleteCategory('${escapeHtml(cat)}')" class="p-2 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 text-xs cursor-pointer">Borrar</button>
+              </div>
+            </div>
+          `;
+        })
+        .join("");
+    }
+
+    window.openCategoryEditModal = function (catName) {
+      document.getElementById("admin-cat-modal-title").textContent = catName ? "Editar Categoría" : "Nueva Categoría";
+      document.getElementById("edit-cat-old-name").value = catName || "";
+      document.getElementById("edit-cat-name").value = catName || "";
+      const modal = document.getElementById("admin-category-modal");
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+    };
+
+    window.closeCategoryEditModal = function () {
+      const modal = document.getElementById("admin-category-modal");
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+    };
+
+    window.handleSaveCategory = function (e) {
+      e.preventDefault();
+      const oldName = document.getElementById("edit-cat-old-name").value;
+      const newName = document.getElementById("edit-cat-name").value.trim();
+      if (!newName) return;
+
+      if (oldName) {
+        const idx = appState.categories.indexOf(oldName);
+        if (idx !== -1) appState.categories[idx] = newName;
+        appState.products.forEach((p) => {
+          if (p.category === oldName) p.category = newName;
+        });
+      } else if (!appState.categories.includes(newName)) {
+        appState.categories.push(newName);
+      }
+
+      saveState(true);
+      closeCategoryEditModal();
+      refreshAllUI();
+      showToast("Categoría guardada");
+    };
+
+    window.deleteCategory = function (catName) {
+      appState.categories = appState.categories.filter((c) => c !== catName);
+      saveState(true);
+      refreshAllUI();
+      showToast("Categoría eliminada");
+    };
+
+    // Extras CRUD
+    function renderAdminExtras() {
+      const container = document.getElementById("admin-extras-cards");
+      if (!container) return;
+
+      container.innerHTML = appState.extras
+        .map(
+          (ext) => `
+        <div class="p-4 bg-slate-900 border border-slate-800 rounded-2xl flex items-center justify-between">
+          <div>
+            <h4 class="font-bold text-white text-sm">${escapeHtml(ext.name)}</h4>
+            <p class="text-xs font-black text-brand-400">+$${Number(ext.price).toFixed(2)}</p>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <button type="button" onclick="openExtraEditModal('${escapeHtml(ext.id)}')" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs cursor-pointer">Editar</button>
+            <button type="button" onclick="deleteExtra('${escapeHtml(ext.id)}')" class="p-2 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 text-xs cursor-pointer">Borrar</button>
+          </div>
+        </div>
+      `
+        )
+        .join("");
+    }
+
+    window.openExtraEditModal = function (extraId) {
+      const ext = extraId ? appState.extras.find((e) => e.id === extraId) : null;
+      document.getElementById("admin-extra-modal-title").textContent = ext ? "Editar Extra" : "Nuevo Extra";
+      document.getElementById("edit-extra-id").value = ext ? ext.id : "";
+      document.getElementById("edit-extra-name").value = ext ? ext.name : "";
+      document.getElementById("edit-extra-price").value = ext ? ext.price : "";
+      const modal = document.getElementById("admin-extra-modal");
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+    };
+
+    window.closeExtraEditModal = function () {
+      const modal = document.getElementById("admin-extra-modal");
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+    };
+
+    window.handleSaveExtra = function (e) {
+      e.preventDefault();
+      const id = document.getElementById("edit-extra-id").value;
+      const name = document.getElementById("edit-extra-name").value.trim();
+      const price = parseFloat(document.getElementById("edit-extra-price").value) || 0;
+
+      if (id) {
+        const idx = appState.extras.findIndex((x) => x.id === id);
+        if (idx !== -1) appState.extras[idx] = { id, name, price };
+      } else {
+        const newId = `ext_${Date.now()}`;
+        appState.extras.push({ id: newId, name, price });
+      }
+
+      saveState(true);
+      closeExtraEditModal();
+      refreshAllUI();
+      showToast("Extra guardado");
+    };
+
+    window.deleteExtra = function (extraId) {
+      appState.extras = appState.extras.filter((e) => e.id !== extraId);
+      saveState(true);
+      refreshAllUI();
+      showToast("Extra eliminado");
+    };
+
+    // Identidad del Negocio y Cupones
+    function renderAdminIdentityForm() {
+      const s = appState.settings;
+      document.getElementById("cfg-business-name").value = s.businessName || "";
+      document.getElementById("cfg-business-address").value = s.address || "";
+      document.getElementById("cfg-store-whatsapp").value = s.storeWhatsapp || "";
+      document.getElementById("cfg-rider-whatsapp").value = s.riderWhatsapp || "";
+      document.getElementById("cfg-shipping-cost").value = s.shippingCost ?? 2.5;
+      document.getElementById("cfg-free-shipping-threshold").value = s.freeShippingThreshold ?? 20.0;
+      document.getElementById("cfg-bank-info").value = s.bankInfo || "";
+      document.getElementById("cfg-yape-phone").value = s.yapePhone || "";
+      document.getElementById("cfg-yape-name").value = s.yapeName || "";
+      document.getElementById("cfg-marquee-text").value = s.marqueeText || "";
+
+      const coupons = s.coupons || {};
+      [10, 20, 30, 40, 50].forEach((pct) => {
+        const el = document.getElementById(`cfg-coupon-${pct}`);
+        if (el) el.value = coupons[pct] || "";
+      });
+    }
+
+    window.handleLogoUpload = function (e) {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function (evt) {
+        appState.settings.logoDataUrl = evt.target.result;
+        saveState(true);
+        applyBusinessIdentity();
+        showToast("Logotipo actualizado");
+      };
+      reader.readAsDataURL(file);
+    };
+
+    window.handleSaveBusinessSettings = function (e) {
+      e.preventDefault();
+      const s = appState.settings;
+      s.businessName = document.getElementById("cfg-business-name").value.trim();
+      s.address = document.getElementById("cfg-business-address").value.trim();
+      s.storeWhatsapp = document.getElementById("cfg-store-whatsapp").value.trim();
+      s.riderWhatsapp = document.getElementById("cfg-rider-whatsapp").value.trim();
+      s.shippingCost = parseFloat(document.getElementById("cfg-shipping-cost").value) || 0;
+      s.freeShippingThreshold = parseFloat(document.getElementById("cfg-free-shipping-threshold").value) || 0;
+      s.bankInfo = document.getElementById("cfg-bank-info").value.trim();
+      s.yapePhone = document.getElementById("cfg-yape-phone").value.trim();
+      s.yapeName = document.getElementById("cfg-yape-name").value.trim();
+      s.marqueeText = document.getElementById("cfg-marquee-text").value.trim();
+
+      s.coupons = {
+        10: document.getElementById("cfg-coupon-10").value.trim().toUpperCase(),
+        20: document.getElementById("cfg-coupon-20").value.trim().toUpperCase(),
+        30: document.getElementById("cfg-coupon-30").value.trim().toUpperCase(),
+        40: document.getElementById("cfg-coupon-40").value.trim().toUpperCase(),
+        50: document.getElementById("cfg-coupon-50").value.trim().toUpperCase()
+      };
+
+      saveState(true);
+      refreshAllUI();
+      showToast("Identidad, envío gratis y cupones actualizados");
+    };
+
+    // Gestión de Usuarios
+    function renderAdminUsers() {
+      const tbody = document.getElementById("admin-users-table-body");
+      if (!tbody) return;
+
+      tbody.innerHTML = appState.users
+        .map(
+          (u) => `
+        <tr>
+          <td class="p-3.5 font-bold text-white">${escapeHtml(u.username)}</td>
+          <td class="p-3.5 uppercase text-brand-400 font-bold">${escapeHtml(u.role)}</td>
+          <td class="p-3.5 text-slate-400">
+            ${u.role === "master" ? "Acceso Total" : u.role === "menu_admin" ? "Productos, Categorías y Extras" : "Pedidos y Despacho Motorizado"}
+          </td>
+          <td class="p-3.5 text-right space-x-2">
+            <button type="button" onclick="openUserModal('${escapeHtml(u.username)}')" class="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-200 cursor-pointer">Editar</button>
+            ${
+              u.username !== "master"
+                ? `<button type="button" onclick="deleteUser('${escapeHtml(u.username)}')" class="px-2.5 py-1 rounded-lg bg-rose-500/20 text-rose-400 cursor-pointer">Borrar</button>`
+                : ""
+            }
+          </td>
+        </tr>
+      `
+        )
+        .join("");
+    }
+
+    window.openUserModal = function (username) {
+      const usr = username ? appState.users.find((u) => u.username === username) : null;
+      document.getElementById("edit-user-original").value = usr ? usr.username : "";
+      document.getElementById("edit-user-username").value = usr ? usr.username : "";
+      document.getElementById("edit-user-password").value = usr ? usr.password : "";
+      document.getElementById("edit-user-role").value = usr ? usr.role : "cajero";
+      const modal = document.getElementById("admin-user-modal");
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+    };
+
+    window.closeUserModal = function () {
+      const modal = document.getElementById("admin-user-modal");
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+    };
+
+    window.handleSaveUser = function (e) {
+      e.preventDefault();
+      const orig = document.getElementById("edit-user-original").value;
+      const username = document.getElementById("edit-user-username").value.trim();
+      const password = document.getElementById("edit-user-password").value.trim();
+      const role = document.getElementById("edit-user-role").value;
+
+      if (orig) {
+        const idx = appState.users.findIndex((u) => u.username === orig);
+        if (idx !== -1) appState.users[idx] = { username, password, role };
+      } else {
+        appState.users.push({ username, password, role });
+      }
+      saveState(true);
+      closeUserModal();
+      renderAdminUsers();
+      showToast("Usuario guardado");
+    };
+
+    window.deleteUser = function (username) {
+      if (username === "master") return;
+      appState.users = appState.users.filter((u) => u.username !== username);
+      saveState(true);
+      renderAdminUsers();
+      showToast("Usuario eliminado");
+    };
+
+    function refreshAllUI() {
+      applyBusinessIdentity();
+      renderCategoryFilters();
+      renderProductsGrid();
+      renderCartUI();
+      renderAdminAll();
+    }
+
+    // Inicialización al cargar la página
+    window.addEventListener("DOMContentLoaded", () => {
+      refreshAllUI();
+      initGoogleCloudDatabase();
+      if (window.lucide) lucide.createIcons();
+    });
+  </script>
+</body>
+</html>
