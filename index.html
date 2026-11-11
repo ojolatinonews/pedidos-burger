@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="overflow-x-hidden">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title id="page-title">Pedidos Online - Sistema de Gestión</title>
 
   <!-- Google Fonts: Inter -->
@@ -44,14 +44,22 @@
   </script>
 
   <style>
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    html, body {
+      max-width: 100vw;
+      overflow-x: hidden;
+      -webkit-tap-highlight-color: transparent;
+    }
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
     ::-webkit-scrollbar-track { background: #090d16; }
     ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 9999px; }
     ::-webkit-scrollbar-thumb:hover { background: #334155; }
+    .scrollbar-none::-webkit-scrollbar { display: none; }
+    .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
     .animate-marquee {
       display: inline-block;
       white-space: nowrap;
       animation: marquee 25s linear infinite;
+      will-change: transform;
     }
     .animate-marquee:hover {
       animation-play-state: paused;
@@ -62,12 +70,12 @@
     }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 font-sans antialiased min-h-screen flex flex-col selection:bg-brand-600 selection:text-white">
+<body class="bg-slate-950 text-slate-100 font-sans antialiased min-h-screen w-full max-w-full overflow-x-hidden flex flex-col selection:bg-brand-600 selection:text-white pb-20 sm:pb-0">
 
   <!-- ======================================================== -->
   <!-- MARQUESINA DINÁMICA DE PROMOCIONES                       -->
   <!-- ======================================================== -->
-  <div id="marquee-bar" class="bg-gradient-to-r from-brand-600 via-amber-600 to-brand-700 text-white text-xs font-bold py-1.5 overflow-hidden border-b border-brand-500/30 flex">
+  <div id="marquee-bar" class="w-full max-w-full bg-gradient-to-r from-brand-600 via-amber-600 to-brand-700 text-white text-xs font-bold py-1.5 overflow-hidden border-b border-brand-500/30 flex">
     <div class="animate-marquee cursor-pointer" onclick="handleAdminButtonClick()">
       <span id="marquee-text-display" class="px-6 inline-flex items-center gap-2">
         🍔 ¡Bienvenidos a La Brutal Burger & Salchipapas! Papipollos crujientes, Burgers al carbón y Nuggets • Paga con Efectivo, Transferencia o De Una! 🍟
@@ -81,47 +89,47 @@
   <!-- ======================================================== -->
   <!-- NOTIFICACIÓN TOAST FLOTANTE                              -->
   <!-- ======================================================== -->
-  <div id="toast" class="fixed top-5 right-5 z-[150] pointer-events-none transition-all duration-300 opacity-0 transform -translate-y-4 max-w-sm w-full bg-slate-900 border border-slate-700 text-white p-4 rounded-2xl shadow-2xl flex items-center gap-3">
+  <div id="toast" class="fixed top-4 inset-x-3 sm:inset-x-auto sm:right-5 z-[150] pointer-events-none transition-all duration-300 opacity-0 transform -translate-y-4 sm:max-w-sm bg-slate-900 border border-slate-700 text-white p-3.5 rounded-2xl shadow-2xl flex items-center gap-3">
     <div id="toast-icon-wrap" class="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
       <i data-lucide="check-circle" class="w-5 h-5"></i>
     </div>
-    <div class="flex-1 text-sm font-medium" id="toast-message">Operación exitosa</div>
+    <div class="flex-1 min-w-0 text-xs sm:text-sm font-medium break-words" id="toast-message">Operación exitosa</div>
   </div>
 
   <!-- ======================================================== -->
-  <!-- HEADER & NAVEGACIÓN PRINCIPAL                            -->
+  <!-- HEADER & NAVEGACIÓN PRINCIPAL (AJUSTADO PARA MÓVIL)      -->
   <!-- ======================================================== -->
-  <header class="sticky top-0 z-40 bg-slate-950/90 backdrop-blur-md border-b border-slate-800 transition-all">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
+  <header class="sticky top-0 z-40 w-full bg-slate-950/90 backdrop-blur-md border-b border-slate-800 transition-all">
+    <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-2">
       
       <!-- Identidad Dinámica del Negocio -->
-      <div class="flex items-center gap-3 cursor-pointer" onclick="resetFilters()">
-        <div id="header-logo-container" class="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand-500 to-amber-600 flex items-center justify-center text-white shadow-lg shadow-brand-950 overflow-hidden shrink-0 border border-brand-500/30">
+      <div class="flex items-center gap-2.5 min-w-0 flex-1 cursor-pointer" onclick="resetFilters()">
+        <div id="header-logo-container" class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-brand-500 to-amber-600 flex items-center justify-center text-white shadow-lg shadow-brand-950 overflow-hidden shrink-0 border border-brand-500/30">
           <span id="header-logo-icon-wrap" class="flex items-center justify-center">
-            <i data-lucide="flame" class="w-6 h-6"></i>
+            <i data-lucide="flame" class="w-5 h-5 sm:w-6 sm:h-6"></i>
           </span>
           <img id="header-logo-img" src="" alt="Logo" class="w-full h-full object-cover hidden">
         </div>
-        <div>
-          <div class="flex items-center gap-2">
-            <h1 id="brand-name-display" class="font-extrabold text-lg sm:text-xl text-white tracking-tight">LA BRUTAL BURGER</h1>
-            <span class="text-[10px] bg-brand-500/20 text-brand-400 px-2 py-0.5 rounded-full border border-brand-500/30 uppercase font-black tracking-wider">Fast Food</span>
+        <div class="min-w-0 flex-1">
+          <div class="flex items-center gap-1.5 min-w-0">
+            <h1 id="brand-name-display" class="font-extrabold text-sm sm:text-xl text-white tracking-tight truncate">LA BRUTAL BURGER</h1>
+            <span class="hidden xs:inline-block text-[9px] sm:text-[10px] bg-brand-500/20 text-brand-400 px-1.5 py-0.5 rounded-full border border-brand-500/30 uppercase font-black tracking-wider shrink-0">Fast Food</span>
           </div>
-          <p id="brand-address-display" class="text-xs text-slate-400 truncate max-w-[200px] sm:max-w-xs">Av. Las Américas y Calle 10</p>
+          <p id="brand-address-display" class="text-[11px] sm:text-xs text-slate-400 truncate">Av. Las Américas y Calle 10</p>
         </div>
       </div>
 
       <!-- Acciones de Cabecera: Admin Login & Carrito -->
-      <div class="flex items-center gap-2 sm:gap-3">
+      <div class="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
         <!-- Indicador de Estado de Base de Datos Google Cloud -->
         <button 
           type="button"
           onclick="openFirebaseConfigModal()" 
           id="cloud-status-badge"
-          class="flex items-center gap-1.5 px-2.5 py-2 rounded-2xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-[11px] font-bold text-slate-400 transition-all cursor-pointer"
+          class="flex items-center gap-1.5 px-2.5 py-2 rounded-xl sm:rounded-2xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-[11px] font-bold text-slate-400 transition-all cursor-pointer"
           title="Estado de conexión con Google Cloud Firestore"
         >
-          <span id="cloud-status-dot" class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+          <span id="cloud-status-dot" class="w-2 h-2 rounded-full bg-amber-400 animate-pulse shrink-0"></span>
           <span id="cloud-status-text" class="hidden md:inline">Modo Local</span>
         </button>
 
@@ -129,20 +137,20 @@
         <button 
           id="btn-admin-access" 
           onclick="handleAdminButtonClick()" 
-          class="flex items-center gap-1.5 px-3 sm:px-3.5 py-2 rounded-2xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 text-xs font-semibold transition-all cursor-pointer"
+          class="flex items-center gap-1.5 px-2.5 sm:px-3.5 py-2 rounded-xl sm:rounded-2xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 text-xs font-semibold transition-all cursor-pointer"
         >
-          <i data-lucide="shield" class="w-4 h-4 text-brand-500"></i>
+          <i data-lucide="shield" class="w-4 h-4 text-brand-500 shrink-0"></i>
           <span id="admin-btn-label" class="hidden sm:inline">Admin</span>
         </button>
 
         <!-- Botón Carrito en Cabecera -->
         <button 
           onclick="toggleCart(true)" 
-          class="relative flex items-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-2xl bg-brand-600 hover:bg-brand-500 text-white shadow-lg shadow-brand-950/50 active:scale-95 transition-all text-xs sm:text-sm font-bold cursor-pointer"
+          class="relative flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl bg-brand-600 hover:bg-brand-500 text-white shadow-lg shadow-brand-950/50 active:scale-95 transition-all text-xs sm:text-sm font-bold cursor-pointer"
         >
-          <i data-lucide="shopping-bag" class="w-4 h-4"></i>
+          <i data-lucide="shopping-bag" class="w-4 h-4 shrink-0"></i>
           <span class="hidden sm:inline">Carrito</span>
-          <span id="cart-counter-badge" class="px-2 py-0.5 text-xs font-black bg-white text-slate-950 rounded-full">0</span>
+          <span id="cart-counter-badge" class="px-1.5 py-0.5 text-[11px] font-black bg-white text-slate-950 rounded-full leading-none">0</span>
         </button>
       </div>
 
@@ -152,18 +160,18 @@
   <!-- ======================================================== -->
   <!-- VISTA CLIENTE: CATÁLOGO, HERO Y FILTROS                  -->
   <!-- ======================================================== -->
-  <main id="client-view" class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full space-y-8">
+  <main id="client-view" class="flex-1 w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-8 space-y-6 sm:space-y-8 overflow-x-hidden">
     
     <!-- Hero Banner Promocional -->
-    <section class="relative rounded-3xl bg-gradient-to-r from-slate-900 via-slate-900 to-brand-950/60 p-6 sm:p-10 border border-slate-800 overflow-hidden shadow-2xl">
-      <div class="absolute -right-12 -bottom-12 w-80 h-80 bg-brand-600/10 rounded-full blur-3xl pointer-events-none"></div>
+    <section class="relative rounded-2xl sm:rounded-3xl bg-gradient-to-r from-slate-900 via-slate-900 to-brand-950/60 p-4 sm:p-10 border border-slate-800 overflow-hidden shadow-2xl">
+      <div class="absolute -right-12 -bottom-12 w-60 sm:w-80 h-60 sm:h-80 bg-brand-600/10 rounded-full blur-3xl pointer-events-none"></div>
       
-      <div class="relative z-10 max-w-2xl space-y-3">
-        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-brand-500/10 text-brand-400 border border-brand-500/20">
-          <i data-lucide="flame" class="w-3.5 h-3.5"></i>
-          <span>Sabor brutal a la parrilla • Papas 100% crujientes</span>
+      <div class="relative z-10 max-w-2xl space-y-2.5 sm:space-y-3">
+        <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] sm:text-xs font-bold bg-brand-500/10 text-brand-400 border border-brand-500/20 max-w-full">
+          <i data-lucide="flame" class="w-3.5 h-3.5 shrink-0"></i>
+          <span class="truncate">Sabor brutal a la parrilla • Papas 100% crujientes</span>
         </div>
-        <h2 id="hero-title" class="text-3xl sm:text-4xl font-black text-white tracking-tight leading-tight">
+        <h2 id="hero-title" class="text-2xl sm:text-4xl font-black text-white tracking-tight leading-tight break-words">
           Hamburguesas, Salchipapas y <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-500 to-amber-400">Papipollos recién salidos</span>
         </h2>
         <p class="text-slate-400 text-xs sm:text-sm leading-relaxed">
@@ -173,39 +181,39 @@
     </section>
 
     <!-- Barra de Búsqueda y Filtros de Categoría -->
-    <section class="space-y-4">
-      <div class="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center justify-between">
+    <section class="space-y-3.5 w-full overflow-hidden">
+      <div class="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
         <!-- Buscador Reactivo -->
-        <div class="relative flex-1 max-w-md">
-          <i data-lucide="search" class="w-4 h-4 text-slate-500 absolute left-4 top-1/2 -translate-y-1/2"></i>
+        <div class="relative flex-1 max-w-md w-full">
+          <i data-lucide="search" class="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
           <input 
             type="text" 
             id="search-input" 
-            placeholder="Buscar por plato, ingrediente o categoría..." 
+            placeholder="Buscar plato, ingrediente o categoría..." 
             oninput="handleSearch(this.value)"
-            class="w-full pl-11 pr-4 py-3 bg-slate-900 border border-slate-800 rounded-2xl text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition-all"
+            class="w-full pl-10 pr-4 py-2.5 sm:py-3 bg-slate-900 border border-slate-800 rounded-2xl text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition-all"
           >
         </div>
 
-        <span id="products-count-badge" class="text-xs text-slate-400 font-semibold self-end sm:self-center">
+        <span id="products-count-badge" class="text-[11px] sm:text-xs text-slate-400 font-semibold self-end sm:self-center">
           Cargando catálogo...
         </span>
       </div>
 
       <!-- Filtros por Categoría Dinámicas -->
-      <div id="category-filters-container" class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+      <div id="category-filters-container" class="flex items-center gap-2 overflow-x-auto pb-1.5 scrollbar-none w-full">
         <!-- Inyectado por JS -->
       </div>
     </section>
 
     <!-- Catálogo de Productos -->
-    <section>
-      <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    <section class="w-full">
+      <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
         <!-- Inyectado por JS -->
       </div>
 
       <!-- Estado Vacío -->
-      <div id="empty-state" class="hidden flex-col items-center justify-center py-20 text-center">
+      <div id="empty-state" class="hidden flex-col items-center justify-center py-16 text-center px-4">
         <div class="w-16 h-16 rounded-3xl bg-slate-900 text-slate-500 flex items-center justify-center mb-4 border border-slate-800">
           <i data-lucide="package-search" class="w-8 h-8"></i>
         </div>
@@ -222,20 +230,20 @@
   <!-- ======================================================== -->
   <!-- BARRA FIJA MÓVIL DEL CARRITO                             -->
   <!-- ======================================================== -->
-  <div id="mobile-cart-bar" class="sm:hidden fixed bottom-0 inset-x-0 bg-slate-950/95 backdrop-blur-lg border-t border-slate-800 p-3 z-30 flex items-center justify-between">
-    <div class="flex items-center gap-3">
-      <div class="w-10 h-10 rounded-xl bg-brand-600 flex items-center justify-center text-white relative">
+  <div id="mobile-cart-bar" class="sm:hidden fixed bottom-0 inset-x-0 w-full bg-slate-950/95 backdrop-blur-lg border-t border-slate-800 px-3.5 py-2.5 z-30 flex items-center justify-between gap-2">
+    <div class="flex items-center gap-2.5 min-w-0">
+      <div class="w-10 h-10 rounded-xl bg-brand-600 flex items-center justify-center text-white relative shrink-0">
         <i data-lucide="shopping-cart" class="w-5 h-5"></i>
         <span id="mobile-counter-badge" class="absolute -top-1.5 -right-1.5 bg-amber-400 text-slate-950 text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center">0</span>
       </div>
-      <div>
+      <div class="min-w-0">
         <span class="text-[10px] text-slate-400 uppercase tracking-wider block font-semibold">Total</span>
-        <span id="mobile-total-display" class="font-black text-brand-500 text-base leading-none">$0.00</span>
+        <span id="mobile-total-display" class="font-black text-brand-500 text-base leading-none truncate block">$0.00</span>
       </div>
     </div>
     <button 
       onclick="toggleCart(true)"
-      class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-brand-600 to-amber-600 text-white font-bold text-xs shadow-lg active:scale-95 flex items-center gap-1.5 cursor-pointer"
+      class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-brand-600 to-amber-600 text-white font-bold text-xs shadow-lg active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer shrink-0"
     >
       <span>Ver Carrito</span>
       <i data-lucide="arrow-right" class="w-4 h-4"></i>
@@ -245,9 +253,9 @@
   <!-- ======================================================== -->
   <!-- MODAL PARA AGREGAR PRODUCTO CON EXTRAS                   -->
   <!-- ======================================================== -->
-  <div id="product-detail-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4 overflow-y-auto">
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl my-6 flex flex-col">
-      <div class="relative h-48 sm:h-56 w-full bg-slate-950">
+  <div id="product-detail-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-2.5 sm:p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl sm:rounded-3xl max-w-lg w-full max-h-[92vh] overflow-hidden shadow-2xl flex flex-col">
+      <div class="relative h-44 sm:h-52 w-full bg-slate-950 shrink-0">
         <img id="modal-product-img" src="" alt="Producto" class="w-full h-full object-cover">
         <button type="button" onclick="closeProductDetailModal()" class="absolute top-3 right-3 w-8 h-8 rounded-full bg-slate-950/80 text-white flex items-center justify-center hover:bg-slate-900 transition-colors cursor-pointer">
           <i data-lucide="x" class="w-4 h-4"></i>
@@ -257,17 +265,17 @@
         </span>
       </div>
 
-      <div class="p-6 space-y-4 flex-1">
+      <div class="p-4 sm:p-6 space-y-3.5 flex-1 overflow-y-auto overscroll-contain">
         <div>
-          <div class="flex items-center justify-between">
-            <h3 id="modal-product-title" class="text-lg font-bold text-white">Nombre del Plato</h3>
-            <span id="modal-product-base-price" class="text-lg font-black text-brand-500">$0.00</span>
+          <div class="flex items-start justify-between gap-2">
+            <h3 id="modal-product-title" class="text-base sm:text-lg font-bold text-white leading-snug">Nombre del Plato</h3>
+            <span id="modal-product-base-price" class="text-base sm:text-lg font-black text-brand-500 shrink-0">$0.00</span>
           </div>
           <p id="modal-product-desc" class="text-xs text-slate-400 mt-1 leading-relaxed">Descripción detallada</p>
         </div>
 
         <!-- Sección de Extras Disponibles -->
-        <div id="modal-extras-section" class="pt-3 border-t border-slate-800 space-y-2.5">
+        <div id="modal-extras-section" class="pt-3 border-t border-slate-800 space-y-2">
           <div class="flex items-center justify-between">
             <h4 class="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
               <i data-lucide="plus-circle" class="w-3.5 h-3.5 text-brand-500"></i>
@@ -275,7 +283,7 @@
             </h4>
             <span class="text-[10px] text-slate-500">Opcional</span>
           </div>
-          <div id="modal-extras-list" class="space-y-2 max-h-48 overflow-y-auto pr-1">
+          <div id="modal-extras-list" class="space-y-2 max-h-40 overflow-y-auto pr-1">
             <!-- Inyectado dinámicamente -->
           </div>
         </div>
@@ -283,23 +291,22 @@
         <!-- Instrucciones especiales -->
         <div class="pt-2 border-t border-slate-800">
           <label class="block text-xs font-semibold text-slate-300 mb-1">Notas especiales para este plato</label>
-          <input type="text" id="modal-item-notes" placeholder="Ej: Sin cebolla, extra picante..." class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-brand-500">
+          <input type="text" id="modal-item-notes" placeholder="Ej: Sin cebolla, extra salsa..." class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-brand-500">
+        </div>
+      </div>
+
+      <!-- Cantidad y Botón de Añadir Fijo Abajo -->
+      <div class="p-3.5 sm:p-4 bg-slate-950 border-t border-slate-800 flex items-center justify-between gap-3 shrink-0">
+        <div class="flex items-center gap-1.5 bg-slate-900 border border-slate-800 p-1 rounded-2xl shrink-0">
+          <button type="button" onclick="changeModalQty(-1)" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold flex items-center justify-center transition-colors cursor-pointer">-</button>
+          <span id="modal-qty-display" class="w-6 text-center text-sm font-bold text-white">1</span>
+          <button type="button" onclick="changeModalQty(1)" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold flex items-center justify-center transition-colors cursor-pointer">+</button>
         </div>
 
-        <!-- Cantidad y Botón de Añadir -->
-        <div class="pt-3 border-t border-slate-800 flex items-center justify-between gap-4">
-          <div class="flex items-center gap-2 bg-slate-950 border border-slate-800 p-1 rounded-2xl">
-            <button type="button" onclick="changeModalQty(-1)" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold flex items-center justify-center transition-colors cursor-pointer">-</button>
-            <span id="modal-qty-display" class="w-6 text-center text-sm font-bold text-white">1</span>
-            <button type="button" onclick="changeModalQty(1)" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold flex items-center justify-center transition-colors cursor-pointer">+</button>
-          </div>
-
-          <button type="button" onclick="confirmAddToCart()" class="flex-1 py-3 px-4 bg-gradient-to-r from-brand-600 to-amber-600 hover:from-brand-500 hover:to-amber-500 text-white font-bold rounded-2xl text-xs sm:text-sm shadow-xl flex items-center justify-center gap-2 active:scale-95 transition-all cursor-pointer">
-            <span>Agregar</span>
-            <span id="modal-final-price-btn" class="font-black">$0.00</span>
-          </button>
-        </div>
-
+        <button type="button" onclick="confirmAddToCart()" class="flex-1 py-3 px-4 bg-gradient-to-r from-brand-600 to-amber-600 hover:from-brand-500 hover:to-amber-500 text-white font-bold rounded-2xl text-xs sm:text-sm shadow-xl flex items-center justify-center gap-2 active:scale-95 transition-all cursor-pointer">
+          <span>Agregar</span>
+          <span id="modal-final-price-btn" class="font-black">$0.00</span>
+        </button>
       </div>
     </div>
   </div>
@@ -309,25 +316,25 @@
   <!-- ======================================================== -->
   <div id="cart-backdrop" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 opacity-0 pointer-events-none transition-opacity duration-300" onclick="toggleCart(false)"></div>
   
-  <aside id="cart-drawer" class="fixed top-0 right-0 bottom-0 w-full sm:w-[440px] bg-slate-900 z-50 border-l border-slate-800 shadow-2xl transform translate-x-full transition-transform duration-300 flex flex-col">
+  <aside id="cart-drawer" class="fixed top-0 right-0 bottom-0 w-full max-w-full sm:w-[430px] bg-slate-900 z-50 border-l border-slate-800 shadow-2xl transform translate-x-full transition-transform duration-300 flex flex-col">
     
-    <div class="p-5 border-b border-slate-800 flex items-center justify-between bg-slate-950">
-      <div class="flex items-center gap-3">
-        <div class="w-9 h-9 rounded-xl bg-brand-500/20 text-brand-500 flex items-center justify-center border border-brand-500/30">
+    <div class="p-4 sm:p-5 border-b border-slate-800 flex items-center justify-between bg-slate-950 shrink-0">
+      <div class="flex items-center gap-3 min-w-0">
+        <div class="w-9 h-9 rounded-xl bg-brand-500/20 text-brand-500 flex items-center justify-center border border-brand-500/30 shrink-0">
           <i data-lucide="shopping-bag" class="w-5 h-5"></i>
         </div>
-        <div>
-          <h3 class="font-bold text-white text-base">Carrito de Compras</h3>
+        <div class="min-w-0">
+          <h3 class="font-bold text-white text-sm sm:text-base truncate">Carrito de Compras</h3>
           <p id="drawer-counter-label" class="text-xs text-slate-400">0 ítems agregados</p>
         </div>
       </div>
-      <button type="button" onclick="toggleCart(false)" class="w-8 h-8 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer">
+      <button type="button" onclick="toggleCart(false)" class="w-8 h-8 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer shrink-0">
         <i data-lucide="x" class="w-4 h-4"></i>
       </button>
     </div>
 
     <!-- Lista de Items en Carrito -->
-    <div id="cart-items-list" class="flex-1 overflow-y-auto p-4 space-y-3">
+    <div id="cart-items-list" class="flex-1 overflow-y-auto p-3.5 sm:p-4 space-y-3 overscroll-contain">
       <!-- Inyectado por JS -->
     </div>
 
@@ -341,12 +348,12 @@
     </div>
 
     <!-- Resumen y Checkout -->
-    <div id="cart-summary-footer" class="p-5 bg-slate-950 border-t border-slate-800 space-y-3">
+    <div id="cart-summary-footer" class="p-4 sm:p-5 bg-slate-950 border-t border-slate-800 space-y-3 shrink-0">
       <!-- Barra de Progreso de Envío Gratis -->
       <div id="free-shipping-banner" class="hidden p-3 rounded-2xl bg-slate-900 border border-slate-800 space-y-1.5">
-        <div class="flex items-center justify-between text-[11px]">
-          <span id="free-shipping-msg" class="font-semibold text-slate-300">Te faltan $0.00 para envío gratis</span>
-          <span id="free-shipping-pct" class="font-black text-brand-400">0%</span>
+        <div class="flex items-center justify-between text-[11px] gap-2">
+          <span id="free-shipping-msg" class="font-semibold text-slate-300 truncate">Te faltan $0.00 para envío gratis</span>
+          <span id="free-shipping-pct" class="font-black text-brand-400 shrink-0">0%</span>
         </div>
         <div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
           <div id="free-shipping-bar" class="h-full bg-gradient-to-r from-brand-500 to-emerald-400 transition-all duration-300" style="width: 0%"></div>
@@ -366,9 +373,9 @@
           <span>Envío a Domicilio</span>
           <span class="font-bold text-white" id="summary-shipping">$0.00</span>
         </div>
-        <div class="flex justify-between text-base font-black text-white pt-2 border-t border-slate-800">
+        <div class="flex justify-between text-sm sm:text-base font-black text-white pt-2 border-t border-slate-800">
           <span>Total a Pagar</span>
-          <span class="text-brand-500 text-xl" id="summary-grand-total">$0.00</span>
+          <span class="text-brand-500 text-lg sm:text-xl" id="summary-grand-total">$0.00</span>
         </div>
       </div>
 
@@ -392,26 +399,26 @@
     <div class="bg-slate-900 border border-slate-800 rounded-2xl sm:rounded-3xl max-w-lg w-full max-h-[92vh] flex flex-col overflow-hidden shadow-2xl">
       
       <!-- Cabecera Fija del Modal -->
-      <div class="px-4 sm:px-6 py-3.5 bg-slate-950 border-b border-slate-800 flex items-center justify-between shrink-0">
-        <div class="flex items-center gap-2.5">
-          <div class="w-8 h-8 rounded-xl bg-brand-500 text-white flex items-center justify-center font-bold text-xs">
+      <div class="px-3.5 sm:px-6 py-3 bg-slate-950 border-b border-slate-800 flex items-center justify-between gap-2 shrink-0">
+        <div class="flex items-center gap-2.5 min-w-0">
+          <div class="w-8 h-8 rounded-xl bg-brand-500 text-white flex items-center justify-center font-bold text-xs shrink-0">
             <i data-lucide="truck" class="w-4 h-4"></i>
           </div>
-          <div>
-            <h3 class="font-bold text-white text-sm sm:text-base">Datos de Entrega y Pago</h3>
-            <p class="text-[11px] text-slate-400">Verifica tu pedido antes de enviarlo por WhatsApp</p>
+          <div class="min-w-0">
+            <h3 class="font-bold text-white text-sm sm:text-base truncate">Datos de Entrega y Pago</h3>
+            <p class="text-[11px] text-slate-400 truncate">Verifica tu pedido antes de enviarlo por WhatsApp</p>
           </div>
         </div>
-        <button type="button" onclick="closeCheckoutModal()" class="w-8 h-8 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-400 flex items-center justify-center transition-colors cursor-pointer">
+        <button type="button" onclick="closeCheckoutModal()" class="w-8 h-8 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-400 flex items-center justify-center transition-colors cursor-pointer shrink-0">
           <i data-lucide="x" class="w-4 h-4"></i>
         </button>
       </div>
 
       <!-- Formulario con Scroll Interno Fluido -->
       <form id="order-form" onsubmit="handleOrderSubmit(event)" class="flex-1 flex flex-col min-h-0 overflow-hidden">
-        <div class="flex-1 overflow-y-auto p-4 sm:p-5 space-y-3.5 overscroll-contain">
+        <div class="flex-1 overflow-y-auto p-3.5 sm:p-5 space-y-3.5 overscroll-contain">
           
-          <!-- Datos del Cliente (Compacto en 2 columnas para Nombre y Teléfono) -->
+          <!-- Datos del Cliente -->
           <div class="space-y-2.5">
             <h4 class="text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
               <i data-lucide="user" class="w-3.5 h-3.5 text-brand-500"></i>
@@ -443,19 +450,19 @@
 
             <!-- Captura de Ubicación Satelital GPS -->
             <div class="p-2.5 bg-slate-950 rounded-xl border border-slate-800 space-y-1.5">
-              <div class="flex items-center justify-between gap-2">
+              <div class="flex flex-wrap items-center justify-between gap-2">
                 <span class="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                  <i data-lucide="navigation" class="w-3.5 h-3.5 text-brand-500"></i>
+                  <i data-lucide="navigation" class="w-3.5 h-3.5 text-brand-500 shrink-0"></i>
                   <span>Ubicación Satelital (GPS)</span>
                 </span>
-                <button type="button" onclick="captureClientLocation()" id="btn-gps-action" class="px-2.5 py-1 bg-brand-600/20 hover:bg-brand-600/30 text-brand-400 border border-brand-500/30 rounded-lg text-[11px] font-bold flex items-center gap-1 transition-all cursor-pointer shrink-0">
-                  <i data-lucide="crosshair" class="w-3 h-3"></i>
+                <button type="button" onclick="captureClientLocation()" id="btn-gps-action" class="px-2.5 py-1.5 bg-brand-600/20 hover:bg-brand-600/30 text-brand-400 border border-brand-500/30 rounded-lg text-[11px] font-bold flex items-center gap-1 transition-all cursor-pointer">
+                  <i data-lucide="crosshair" class="w-3 h-3 shrink-0"></i>
                   <span id="gps-status-text">Adjuntar mi Ubicación GPS</span>
                 </button>
               </div>
-              <div id="gps-result-box" class="hidden text-[11px] p-2 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-lg flex items-center justify-between">
+              <div id="gps-result-box" class="hidden text-[11px] p-2 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-lg flex items-center justify-between gap-2">
                 <span class="truncate">📍 Ubicación fijada con éxito</span>
-                <button type="button" onclick="clearClientLocation()" class="text-slate-400 hover:text-white underline text-[10px]">Quitar</button>
+                <button type="button" onclick="clearClientLocation()" class="text-slate-400 hover:text-white underline text-[10px] shrink-0">Quitar</button>
               </div>
             </div>
 
@@ -474,24 +481,24 @@
 
             <div class="grid grid-cols-3 gap-2">
               <!-- Efectivo -->
-              <label class="flex flex-col items-center justify-center p-2.5 rounded-xl border border-slate-800 bg-slate-950 cursor-pointer hover:border-brand-500 text-center has-[:checked]:border-brand-500 has-[:checked]:bg-brand-500/10 transition-all">
+              <label class="flex flex-col items-center justify-center p-2 rounded-xl border border-slate-800 bg-slate-950 cursor-pointer hover:border-brand-500 text-center has-[:checked]:border-brand-500 has-[:checked]:bg-brand-500/10 transition-all">
                 <input type="radio" name="payment-method" value="Efectivo" checked onchange="handlePaymentSelection(this.value)" class="sr-only">
-                <span class="text-lg mb-0.5">💵</span>
-                <span class="text-[11px] font-bold text-white">Efectivo</span>
+                <span class="text-base sm:text-lg mb-0.5">💵</span>
+                <span class="text-[10px] sm:text-[11px] font-bold text-white leading-tight">Efectivo</span>
               </label>
 
               <!-- Transferencia -->
-              <label class="flex flex-col items-center justify-center p-2.5 rounded-xl border border-slate-800 bg-slate-950 cursor-pointer hover:border-brand-500 text-center has-[:checked]:border-brand-500 has-[:checked]:bg-brand-500/10 transition-all">
+              <label class="flex flex-col items-center justify-center p-2 rounded-xl border border-slate-800 bg-slate-950 cursor-pointer hover:border-brand-500 text-center has-[:checked]:border-brand-500 has-[:checked]:bg-brand-500/10 transition-all">
                 <input type="radio" name="payment-method" value="Transferencia" onchange="handlePaymentSelection(this.value)" class="sr-only">
-                <span class="text-lg mb-0.5">🏦</span>
-                <span class="text-[11px] font-bold text-white">Transferencia</span>
+                <span class="text-base sm:text-lg mb-0.5">🏦</span>
+                <span class="text-[10px] sm:text-[11px] font-bold text-white leading-tight">Transferencia</span>
               </label>
 
               <!-- De Una! con Código QR -->
-              <label class="flex flex-col items-center justify-center p-2.5 rounded-xl border border-slate-800 bg-slate-950 cursor-pointer hover:border-purple-500 text-center has-[:checked]:border-purple-500 has-[:checked]:bg-purple-500/10 transition-all">
+              <label class="flex flex-col items-center justify-center p-2 rounded-xl border border-slate-800 bg-slate-950 cursor-pointer hover:border-purple-500 text-center has-[:checked]:border-purple-500 has-[:checked]:bg-purple-500/10 transition-all">
                 <input type="radio" name="payment-method" value="De Una!" onchange="handlePaymentSelection(this.value)" class="sr-only">
-                <span class="text-lg mb-0.5">📲</span>
-                <span class="text-[11px] font-bold text-white">De Una! (QR)</span>
+                <span class="text-base sm:text-lg mb-0.5">📲</span>
+                <span class="text-[10px] sm:text-[11px] font-bold text-white leading-tight">De Una! (QR)</span>
               </label>
             </div>
 
@@ -507,14 +514,14 @@
 
               <!-- Transferencia -->
               <div id="payment-transfer-box" class="hidden p-3 bg-slate-950 rounded-xl border border-slate-800 text-xs space-y-2">
-                <div class="flex items-center justify-between">
+                <div class="flex items-center justify-between gap-2">
                   <span class="font-bold text-brand-500">Datos para Transferencia:</span>
-                  <button type="button" onclick="copyBankDetails()" class="text-[11px] text-slate-300 bg-slate-800 hover:bg-slate-700 px-2.5 py-1 rounded-lg flex items-center gap-1 transition-colors cursor-pointer">
+                  <button type="button" onclick="copyBankDetails()" class="text-[11px] text-slate-300 bg-slate-800 hover:bg-slate-700 px-2.5 py-1 rounded-lg flex items-center gap-1 transition-colors cursor-pointer shrink-0">
                     <i data-lucide="copy" class="w-3 h-3"></i>
                     <span>Copiar</span>
                   </button>
                 </div>
-                <div id="bank-info-content" class="p-2.5 bg-slate-900 rounded-lg font-mono text-[11px] text-slate-300 leading-relaxed border border-slate-800/80 whitespace-pre-line">
+                <div id="bank-info-content" class="p-2.5 bg-slate-900 rounded-lg font-mono text-[11px] text-slate-300 leading-relaxed border border-slate-800/80 whitespace-pre-line break-words">
                   Banco: Pichincha
                   Cuenta: 2204567890
                   Titular: La Brutal Burger
@@ -523,27 +530,27 @@
 
               <!-- De Una! con Código QR -->
               <div id="payment-deuna-box" class="hidden p-3 bg-slate-950 rounded-xl border border-purple-500/40 text-xs space-y-2.5 bg-gradient-to-br from-purple-950/30 to-slate-950">
-                <div class="flex items-center justify-between">
+                <div class="flex items-center justify-between gap-2">
                   <span class="font-bold text-purple-300 flex items-center gap-1.5 text-xs">
-                    <i data-lucide="qr-code" class="w-4 h-4 text-purple-400"></i>
+                    <i data-lucide="qr-code" class="w-4 h-4 text-purple-400 shrink-0"></i>
                     <span>Paga con De Una!</span>
                   </span>
-                  <button type="button" onclick="copyDeUnaDetails()" class="text-[11px] text-purple-200 bg-purple-900/50 hover:bg-purple-900/80 border border-purple-500/40 px-2.5 py-1 rounded-lg flex items-center gap-1 transition-colors cursor-pointer">
+                  <button type="button" onclick="copyDeUnaDetails()" class="text-[11px] text-purple-200 bg-purple-900/50 hover:bg-purple-900/80 border border-purple-500/40 px-2.5 py-1 rounded-lg flex items-center gap-1 transition-colors cursor-pointer shrink-0">
                     <i data-lucide="copy" class="w-3 h-3"></i>
                     <span>Copiar Número</span>
                   </button>
                 </div>
 
                 <!-- Contenedor del Código QR de De Una! -->
-                <div id="deuna-qr-checkout-wrap" class="flex flex-col items-center justify-center p-2.5 bg-white rounded-xl shadow-lg mx-auto max-w-[160px]">
-                  <img id="deuna-qr-checkout-img" src="" alt="Código QR De Una!" class="w-32 h-32 object-contain rounded-lg">
+                <div id="deuna-qr-checkout-wrap" class="flex flex-col items-center justify-center p-2.5 bg-white rounded-xl shadow-lg mx-auto max-w-[150px]">
+                  <img id="deuna-qr-checkout-img" src="" alt="Código QR De Una!" class="w-28 h-28 sm:w-32 sm:h-32 object-contain rounded-lg">
                   <span class="text-[9px] font-extrabold text-purple-900 mt-1 uppercase tracking-wider">Escanea con De Una!</span>
                 </div>
                 <div id="deuna-no-qr-notice" class="hidden text-center py-2 text-[11px] text-slate-400 italic">
                   (Sin código QR activo — realiza el pago al número indicado abajo)
                 </div>
 
-                <div id="deuna-info-content" class="p-2.5 bg-slate-900/90 rounded-lg font-mono text-[11px] text-purple-200 border border-purple-500/20">
+                <div id="deuna-info-content" class="p-2.5 bg-slate-900/90 rounded-lg font-mono text-[11px] text-purple-200 border border-purple-500/20 break-words">
                   Número / Celular De Una!: <span id="deuna-phone-display" class="font-bold text-white">0987654321</span><br>
                   Beneficiario: <span id="deuna-name-display" class="font-bold text-white">La Brutal Burger</span>
                 </div>
@@ -562,8 +569,8 @@
               <input 
                 type="text" 
                 id="coupon-code-input" 
-                placeholder="Ingresa tu cupón promocional..." 
-                class="flex-1 px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white uppercase placeholder-slate-500 focus:outline-none focus:border-brand-500"
+                placeholder="Ingresa tu cupón..." 
+                class="flex-1 min-w-0 px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white uppercase placeholder-slate-500 focus:outline-none focus:border-brand-500"
               >
               <button 
                 type="button" 
@@ -573,9 +580,9 @@
                 Aplicar
               </button>
             </div>
-            <div id="coupon-applied-badge" class="hidden items-center justify-between p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs">
-              <span id="coupon-applied-text" class="font-bold">🎉 Cupón aplicado</span>
-              <button type="button" onclick="removeDiscountCoupon()" class="text-[11px] text-slate-400 hover:text-white underline cursor-pointer">Quitar</button>
+            <div id="coupon-applied-badge" class="hidden items-center justify-between p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs gap-2">
+              <span id="coupon-applied-text" class="font-bold truncate">🎉 Cupón aplicado</span>
+              <button type="button" onclick="removeDiscountCoupon()" class="text-[11px] text-slate-400 hover:text-white underline cursor-pointer shrink-0">Quitar</button>
             </div>
           </div>
 
@@ -602,12 +609,12 @@
         </div>
 
         <!-- Pie Fijo con Botón de Confirmar y Enviar Pedido por WhatsApp -->
-        <div class="p-3.5 sm:p-4 bg-slate-950 border-t border-slate-800 shrink-0">
+        <div class="p-3 sm:p-4 bg-slate-950 border-t border-slate-800 shrink-0">
           <button 
             type="submit" 
             class="w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-2xl text-xs sm:text-sm shadow-xl flex items-center justify-center gap-2 active:scale-95 transition-all cursor-pointer"
           >
-            <i data-lucide="message-circle" class="w-5 h-5"></i>
+            <i data-lucide="message-circle" class="w-5 h-5 shrink-0"></i>
             <span>Confirmar y Enviar Pedido por WhatsApp</span>
           </button>
         </div>
@@ -621,7 +628,7 @@
   <!-- MODAL DE LOGIN ADMINISTRATIVO                           -->
   <!-- ======================================================== -->
   <div id="login-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-sm w-full overflow-hidden shadow-2xl p-6 space-y-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-sm w-full overflow-hidden shadow-2xl p-5 sm:p-6 space-y-4">
       <div class="text-center space-y-1">
         <div class="w-12 h-12 rounded-2xl bg-brand-500/20 text-brand-500 flex items-center justify-center mx-auto border border-brand-500/30">
           <i data-lucide="lock" class="w-6 h-6"></i>
@@ -662,29 +669,33 @@
   <!-- ======================================================== -->
   <!-- PANEL ADMINISTRATIVO COMPLETO (BACKEND)                  -->
   <!-- ======================================================== -->
-  <div id="admin-panel-view" class="hidden flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full space-y-6">
+  <div id="admin-panel-view" class="hidden flex-1 w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-6 space-y-5 sm:space-y-6 overflow-x-hidden">
     
     <!-- Barra Superior del Backend -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 bg-slate-900 border border-slate-800 rounded-3xl shadow-xl">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-2xl bg-brand-500/20 text-brand-500 flex items-center justify-center border border-brand-500/30">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 p-4 sm:p-5 bg-slate-900 border border-slate-800 rounded-2xl sm:rounded-3xl shadow-xl">
+      <div class="flex items-center gap-3 min-w-0">
+        <div class="w-10 h-10 rounded-2xl bg-brand-500/20 text-brand-500 flex items-center justify-center border border-brand-500/30 shrink-0">
           <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
         </div>
-        <div>
-          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+        <div class="min-w-0">
+          <h2 class="text-base sm:text-lg font-bold text-white flex flex-wrap items-center gap-2">
             <span>Panel de Administración</span>
             <span id="current-user-role-badge" class="text-[10px] bg-brand-500/20 text-brand-400 px-2 py-0.5 rounded-full border border-brand-500/30 uppercase font-bold">Rol</span>
           </h2>
-          <p class="text-xs text-slate-400">Sesión iniciada como: <span id="current-username-display" class="font-bold text-white">usuario</span></p>
+          <p class="text-xs text-slate-400 truncate">Sesión iniciada como: <span id="current-username-display" class="font-bold text-white">usuario</span></p>
         </div>
       </div>
 
-      <div class="flex items-center gap-2">
-        <button type="button" onclick="switchView('client')" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer">
+      <div class="flex flex-wrap items-center gap-2">
+        <button type="button" onclick="downloadCleanHtmlFile()" class="px-3 py-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer">
+          <i data-lucide="download" class="w-3.5 h-3.5"></i>
+          <span>Descargar index.html</span>
+        </button>
+        <button type="button" onclick="switchView('client')" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer">
           <i data-lucide="eye" class="w-3.5 h-3.5"></i>
           <span>Ver Tienda</span>
         </button>
-        <button type="button" onclick="handleLogout()" class="px-3.5 py-2 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 border border-rose-500/30 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer">
+        <button type="button" onclick="handleLogout()" class="px-3 py-2 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 border border-rose-500/30 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer">
           <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
           <span>Salir</span>
         </button>
@@ -692,38 +703,38 @@
     </div>
 
     <!-- Pestañas de Navegación del Backend -->
-    <div class="flex items-center gap-2 overflow-x-auto pb-2 border-b border-slate-800" id="admin-tabs-nav">
-      <button type="button" onclick="switchAdminTab('orders')" id="tab-btn-orders" class="admin-tab-btn px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 bg-brand-600 text-white cursor-pointer">
+    <div class="flex items-center gap-2 overflow-x-auto pb-2 border-b border-slate-800 scrollbar-none w-full" id="admin-tabs-nav">
+      <button type="button" onclick="switchAdminTab('orders')" id="tab-btn-orders" class="admin-tab-btn shrink-0 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 bg-brand-600 text-white cursor-pointer">
         <i data-lucide="clipboard-list" class="w-4 h-4"></i>
         <span>Pedidos & Caja (<span id="admin-orders-count">0</span>)</span>
       </button>
 
-      <button type="button" onclick="switchAdminTab('products')" id="tab-btn-products" class="admin-tab-btn px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 bg-slate-900 text-slate-400 hover:text-white border border-slate-800 cursor-pointer">
+      <button type="button" onclick="switchAdminTab('products')" id="tab-btn-products" class="admin-tab-btn shrink-0 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 bg-slate-900 text-slate-400 hover:text-white border border-slate-800 cursor-pointer">
         <i data-lucide="utensils" class="w-4 h-4"></i>
         <span>Productos</span>
       </button>
 
-      <button type="button" onclick="switchAdminTab('categories')" id="tab-btn-categories" class="admin-tab-btn px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 bg-slate-900 text-slate-400 hover:text-white border border-slate-800 cursor-pointer">
+      <button type="button" onclick="switchAdminTab('categories')" id="tab-btn-categories" class="admin-tab-btn shrink-0 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 bg-slate-900 text-slate-400 hover:text-white border border-slate-800 cursor-pointer">
         <i data-lucide="layers" class="w-4 h-4"></i>
         <span>Categorías</span>
       </button>
 
-      <button type="button" onclick="switchAdminTab('extras')" id="tab-btn-extras" class="admin-tab-btn px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 bg-slate-900 text-slate-400 hover:text-white border border-slate-800 cursor-pointer">
+      <button type="button" onclick="switchAdminTab('extras')" id="tab-btn-extras" class="admin-tab-btn shrink-0 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 bg-slate-900 text-slate-400 hover:text-white border border-slate-800 cursor-pointer">
         <i data-lucide="plus-circle" class="w-4 h-4"></i>
         <span>Extras & Adicionales</span>
       </button>
 
-      <button type="button" onclick="switchAdminTab('identity')" id="tab-btn-identity" class="admin-tab-btn px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 bg-slate-900 text-slate-400 hover:text-white border border-slate-800 cursor-pointer">
+      <button type="button" onclick="switchAdminTab('identity')" id="tab-btn-identity" class="admin-tab-btn shrink-0 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 bg-slate-900 text-slate-400 hover:text-white border border-slate-800 cursor-pointer">
         <i data-lucide="store" class="w-4 h-4"></i>
         <span>Identidad & Pagos (De Una!)</span>
       </button>
 
-      <button type="button" onclick="switchAdminTab('users')" id="tab-btn-users" class="admin-tab-btn px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 bg-slate-900 text-slate-400 hover:text-white border border-slate-800 cursor-pointer">
+      <button type="button" onclick="switchAdminTab('users')" id="tab-btn-users" class="admin-tab-btn shrink-0 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 bg-slate-900 text-slate-400 hover:text-white border border-slate-800 cursor-pointer">
         <i data-lucide="users" class="w-4 h-4"></i>
         <span>Usuarios & Roles</span>
       </button>
 
-      <button type="button" onclick="switchAdminTab('cloud')" id="tab-btn-cloud" class="admin-tab-btn px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 bg-slate-900 text-emerald-400 hover:text-white border border-emerald-500/30 cursor-pointer">
+      <button type="button" onclick="switchAdminTab('cloud')" id="tab-btn-cloud" class="admin-tab-btn shrink-0 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 bg-slate-900 text-emerald-400 hover:text-white border border-emerald-500/30 cursor-pointer">
         <i data-lucide="database" class="w-4 h-4"></i>
         <span>Google Cloud DB</span>
       </button>
@@ -735,14 +746,14 @@
     <section id="admin-section-orders" class="admin-section-tab space-y-6">
 
       <!-- PANEL DE CONTROL DE CAJA DIARIO EN VIVO -->
-      <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 sm:p-6 shadow-xl space-y-5">
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xl space-y-5">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
           <div class="flex items-center gap-3">
             <div class="w-11 h-11 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30 shrink-0">
               <i data-lucide="calculator" class="w-6 h-6"></i>
             </div>
             <div>
-              <h3 class="text-base font-extrabold text-white flex items-center gap-2">
+              <h3 class="text-sm sm:text-base font-extrabold text-white flex flex-wrap items-center gap-2">
                 <span>Control y Cierre de Caja Diario</span>
                 <span id="cash-current-date-badge" class="text-[10px] bg-slate-800 text-slate-300 px-2.5 py-0.5 rounded-full font-semibold">Hoy</span>
               </h3>
@@ -754,7 +765,7 @@
             <button 
               type="button" 
               onclick="openCashClosingModal()" 
-              class="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold shadow-lg flex items-center gap-2 active:scale-95 transition-all cursor-pointer"
+              class="px-3.5 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold shadow-lg flex items-center gap-2 active:scale-95 transition-all cursor-pointer"
             >
               <i data-lucide="lock" class="w-4 h-4"></i>
               <span>Realizar Cierre de Caja Diario</span>
@@ -772,50 +783,44 @@
         </div>
 
         <!-- Tarjetas de Resumen de Caja por Método de Pago -->
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-          <!-- Venta Total Neta -->
-          <div class="p-3.5 rounded-2xl bg-slate-950 border border-brand-500/30">
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-3">
+          <div class="p-3 rounded-2xl bg-slate-950 border border-brand-500/30">
             <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Total Venta Turno</span>
-            <span id="cash-kpi-total" class="text-lg font-black text-brand-500 mt-1 block">$0.00</span>
+            <span id="cash-kpi-total" class="text-base sm:text-lg font-black text-brand-500 mt-1 block">$0.00</span>
             <span id="cash-kpi-orders" class="text-[10px] text-slate-500">0 pedidos válidos</span>
           </div>
 
-          <!-- Efectivo en Caja -->
-          <div class="p-3.5 rounded-2xl bg-slate-950 border border-slate-800">
+          <div class="p-3 rounded-2xl bg-slate-950 border border-slate-800">
             <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1">
               <span>💵 Efectivo</span>
             </span>
-            <span id="cash-kpi-efectivo" class="text-lg font-black text-white mt-1 block">$0.00</span>
+            <span id="cash-kpi-efectivo" class="text-base sm:text-lg font-black text-white mt-1 block">$0.00</span>
             <span id="cash-kpi-efectivo-count" class="text-[10px] text-slate-500">0 órdenes</span>
           </div>
 
-          <!-- Transferencia Bancaria -->
-          <div class="p-3.5 rounded-2xl bg-slate-950 border border-slate-800">
+          <div class="p-3 rounded-2xl bg-slate-950 border border-slate-800">
             <span class="text-[10px] font-bold uppercase tracking-wider text-sky-400 flex items-center gap-1">
               <span>🏦 Transferencia</span>
             </span>
-            <span id="cash-kpi-transfer" class="text-lg font-black text-white mt-1 block">$0.00</span>
+            <span id="cash-kpi-transfer" class="text-base sm:text-lg font-black text-white mt-1 block">$0.00</span>
             <span id="cash-kpi-transfer-count" class="text-[10px] text-slate-500">0 órdenes</span>
           </div>
 
-          <!-- De Una! QR -->
-          <div class="p-3.5 rounded-2xl bg-slate-950 border border-purple-500/30">
+          <div class="p-3 rounded-2xl bg-slate-950 border border-purple-500/30">
             <span class="text-[10px] font-bold uppercase tracking-wider text-purple-400 flex items-center gap-1">
               <span>📲 De Una! (QR)</span>
             </span>
-            <span id="cash-kpi-deuna" class="text-lg font-black text-white mt-1 block">$0.00</span>
+            <span id="cash-kpi-deuna" class="text-base sm:text-lg font-black text-white mt-1 block">$0.00</span>
             <span id="cash-kpi-deuna-count" class="text-[10px] text-slate-500">0 órdenes</span>
           </div>
 
-          <!-- Total Envíos Recaudados -->
-          <div class="p-3.5 rounded-2xl bg-slate-950 border border-slate-800">
+          <div class="p-3 rounded-2xl bg-slate-950 border border-slate-800">
             <span class="text-[10px] font-bold uppercase tracking-wider text-amber-400 block">🛵 Envíos Cobrados</span>
-            <span id="cash-kpi-shipping" class="text-lg font-black text-white mt-1 block">$0.00</span>
+            <span id="cash-kpi-shipping" class="text-base sm:text-lg font-black text-white mt-1 block">$0.00</span>
             <span class="text-[10px] text-slate-500">Domicilios</span>
           </div>
 
-          <!-- Descuentos & Cancelados -->
-          <div class="p-3.5 rounded-2xl bg-slate-950 border border-slate-800">
+          <div class="p-3 rounded-2xl bg-slate-950 border border-slate-800">
             <span class="text-[10px] font-bold uppercase tracking-wider text-rose-400 block">🎟️ Descuentos / Canc.</span>
             <span id="cash-kpi-discounts" class="text-sm font-black text-rose-400 mt-1 block">-$0.00</span>
             <span id="cash-kpi-cancelled" class="text-[10px] text-slate-500">0 cancelados</span>
@@ -858,7 +863,7 @@
 
       <!-- Cabecera de Lista de Pedidos en Vivo -->
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-        <h3 class="text-base font-bold text-white flex items-center gap-2">
+        <h3 class="text-base font-bold text-white flex flex-wrap items-center gap-2">
           <span>Comandas y Pedidos del Turno</span>
           <span class="text-xs text-slate-400 font-normal">Cambia el estado o despacha con 1 clic al motorizado</span>
         </h3>
@@ -882,7 +887,7 @@
         </button>
       </div>
 
-      <div class="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-xl">
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl">
         <div class="overflow-x-auto">
           <table class="w-full text-left text-xs">
             <thead class="bg-slate-950 text-slate-400 uppercase border-b border-slate-800">
@@ -934,7 +939,7 @@
 
     <!-- SECCIÓN BACKEND 5: IDENTIDAD DEL NEGOCIO, DE UNA! QR & WHATSAPP -->
     <section id="admin-section-identity" class="admin-section-tab hidden space-y-4">
-      <form onsubmit="handleSaveBusinessSettings(event)" class="bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-6 shadow-xl">
+      <form onsubmit="handleSaveBusinessSettings(event)" class="bg-slate-900 border border-slate-800 rounded-2xl sm:rounded-3xl p-4 sm:p-6 space-y-6 shadow-xl">
         <h3 class="text-base font-bold text-white flex items-center gap-2">
           <i data-lucide="sliders" class="w-4 h-4 text-brand-500"></i>
           <span>Identidad del Restaurante & Configuración General</span>
@@ -985,7 +990,7 @@
 
         <!-- Configuración de Códigos de Descuento (10%, 20%, 30%, 40%, 50%) -->
         <div class="pt-4 border-t border-slate-800 space-y-3">
-          <div class="flex items-center justify-between">
+          <div class="flex flex-wrap items-center justify-between gap-2">
             <h4 class="text-xs font-bold uppercase tracking-wider text-brand-400 flex items-center gap-1.5">
               <i data-lucide="ticket" class="w-4 h-4"></i>
               <span>Códigos de Descuento Configurables (10% a 50%)</span>
@@ -993,7 +998,7 @@
             <span class="text-[11px] text-slate-400">Deja vacío un código si deseas desactivar ese porcentaje</span>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-5 gap-3">
+          <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
             <div class="p-3 bg-slate-950 rounded-2xl border border-slate-800 space-y-1">
               <label class="block text-[11px] font-black text-emerald-400">Descuento 10%</label>
               <input type="text" id="cfg-coupon-10" placeholder="Ej. BRUTAL10" class="w-full px-2.5 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white uppercase font-mono focus:outline-none focus:border-brand-500">
@@ -1014,7 +1019,7 @@
               <input type="text" id="cfg-coupon-40" placeholder="Ej. BRUTAL40" class="w-full px-2.5 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white uppercase font-mono focus:outline-none focus:border-brand-500">
             </div>
 
-            <div class="p-3 bg-slate-950 rounded-2xl border border-slate-800 space-y-1">
+            <div class="p-3 bg-slate-950 rounded-2xl border border-slate-800 space-y-1 col-span-2 sm:col-span-1">
               <label class="block text-[11px] font-black text-emerald-400">Descuento 50%</label>
               <input type="text" id="cfg-coupon-50" placeholder="Ej. BRUTAL50" class="w-full px-2.5 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white uppercase font-mono focus:outline-none focus:border-brand-500">
             </div>
@@ -1059,7 +1064,6 @@
             <!-- Editor y Previsualizador del Código QR -->
             <div class="p-3 bg-slate-900 rounded-xl border border-slate-800 space-y-3">
               <div class="flex flex-col sm:flex-row items-center gap-4">
-                <!-- Vista previa actual del QR -->
                 <div class="w-28 h-28 rounded-xl bg-white p-1.5 flex items-center justify-center shrink-0 border border-slate-700 overflow-hidden relative">
                   <img id="cfg-deuna-qr-preview" src="" alt="Vista previa QR De Una!" class="w-full h-full object-contain">
                   <div id="cfg-deuna-qr-empty" class="hidden text-[10px] text-slate-500 text-center font-semibold px-1">
@@ -1067,7 +1071,6 @@
                   </div>
                 </div>
 
-                <!-- Controles para Editar, Subir imagen o Eliminar el QR -->
                 <div class="flex-1 space-y-2 w-full">
                   <div>
                     <label class="block text-[11px] font-semibold text-slate-300 mb-1">Subir o Cambiar Imagen del Código QR</label>
@@ -1079,7 +1082,7 @@
                     <input type="text" id="cfg-deuna-qr-url" oninput="handleDeUnaQrUrlInput(this.value)" placeholder="https://api.qrserver.com/..." class="w-full px-2.5 py-1.5 rounded-lg bg-slate-950 border border-slate-800 text-[11px] text-white font-mono focus:outline-none focus:border-purple-500">
                   </div>
 
-                  <div class="flex items-center gap-2 pt-1">
+                  <div class="flex flex-wrap items-center gap-2 pt-1">
                     <button type="button" onclick="generateDefaultDeUnaQr()" class="px-2.5 py-1 rounded-lg bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 border border-purple-500/30 text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1">
                       <i data-lucide="refresh-cw" class="w-3 h-3"></i>
                       <span>Generar QR Automático</span>
@@ -1101,7 +1104,7 @@
           <input type="text" id="cfg-marquee-text" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-brand-500">
         </div>
 
-        <button type="submit" class="px-5 py-3 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-2xl text-xs transition-all shadow-lg active:scale-95 cursor-pointer">
+        <button type="submit" class="w-full sm:w-auto px-5 py-3 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-2xl text-xs transition-all shadow-lg active:scale-95 cursor-pointer">
           Guardar Cambios de Identidad y Pagos
         </button>
       </form>
@@ -1117,7 +1120,7 @@
         </button>
       </div>
 
-      <div class="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-xl">
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl">
         <div class="overflow-x-auto">
           <table class="w-full text-left text-xs">
             <thead class="bg-slate-950 text-slate-400 uppercase border-b border-slate-800">
@@ -1138,10 +1141,10 @@
 
     <!-- SECCIÓN BACKEND 7: CONEXIÓN A BASE DE DATOS GRATUITA DE GOOGLE (FIRESTORE) -->
     <section id="admin-section-cloud" class="admin-section-tab hidden space-y-4">
-      <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-6 shadow-xl">
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl sm:rounded-3xl p-4 sm:p-6 space-y-6 shadow-xl">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
           <div class="flex items-center gap-3">
-            <div class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30">
+            <div class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30 shrink-0">
               <i data-lucide="cloud" class="w-6 h-6"></i>
             </div>
             <div>
@@ -1149,7 +1152,7 @@
               <p class="text-xs text-slate-400" id="admin-cloud-desc">Sincroniza productos, categorías, extras, cupones, QR De Una!, cierres de caja y pedidos en la nube gratuita de Google.</p>
             </div>
           </div>
-          <div class="flex items-center gap-2">
+          <div class="flex flex-wrap items-center gap-2">
             <button type="button" onclick="openFirebaseConfigModal()" class="px-4 py-2.5 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer">
               <i data-lucide="key" class="w-4 h-4"></i>
               <span>Configurar Credenciales Google</span>
@@ -1158,6 +1161,31 @@
               <i data-lucide="upload-cloud" class="w-4 h-4"></i>
               <span>Subir Datos Locales a la Nube</span>
             </button>
+          </div>
+        </div>
+
+        <!-- Herramientas para Conectar Dispositivos Android / Clientes (GitHub Pages) -->
+        <div class="p-4 bg-emerald-950/20 border border-emerald-500/30 rounded-2xl space-y-3">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <h4 class="text-xs font-black uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
+                <i data-lucide="smartphone" class="w-4 h-4"></i>
+                <span>¿Por qué en Android sale "Modo Local"? — Solución Definitiva</span>
+              </h4>
+              <p class="text-[11px] text-slate-300 mt-0.5">
+                Las claves que pegas en tu PC se guardan solo en tu navegador. Para que <b>todos los celulares Android</b> se conecten solos al abrir tu web, descarga el <code>index.html</code> con las claves ya incrustadas y súbelo a GitHub, o abre el Enlace Mágico en tu Android:
+              </p>
+            </div>
+            <div class="flex flex-wrap items-center gap-2 shrink-0">
+              <button type="button" onclick="downloadPreconfiguredHtml()" class="px-3.5 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-lg cursor-pointer">
+                <i data-lucide="download" class="w-4 h-4"></i>
+                <span>Descargar index.html con Claves Fijas</span>
+              </button>
+              <button type="button" onclick="copyAndroidMagicLink()" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-emerald-500/30 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer">
+                <i data-lucide="share-2" class="w-4 h-4"></i>
+                <span>Copiar Enlace Mágico Android</span>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -1179,23 +1207,10 @@
             <span class="text-[11px] text-slate-400 block">Extras</span>
             <span id="metric-cloud-extras" class="text-lg font-black text-white mt-1 block">0</span>
           </div>
-          <div class="p-4 bg-slate-950 rounded-2xl border border-slate-800">
+          <div class="p-4 bg-slate-950 rounded-2xl border border-slate-800 col-span-2 sm:col-span-1">
             <span class="text-[11px] text-slate-400 block">Pedidos Registrados</span>
             <span id="metric-cloud-orders" class="text-lg font-black text-brand-500 mt-1 block">0</span>
           </div>
-        </div>
-
-        <div class="p-4 bg-slate-950 rounded-2xl border border-slate-800 text-xs text-slate-300 space-y-2">
-          <p class="font-bold text-white flex items-center gap-1.5">
-            <i data-lucide="info" class="w-4 h-4 text-brand-500"></i>
-            <span>¿Cómo conectar tu propia base de datos gratuita de Google Firebase en 2 minutos?</span>
-          </p>
-          <ol class="list-decimal list-inside space-y-1 text-slate-400">
-            <li>Entra a <a href="https://console.firebase.google.com/" target="_blank" class="text-brand-400 underline">console.firebase.google.com</a> y crea un proyecto gratuito.</li>
-            <li>En el menú izquierdo ve a <b>Compilación &gt; Firestore Database</b> y créala en <b>Modo de Prueba (Test Mode)</b>.</li>
-            <li>En el menú izquierdo ve a <b>Compilación &gt; Authentication &gt; Sign-in method</b> y habilita el proveedor <b>Anónimo (Anonymous)</b>.</li>
-            <li>En Configuración del Proyecto (⚙️), registra una app Web <code>&lt;/&gt;</code>, copia el bloque <code>firebaseConfig</code> y pégalo haciendo clic en el botón naranja <b>"Configurar Credenciales Google"</b> de arriba.</li>
-          </ol>
         </div>
       </div>
     </section>
@@ -1205,126 +1220,128 @@
   <!-- ======================================================== -->
   <!-- MODAL: ARQUEO Y CIERRE DE CAJA DIARIO                    -->
   <!-- ======================================================== -->
-  <div id="cash-closing-modal" class="fixed inset-0 z-[125] bg-black/85 backdrop-blur-sm hidden items-center justify-center p-4 overflow-y-auto">
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-xl w-full p-6 space-y-4 my-6 shadow-2xl">
-      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-        <div class="flex items-center gap-2.5">
-          <div class="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30">
+  <div id="cash-closing-modal" class="fixed inset-0 z-[125] bg-black/85 backdrop-blur-sm hidden items-center justify-center p-2.5 sm:p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl sm:rounded-3xl max-w-xl w-full max-h-[92vh] flex flex-col overflow-hidden shadow-2xl">
+      <div class="flex items-center justify-between border-b border-slate-800 px-4 sm:px-6 py-3.5 bg-slate-950 shrink-0">
+        <div class="flex items-center gap-2.5 min-w-0">
+          <div class="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30 shrink-0">
             <i data-lucide="calculator" class="w-5 h-5"></i>
           </div>
-          <div>
-            <h4 class="font-bold text-white text-base">Arqueo y Cierre de Caja Diario</h4>
-            <p class="text-[11px] text-slate-400">Verifica los montos por forma de pago y cuadra el efectivo físico</p>
+          <div class="min-w-0">
+            <h4 class="font-bold text-white text-sm sm:text-base truncate">Arqueo y Cierre de Caja Diario</h4>
+            <p class="text-[11px] text-slate-400 truncate">Verifica los montos por forma de pago y cuadra el efectivo físico</p>
           </div>
         </div>
-        <button type="button" onclick="closeCashClosingModal()" class="w-7 h-7 rounded-lg bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer">
+        <button type="button" onclick="closeCashClosingModal()" class="w-7 h-7 rounded-lg bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer shrink-0">
           <i data-lucide="x" class="w-4 h-4"></i>
         </button>
       </div>
 
-      <form onsubmit="handleConfirmCashClosing(event)" class="space-y-4">
-        <!-- Resumen del Sistema -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
-          <div class="p-3 rounded-2xl bg-slate-950 border border-slate-800">
-            <span class="text-[10px] text-slate-400 block">💵 Efectivo Esperado</span>
-            <span id="modal-close-expected-cash" class="text-sm font-black text-emerald-400 mt-0.5 block">$0.00</span>
+      <form onsubmit="handleConfirmCashClosing(event)" class="flex-1 flex flex-col min-h-0 overflow-hidden">
+        <div class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 overscroll-contain">
+          <!-- Resumen del Sistema -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
+            <div class="p-3 rounded-2xl bg-slate-950 border border-slate-800">
+              <span class="text-[10px] text-slate-400 block">💵 Efectivo Esperado</span>
+              <span id="modal-close-expected-cash" class="text-sm font-black text-emerald-400 mt-0.5 block">$0.00</span>
+            </div>
+            <div class="p-3 rounded-2xl bg-slate-950 border border-slate-800">
+              <span class="text-[10px] text-slate-400 block">🏦 Transferencias</span>
+              <span id="modal-close-transfer" class="text-sm font-black text-sky-400 mt-0.5 block">$0.00</span>
+            </div>
+            <div class="p-3 rounded-2xl bg-slate-950 border border-slate-800">
+              <span class="text-[10px] text-slate-400 block">📲 De Una! (QR)</span>
+              <span id="modal-close-deuna" class="text-sm font-black text-purple-400 mt-0.5 block">$0.00</span>
+            </div>
+            <div class="p-3 rounded-2xl bg-slate-950 border border-brand-500/30">
+              <span class="text-[10px] text-slate-400 block">💰 Venta Total Turno</span>
+              <span id="modal-close-grand-total" class="text-sm font-black text-brand-500 mt-0.5 block">$0.00</span>
+            </div>
           </div>
-          <div class="p-3 rounded-2xl bg-slate-950 border border-slate-800">
-            <span class="text-[10px] text-slate-400 block">🏦 Transferencias</span>
-            <span id="modal-close-transfer" class="text-sm font-black text-sky-400 mt-0.5 block">$0.00</span>
-          </div>
-          <div class="p-3 rounded-2xl bg-slate-950 border border-slate-800">
-            <span class="text-[10px] text-slate-400 block">📲 De Una! (QR)</span>
-            <span id="modal-close-deuna" class="text-sm font-black text-purple-400 mt-0.5 block">$0.00</span>
-          </div>
-          <div class="p-3 rounded-2xl bg-slate-950 border border-brand-500/30">
-            <span class="text-[10px] text-slate-400 block">💰 Venta Total Turno</span>
-            <span id="modal-close-grand-total" class="text-sm font-black text-brand-500 mt-0.5 block">$0.00</span>
-          </div>
-        </div>
 
-        <!-- Calculadora de Cuadre de Efectivo -->
-        <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-3">
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <!-- Calculadora de Cuadre de Efectivo -->
+          <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-3">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 mb-1">
+                  Fondo de Caja Inicial / Base ($)
+                </label>
+                <input 
+                  type="number" 
+                  step="0.01" 
+                  min="0"
+                  id="close-opening-cash" 
+                  value="0.00"
+                  oninput="updateCashClosingDiffUI()"
+                  class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white focus:outline-none focus:border-brand-500"
+                >
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-emerald-400 mb-1">
+                  Efectivo Físico Contado en Gaveta ($) *
+                </label>
+                <input 
+                  type="number" 
+                  step="0.01" 
+                  min="0"
+                  id="close-counted-cash" 
+                  required
+                  placeholder="Ej. 125.50"
+                  oninput="updateCashClosingDiffUI()"
+                  class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-emerald-500/50 text-xs text-white font-bold focus:outline-none focus:border-emerald-400"
+                >
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between pt-2 border-t border-slate-800 text-xs gap-2">
+              <span class="text-slate-400">Efectivo esperado en gaveta (Base + Efectivo):</span>
+              <span id="close-total-drawer-expected" class="font-bold text-white shrink-0">$0.00</span>
+            </div>
+
+            <div id="close-diff-banner" class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between text-xs gap-2">
+              <span class="font-semibold text-slate-300">Estado del Arqueo:</span>
+              <span id="close-diff-text" class="font-black text-emerald-400">Caja Cuadrada ($0.00)</span>
+            </div>
+          </div>
+
+          <!-- Observaciones y Opciones de Limpieza de Turno -->
+          <div class="space-y-3">
             <div>
-              <label class="block text-xs font-semibold text-slate-300 mb-1">
-                Fondo de Caja Inicial / Base ($)
-              </label>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Observaciones / Novedades del Turno</label>
               <input 
-                type="number" 
-                step="0.01" 
-                min="0"
-                id="close-opening-cash" 
-                value="0.00"
-                oninput="updateCashClosingDiffUI()"
-                class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white focus:outline-none focus:border-brand-500"
+                type="text" 
+                id="close-notes-input" 
+                placeholder="Ej. Se pagó $5 a proveedor, turno sin novedades..." 
+                class="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-brand-500"
               >
             </div>
 
-            <div>
-              <label class="block text-xs font-semibold text-emerald-400 mb-1">
-                Efectivo Físico Contado en Gaveta ($) *
-              </label>
-              <input 
-                type="number" 
-                step="0.01" 
-                min="0"
-                id="close-counted-cash" 
-                required
-                placeholder="Ej. 125.50"
-                oninput="updateCashClosingDiffUI()"
-                class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-emerald-500/50 text-xs text-white font-bold focus:outline-none focus:border-emerald-400"
-              >
-            </div>
-          </div>
+            <label class="flex items-center gap-2.5 p-3 rounded-2xl bg-slate-950 border border-slate-800 cursor-pointer">
+              <input type="checkbox" id="close-archive-orders-cb" checked class="w-4 h-4 accent-brand-500 rounded shrink-0">
+              <div class="text-xs">
+                <span class="font-bold text-white block">Archivar y reiniciar pedidos del turno actual al cerrar caja</span>
+                <span class="text-[11px] text-slate-400">Deja la bandeja de pedidos en $0.00 lista para el siguiente turno</span>
+              </div>
+            </label>
 
-          <div class="flex items-center justify-between pt-2 border-t border-slate-800 text-xs">
-            <span class="text-slate-400">Efectivo total esperado en gaveta (Base + Ventas Efectivo):</span>
-            <span id="close-total-drawer-expected" class="font-bold text-white">$0.00</span>
-          </div>
-
-          <div id="close-diff-banner" class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between text-xs">
-            <span class="font-semibold text-slate-300">Estado del Arqueo:</span>
-            <span id="close-diff-text" class="font-black text-emerald-400">Caja Cuadrada ($0.00)</span>
+            <label class="flex items-center gap-2.5 p-3 rounded-2xl bg-slate-950 border border-slate-800 cursor-pointer">
+              <input type="checkbox" id="close-send-whatsapp-cb" checked class="w-4 h-4 accent-emerald-500 rounded shrink-0">
+              <div class="text-xs">
+                <span class="font-bold text-emerald-400 block">Enviar reporte de Cierre de Caja por WhatsApp al finalizar</span>
+                <span class="text-[11px] text-slate-400">Envía el desglose completo al número principal del negocio</span>
+              </div>
+            </label>
           </div>
         </div>
 
-        <!-- Observaciones y Opciones de Limpieza de Turno -->
-        <div class="space-y-3">
-          <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1">Observaciones / Novedades del Turno</label>
-            <input 
-              type="text" 
-              id="close-notes-input" 
-              placeholder="Ej. Se pagó $5 a proveedor de hielo, turno sin novedades..." 
-              class="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-brand-500"
-            >
-          </div>
-
-          <label class="flex items-center gap-2.5 p-3 rounded-2xl bg-slate-950 border border-slate-800 cursor-pointer">
-            <input type="checkbox" id="close-archive-orders-cb" checked class="w-4 h-4 accent-brand-500 rounded">
-            <div class="text-xs">
-              <span class="font-bold text-white block">Archivar y reiniciar pedidos del turno actual al cerrar caja</span>
-              <span class="text-[11px] text-slate-400">Deja la bandeja de pedidos en $0.00 lista para el siguiente día/turno</span>
-            </div>
-          </label>
-
-          <label class="flex items-center gap-2.5 p-3 rounded-2xl bg-slate-950 border border-slate-800 cursor-pointer">
-            <input type="checkbox" id="close-send-whatsapp-cb" checked class="w-4 h-4 accent-emerald-500 rounded">
-            <div class="text-xs">
-              <span class="font-bold text-emerald-400 block">Enviar reporte de Cierre de Caja por WhatsApp al finalizar</span>
-              <span class="text-[11px] text-slate-400">Envía el desglose completo al número principal del negocio</span>
-            </div>
-          </label>
-        </div>
-
-        <div class="flex flex-wrap items-center justify-end gap-2 pt-3 border-t border-slate-800">
+        <div class="flex flex-wrap items-center justify-end gap-2 p-3.5 sm:p-4 bg-slate-950 border-t border-slate-800 shrink-0">
           <button type="button" onclick="closeCashClosingModal()" class="px-4 py-2.5 rounded-xl bg-slate-800 text-slate-300 text-xs font-semibold cursor-pointer">
             Cancelar
           </button>
           <button type="submit" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-1.5 shadow-lg cursor-pointer">
             <i data-lucide="check-circle-2" class="w-4 h-4"></i>
-            <span>Confirmar y Guardar Cierre de Caja</span>
+            <span>Confirmar y Guardar Cierre</span>
           </button>
         </div>
       </form>
@@ -1334,19 +1351,19 @@
   <!-- ======================================================== -->
   <!-- MODAL: CONEXIÓN A GOOGLE CLOUD FIRESTORE (FIREBASE)      -->
   <!-- ======================================================== -->
-  <div id="firebase-config-modal" class="fixed inset-0 z-[130] bg-black/85 backdrop-blur-sm hidden items-center justify-center p-4 overflow-y-auto">
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full p-6 space-y-4 my-6 shadow-2xl">
+  <div id="firebase-config-modal" class="fixed inset-0 z-[130] bg-black/85 backdrop-blur-sm hidden items-center justify-center p-2.5 sm:p-4 overflow-y-auto">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl sm:rounded-3xl max-w-lg w-full p-4 sm:p-6 space-y-4 my-4 shadow-2xl">
       <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-        <div class="flex items-center gap-2.5">
-          <div class="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30">
+        <div class="flex items-center gap-2.5 min-w-0">
+          <div class="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30 shrink-0">
             <i data-lucide="database" class="w-5 h-5"></i>
           </div>
-          <div>
-            <h4 class="font-bold text-white text-sm">Conectar Google Cloud Firestore</h4>
-            <p class="text-[11px] text-slate-400">Pega el bloque firebaseConfig de tu consola de Google Firebase</p>
+          <div class="min-w-0">
+            <h4 class="font-bold text-white text-sm truncate">Conectar Google Cloud Firestore</h4>
+            <p class="text-[11px] text-slate-400 truncate">Pega el bloque firebaseConfig de tu consola de Google Firebase</p>
           </div>
         </div>
-        <button type="button" onclick="closeFirebaseConfigModal()" class="w-7 h-7 rounded-lg bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer">
+        <button type="button" onclick="closeFirebaseConfigModal()" class="w-7 h-7 rounded-lg bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer shrink-0">
           <i data-lucide="x" class="w-4 h-4"></i>
         </button>
       </div>
@@ -1356,16 +1373,9 @@
           <label class="block text-xs font-semibold text-slate-300 mb-1">Pegar bloque completo de Firebase (Auto-detector inteligente)</label>
           <textarea 
             id="fb-raw-snippet" 
-            rows="4" 
+            rows="3" 
             oninput="parseFirebaseSnippet(this.value)"
-            placeholder="Pega aquí const firebaseConfig = {
-  apiKey: "AIzaSyDcXh-6_aYCxMJmGFSfS62LWbX1LQCEVfw",
-  authDomain: "burger-db-c1b7f.firebaseapp.com",
-  projectId: "burger-db-c1b7f",
-  storageBucket: "burger-db-c1b7f.firebasestorage.app",
-  messagingSenderId: "759897318226",
-  appId: "1:759897318226:web:2166c5711efa86e575d08b"
-};" 
+            placeholder="Pega aquí const firebaseConfig = { apiKey: '...', projectId: '...' };" 
             class="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-emerald-400 font-mono focus:outline-none focus:border-brand-500"
           ></textarea>
         </div>
@@ -1389,7 +1399,7 @@
           </div>
         </div>
 
-        <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-800">
+        <div class="flex flex-wrap items-center justify-end gap-2 pt-3 border-t border-slate-800">
           <button type="button" onclick="disconnectFirebase()" class="px-3 py-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 text-xs font-semibold cursor-pointer mr-auto">
             Usar Solo Modo Local
           </button>
@@ -1398,7 +1408,7 @@
           </button>
           <button type="button" onclick="saveAndConnectFirebase()" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-lg">
             <i data-lucide="plug-zap" class="w-4 h-4"></i>
-            <span>Guardar y Conectar Nube</span>
+            <span>Guardar y Conectar</span>
           </button>
         </div>
       </div>
@@ -1410,8 +1420,8 @@
   <!-- ======================================================== -->
 
   <!-- Modal Crear/Editar Producto -->
-  <div id="admin-product-modal" class="fixed inset-0 z-[110] bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4 overflow-y-auto">
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full p-6 space-y-4 my-6 shadow-2xl">
+  <div id="admin-product-modal" class="fixed inset-0 z-[110] bg-black/80 backdrop-blur-sm hidden items-center justify-center p-2.5 sm:p-4 overflow-y-auto">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl sm:rounded-3xl max-w-lg w-full p-4 sm:p-6 space-y-4 my-4 shadow-2xl">
       <div class="flex items-center justify-between border-b border-slate-800 pb-3">
         <h4 id="admin-product-modal-title" class="font-bold text-white text-base">Nuevo Producto</h4>
         <button type="button" onclick="closeProductEditModal()" class="w-7 h-7 rounded-lg bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer">
@@ -1456,7 +1466,7 @@
 
   <!-- Modal Crear/Editar Categoría -->
   <div id="admin-category-modal" class="fixed inset-0 z-[110] bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-sm w-full p-6 space-y-4 shadow-2xl">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-sm w-full p-5 sm:p-6 space-y-4 shadow-2xl">
       <h4 id="admin-cat-modal-title" class="font-bold text-white text-base">Categoría</h4>
       <form onsubmit="handleSaveCategory(event)" class="space-y-3">
         <input type="hidden" id="edit-cat-old-name">
@@ -1474,7 +1484,7 @@
 
   <!-- Modal Crear/Editar Extra -->
   <div id="admin-extra-modal" class="fixed inset-0 z-[110] bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-sm w-full p-6 space-y-4 shadow-2xl">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-sm w-full p-5 sm:p-6 space-y-4 shadow-2xl">
       <h4 id="admin-extra-modal-title" class="font-bold text-white text-base">Extra / Adicional</h4>
       <form onsubmit="handleSaveExtra(event)" class="space-y-3">
         <input type="hidden" id="edit-extra-id">
@@ -1496,7 +1506,7 @@
 
   <!-- Modal Crear/Editar Usuario -->
   <div id="admin-user-modal" class="fixed inset-0 z-[110] bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-sm w-full p-6 space-y-4 shadow-2xl">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-sm w-full p-5 sm:p-6 space-y-4 shadow-2xl">
       <h4 id="admin-user-modal-title" class="font-bold text-white text-base">Usuario del Sistema</h4>
       <form onsubmit="handleSaveUser(event)" class="space-y-3">
         <input type="hidden" id="edit-user-original">
@@ -1525,12 +1535,12 @@
   </div>
 
   <!-- Modal Despacho al Motorizado -->
-  <div id="rider-dispatch-modal" class="fixed inset-0 z-[120] bg-black/85 backdrop-blur-sm hidden items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+  <div id="rider-dispatch-modal" class="fixed inset-0 z-[120] bg-black/85 backdrop-blur-sm hidden items-center justify-center p-3 sm:p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl sm:rounded-3xl max-w-md w-full p-4 sm:p-6 space-y-4 shadow-2xl">
       <div class="flex items-center justify-between border-b border-slate-800 pb-3">
         <div class="flex items-center gap-2">
           <span class="text-xl">🛵</span>
-          <h4 class="font-bold text-white text-base">Despachar Pedido al Motorizado</h4>
+          <h4 class="font-bold text-white text-sm sm:text-base">Despachar Pedido al Motorizado</h4>
         </div>
         <button type="button" onclick="closeRiderDispatchModal()" class="w-7 h-7 rounded-lg bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer">
           <i data-lucide="x" class="w-4 h-4"></i>
@@ -1549,7 +1559,7 @@
           <button type="button" onclick="closeRiderDispatchModal()" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 text-xs font-semibold cursor-pointer">Cancelar</button>
           <button type="button" onclick="confirmSendToRider()" class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer">
             <i data-lucide="send" class="w-3.5 h-3.5"></i>
-            <span>Enviar por WhatsApp al Motorizado</span>
+            <span>Enviar al Motorizado</span>
           </button>
         </div>
       </div>
@@ -1561,15 +1571,14 @@
   <!-- ======================================================== -->
   <script type="module">
     import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { initializeFirestore, getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     // ============================================================================
     // 1. VARIABLE GLOBAL DEL TELÉFONO RECEPTOR DE WHATSAPP Y CONFIGURACIÓN FIREBASE
     // ============================================================================
     let STORE_WHATSAPP_PHONE = "593987654321"; // <-- CAMBIA AQUÍ EL NÚMERO POR DEFECTO
 
-    // Si deseas dejar tus credenciales fijas en el código para GitHub Pages, pégalas aquí:
     const DEFAULT_FIREBASE_CONFIG = {
       apiKey: "",
       authDomain: "",
@@ -1582,7 +1591,6 @@
     const STORAGE_KEY = "BURGER_BRUTAL_STATE_V5";
     const FIREBASE_CFG_STORAGE_KEY = "BURGER_FIREBASE_CONFIG_V1";
 
-    // Datos iniciales para La Brutal Burger & Salchipapas
     const INITIAL_STATE = {
       settings: {
         businessName: "LA BRUTAL BURGER",
@@ -1712,7 +1720,6 @@
       cashClosings: []
     };
 
-    // Estado en memoria
     let appState = loadLocalState();
     let cart = [];
     let currentCategory = "Todas";
@@ -1724,7 +1731,6 @@
     let appliedCoupon = null;
     let activeDispatchOrderId = null;
 
-    // Variables Firebase Cloud
     let db = null;
     let auth = null;
     let isCloudConnected = false;
@@ -1762,7 +1768,29 @@
       updateCloudMetricsUI();
     }
 
+    function checkUrlFirebaseParams() {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const encodedCfg = params.get("fbcfg");
+        if (encodedCfg) {
+          const decoded = JSON.parse(atob(encodedCfg));
+          if (decoded && decoded.apiKey && decoded.projectId) {
+            localStorage.setItem(FIREBASE_CFG_STORAGE_KEY, JSON.stringify(decoded));
+            const cleanUrl = window.location.origin + window.location.pathname;
+            window.history.replaceState({}, document.title, cleanUrl);
+            showToast("¡Credenciales sincronizadas en este dispositivo!", "success");
+          }
+        }
+      } catch (e) {
+        console.warn("Parámetro fbcfg inválido:", e);
+      }
+    }
+
     function getActiveFirebaseConfig() {
+      checkUrlFirebaseParams();
+      if (DEFAULT_FIREBASE_CONFIG.apiKey && DEFAULT_FIREBASE_CONFIG.projectId) {
+        return DEFAULT_FIREBASE_CONFIG;
+      }
       try {
         const saved = localStorage.getItem(FIREBASE_CFG_STORAGE_KEY);
         if (saved) {
@@ -1775,9 +1803,6 @@
           const envCfg = typeof __firebase_config === "string" ? JSON.parse(__firebase_config) : __firebase_config;
           if (envCfg && envCfg.apiKey) return envCfg;
         } catch (e) {}
-      }
-      if (DEFAULT_FIREBASE_CONFIG.apiKey && DEFAULT_FIREBASE_CONFIG.projectId) {
-        return DEFAULT_FIREBASE_CONFIG;
       }
       return null;
     }
@@ -1793,26 +1818,33 @@
         updateCloudBadge(false, "Conectando...");
         const appInstance = getApps().length ? getApp() : initializeApp(cfg);
         auth = getAuth(appInstance);
-        db = getFirestore(appInstance);
 
-        if (typeof __initial_auth_token !== "undefined" && __initial_auth_token) {
-          await signInWithCustomToken(auth, __initial_auth_token);
-        } else {
-          await signInAnonymously(auth);
+        try {
+          db = initializeFirestore(appInstance, {
+            experimentalAutoDetectLongPolling: true
+          });
+        } catch (e) {
+          db = getFirestore(appInstance);
         }
 
-        onAuthStateChanged(auth, (user) => {
-          if (user) {
-            isCloudConnected = true;
-            updateCloudBadge(true, `Google Cloud (${cfg.projectId})`);
-            subscribeToCloudState();
+        try {
+          if (typeof __initial_auth_token !== "undefined" && __initial_auth_token) {
+            await signInWithCustomToken(auth, __initial_auth_token);
+          } else {
+            await signInAnonymously(auth);
           }
-        });
+        } catch (authErr) {
+          console.warn("Aviso Auth en móvil:", authErr);
+        }
+
+        isCloudConnected = true;
+        updateCloudBadge(true, `Google Cloud (${cfg.projectId})`);
+        subscribeToCloudState();
       } catch (err) {
         console.error("Error conectando con Google Cloud Firestore:", err);
         isCloudConnected = false;
         updateCloudBadge(false, "Error Cloud");
-        showToast("No se pudo conectar a Firebase. Revisa tus claves o habilita Auth Anónimo.", "error");
+        showToast("No se pudo conectar a Firebase. Revisa tus claves.", "error");
       }
     }
 
@@ -1876,8 +1908,8 @@
       const metricState = document.getElementById("metric-cloud-state");
       if (dot) {
         dot.className = connected
-          ? "w-2 h-2 rounded-full bg-emerald-400"
-          : "w-2 h-2 rounded-full bg-amber-400 animate-pulse";
+          ? "w-2 h-2 rounded-full bg-emerald-400 shrink-0"
+          : "w-2 h-2 rounded-full bg-amber-400 animate-pulse shrink-0";
       }
       if (text) text.textContent = label;
       if (metricState) {
@@ -1900,7 +1932,6 @@
       if (oEl) oEl.textContent = appState.orders.length;
     }
 
-    // Modal de Configuración Firebase
     window.openFirebaseConfigModal = function () {
       const cfg = getActiveFirebaseConfig() || {};
       document.getElementById("fb-apiKey").value = cfg.apiKey || "";
@@ -1978,7 +2009,62 @@
         return;
       }
       await pushStateToFirestore();
-      showToast("¡Catálogo, QR De Una!, cierres de caja y pedidos sincronizados en Google Cloud!", "success");
+      showToast("¡Catálogo y datos sincronizados en Google Cloud!", "success");
+    };
+
+    window.downloadCleanHtmlFile = function () {
+      const rawHtml = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+      const blob = new Blob([rawHtml], { type: "text/html;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "index.html";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast("¡Archivo index.html descargado correctamente!");
+    };
+
+    window.downloadPreconfiguredHtml = function () {
+      const cfg = getActiveFirebaseConfig();
+      if (!cfg || !cfg.apiKey || !cfg.projectId) {
+        showToast("Primero configura y conecta tus credenciales en esta PC", "error");
+        openFirebaseConfigModal();
+        return;
+      }
+
+      const rawHtml = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+      const replacementBlock = `const DEFAULT_FIREBASE_CONFIG = {\n      apiKey: "${cfg.apiKey || ""}",\n      authDomain: "${cfg.authDomain || cfg.projectId + ".firebaseapp.com"}",\n      projectId: "${cfg.projectId || ""}",\n      storageBucket: "${cfg.storageBucket || cfg.projectId + ".appspot.com"}",\n      messagingSenderId: "${cfg.messagingSenderId || ""}",\n      appId: "${cfg.appId || ""}"\n    };`;
+
+      const updatedHtml = rawHtml.replace(
+        /const\s+DEFAULT_FIREBASE_CONFIG\s*=\s*\{[\s\S]*?\};/,
+        replacementBlock
+      );
+
+      const blob = new Blob([updatedHtml], { type: "text/html;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "index.html";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast("¡Archivo index.html descargado con tus claves listas para GitHub!");
+    };
+
+    window.copyAndroidMagicLink = function () {
+      const cfg = getActiveFirebaseConfig();
+      if (!cfg || !cfg.apiKey || !cfg.projectId) {
+        showToast("Primero configura tus credenciales en este dispositivo", "error");
+        openFirebaseConfigModal();
+        return;
+      }
+      const encoded = btoa(JSON.stringify(cfg));
+      const baseUrl = window.location.origin + window.location.pathname;
+      const magicUrl = `${baseUrl}?fbcfg=${encodeURIComponent(encoded)}`;
+      copyTextToClipboard(magicUrl, "Enlace mágico copiado. Ábrelo en tu Android y se conectará al instante.");
     };
 
     // ============================================================================
@@ -2039,10 +2125,10 @@
       if (bankEl) bankEl.textContent = s.bankInfo || "";
 
       const deunaPhoneEl = document.getElementById("deuna-phone-display");
-      if (deunaPhoneEl) deunaPhoneEl.textContent = s.deunaPhone || s.yapePhone || "";
+      if (deunaPhoneEl) deunaPhoneEl.textContent = s.deunaPhone || "";
 
       const deunaNameEl = document.getElementById("deuna-name-display");
-      if (deunaNameEl) deunaNameEl.textContent = s.deunaName || s.yapeName || "";
+      if (deunaNameEl) deunaNameEl.textContent = s.deunaName || "";
 
       const qrCheckoutWrap = document.getElementById("deuna-qr-checkout-wrap");
       const qrCheckoutImg = document.getElementById("deuna-qr-checkout-img");
@@ -2076,7 +2162,7 @@
             <button
               type="button"
               onclick="selectCategory('${escapeHtml(cat)}')"
-              class="px-4 py-2.5 rounded-2xl text-xs font-bold whitespace-nowrap transition-all flex items-center gap-2 cursor-pointer ${
+              class="shrink-0 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-2xl text-xs font-bold whitespace-nowrap transition-all flex items-center gap-2 cursor-pointer ${
                 isActive
                   ? "bg-brand-600 text-white shadow-lg shadow-brand-950"
                   : "bg-slate-900 text-slate-400 hover:text-white border border-slate-800"
@@ -2148,15 +2234,15 @@
           const imgUrl = p.img && p.img.trim() ? p.img : placeholderUrl;
 
           return `
-            <article class="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-xl hover:border-brand-500/50 transition-all flex flex-col group">
-              <div class="relative h-48 overflow-hidden bg-slate-950">
+            <article class="bg-slate-900 border border-slate-800 rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl hover:border-brand-500/50 transition-all flex flex-col group w-full">
+              <div class="relative h-44 sm:h-48 overflow-hidden bg-slate-950">
                 <img
                   src="${escapeHtml(imgUrl)}"
                   alt="${escapeHtml(p.name)}"
                   onerror="this.src='${placeholderUrl}'"
                   class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 >
-                <span class="absolute top-3 left-3 bg-slate-950/85 backdrop-blur-md text-brand-400 text-[10px] font-bold px-2.5 py-1 rounded-xl border border-brand-500/20">
+                <span class="absolute top-3 left-3 bg-slate-950/85 backdrop-blur-md text-brand-400 text-[10px] font-bold px-2.5 py-1 rounded-xl border border-brand-500/20 max-w-[70%] truncate">
                   ${escapeHtml(p.category)}
                 </span>
                 <span class="absolute bottom-3 right-3 bg-slate-950/90 text-white font-black text-sm px-3 py-1 rounded-xl border border-slate-700">
@@ -2164,10 +2250,10 @@
                 </span>
               </div>
 
-              <div class="p-5 flex-1 flex flex-col justify-between space-y-4">
+              <div class="p-4 sm:p-5 flex-1 flex flex-col justify-between space-y-4">
                 <div>
-                  <h3 class="font-bold text-white text-base group-hover:text-brand-400 transition-colors">${escapeHtml(p.name)}</h3>
-                  <p class="text-xs text-slate-400 mt-1.5 line-clamp-2 leading-relaxed">${escapeHtml(p.desc)}</p>
+                  <h3 class="font-bold text-white text-base group-hover:text-brand-400 transition-colors break-words">${escapeHtml(p.name)}</h3>
+                  <p class="text-xs text-slate-400 mt-1.5 line-clamp-2 leading-relaxed break-words">${escapeHtml(p.desc)}</p>
                 </div>
 
                 <button
@@ -2175,7 +2261,7 @@
                   onclick="openProductDetailModal('${escapeHtml(p.id)}')"
                   class="w-full py-2.5 px-4 rounded-2xl bg-gradient-to-r from-brand-600 to-amber-600 hover:from-brand-500 hover:to-amber-500 text-white font-bold text-xs shadow-lg flex items-center justify-center gap-2 active:scale-95 transition-all cursor-pointer"
                 >
-                  <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                  <i data-lucide="plus-circle" class="w-4 h-4 shrink-0"></i>
                   <span>Agregar al carrito</span>
                 </button>
               </div>
@@ -2220,12 +2306,12 @@
         extrasList.innerHTML = availableExtras
           .map(
             (ext) => `
-          <label class="flex items-center justify-between p-2.5 rounded-xl bg-slate-950 border border-slate-800 hover:border-brand-500/40 cursor-pointer transition-all">
-            <div class="flex items-center gap-2.5">
-              <input type="checkbox" value="${escapeHtml(ext.id)}" onchange="updateModalDynamicPrice()" class="modal-extra-checkbox w-4 h-4 rounded accent-brand-500">
-              <span class="text-xs font-medium text-white">${escapeHtml(ext.name)}</span>
+          <label class="flex items-center justify-between p-2.5 rounded-xl bg-slate-950 border border-slate-800 hover:border-brand-500/40 cursor-pointer transition-all gap-2">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <input type="checkbox" value="${escapeHtml(ext.id)}" onchange="updateModalDynamicPrice()" class="modal-extra-checkbox w-4 h-4 rounded accent-brand-500 shrink-0">
+              <span class="text-xs font-medium text-white truncate">${escapeHtml(ext.name)}</span>
             </div>
-            <span class="text-xs font-bold text-brand-400">+$${Number(ext.price).toFixed(2)}</span>
+            <span class="text-xs font-bold text-brand-400 shrink-0">+$${Number(ext.price).toFixed(2)}</span>
           </label>
         `
           )
@@ -2396,16 +2482,16 @@
           .map((item) => {
             const extrasHtml =
               item.extras && item.extras.length
-                ? `<div class="text-[11px] text-brand-400 mt-1">+ ${item.extras.map((e) => escapeHtml(e.name)).join(", ")}</div>`
+                ? `<div class="text-[11px] text-brand-400 mt-1 break-words">+ ${item.extras.map((e) => escapeHtml(e.name)).join(", ")}</div>`
                 : "";
             const notesHtml = item.notes
-              ? `<div class="text-[10px] text-slate-400 italic mt-0.5">Nota: "${escapeHtml(item.notes)}"</div>`
+              ? `<div class="text-[10px] text-slate-400 italic mt-0.5 break-words">Nota: "${escapeHtml(item.notes)}"</div>`
               : "";
 
             return `
-              <div class="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 flex items-start justify-between gap-3">
-                <div class="flex-1">
-                  <h4 class="text-xs font-bold text-white">${escapeHtml(item.name)}</h4>
+              <div class="p-3 rounded-2xl bg-slate-950 border border-slate-800 flex items-start justify-between gap-2.5">
+                <div class="flex-1 min-w-0">
+                  <h4 class="text-xs font-bold text-white break-words">${escapeHtml(item.name)}</h4>
                   ${extrasHtml}
                   ${notesHtml}
                   <div class="text-xs font-black text-brand-500 mt-1.5">
@@ -2414,13 +2500,13 @@
                   </div>
                 </div>
 
-                <div class="flex items-center gap-1.5 bg-slate-900 border border-slate-800 p-1 rounded-xl">
+                <div class="flex items-center gap-1 bg-slate-900 border border-slate-800 p-1 rounded-xl shrink-0">
                   <button type="button" onclick="updateCartItemQty('${item.cartItemId}', -1)" class="w-6 h-6 rounded-lg bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold cursor-pointer">-</button>
                   <span class="w-5 text-center text-xs font-bold text-white">${item.quantity}</span>
                   <button type="button" onclick="updateCartItemQty('${item.cartItemId}', 1)" class="w-6 h-6 rounded-lg bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold cursor-pointer">+</button>
                 </div>
 
-                <button type="button" onclick="removeCartItem('${item.cartItemId}')" class="text-slate-500 hover:text-rose-400 p-1 cursor-pointer">
+                <button type="button" onclick="removeCartItem('${item.cartItemId}')" class="text-slate-500 hover:text-rose-400 p-1 cursor-pointer shrink-0">
                   <i data-lucide="trash-2" class="w-4 h-4"></i>
                 </button>
               </div>
@@ -2502,7 +2588,7 @@
       }
 
       appliedCoupon = { code: rawCode, percent: matchedPercent };
-      document.getElementById("coupon-applied-text").textContent = `🎉 Cupón ${rawCode} (${matchedPercent}% DCTO) aplicado`;
+      document.getElementById("coupon-applied-text").textContent = `🎉 Cupón ${rawCode} (${matchedPercent}% Dcto.)`;
       const badge = document.getElementById("coupon-applied-badge");
       badge.classList.remove("hidden");
       badge.classList.add("flex");
@@ -2517,52 +2603,82 @@
       badge.classList.add("hidden");
       badge.classList.remove("flex");
       renderCartUI();
+      showToast("Cupón retirado");
     };
 
     function updateCheckoutTotalsUI() {
       const totals = getCartTotals();
       const subEl = document.getElementById("checkout-subtotal-display");
-      if (!subEl) return;
-
-      subEl.textContent = `$${totals.subtotal.toFixed(2)}`;
       const discRow = document.getElementById("checkout-discount-row");
-      if (totals.discountPercent > 0) {
-        discRow.classList.remove("hidden");
-        discRow.classList.add("flex");
-        document.getElementById("checkout-discount-label").textContent = `Descuento (${appliedCoupon.code} -${totals.discountPercent}%):`;
-        document.getElementById("checkout-discount-display").textContent = `-$${totals.discountAmount.toFixed(2)}`;
-      } else {
-        discRow.classList.add("hidden");
-        discRow.classList.remove("flex");
-      }
+      const discLabel = document.getElementById("checkout-discount-label");
+      const discVal = document.getElementById("checkout-discount-display");
+      const shipEl = document.getElementById("checkout-shipping-display");
+      const totEl = document.getElementById("checkout-total-display");
 
-      document.getElementById("checkout-shipping-display").innerHTML = totals.qualifiesFreeShipping
-        ? `<span class="text-emerald-400 font-black">¡GRATIS!</span>`
-        : `$${totals.shipping.toFixed(2)}`;
-      document.getElementById("checkout-total-display").textContent = `$${totals.grandTotal.toFixed(2)}`;
+      if (subEl) subEl.textContent = `$${totals.subtotal.toFixed(2)}`;
+      if (discRow) {
+        if (totals.discountPercent > 0) {
+          discRow.classList.remove("hidden");
+          discRow.classList.add("flex");
+          discLabel.textContent = `Descuento (${appliedCoupon.code} -${totals.discountPercent}%):`;
+          discVal.textContent = `-$${totals.discountAmount.toFixed(2)}`;
+        } else {
+          discRow.classList.add("hidden");
+          discRow.classList.remove("flex");
+        }
+      }
+      if (shipEl) {
+        shipEl.innerHTML = totals.qualifiesFreeShipping
+          ? `<span class="text-emerald-400 font-bold">¡GRATIS!</span>`
+          : `$${totals.shipping.toFixed(2)}`;
+      }
+      if (totEl) totEl.textContent = `$${totals.grandTotal.toFixed(2)}`;
     }
 
-    // Ubicación Satelital GPS
+    function copyTextToClipboard(text, successMsg) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => showToast(successMsg));
+      } else {
+        const temp = document.createElement("textarea");
+        temp.value = text;
+        document.body.appendChild(temp);
+        temp.select();
+        document.execCommand("copy");
+        document.body.removeChild(temp);
+        showToast(successMsg);
+      }
+    }
+
+    window.copyBankDetails = function () {
+      copyTextToClipboard(appState.settings.bankInfo || "", "Datos bancarios copiados al portapapeles");
+    };
+
+    window.copyDeUnaDetails = function () {
+      const phone = appState.settings.deunaPhone || "";
+      copyTextToClipboard(phone, `Número De Una! (${phone}) copiado`);
+    };
+
     window.captureClientLocation = function () {
       if (!navigator.geolocation) {
         showToast("Tu navegador no soporta geolocalización GPS", "error");
         return;
       }
+
       const statusText = document.getElementById("gps-status-text");
-      statusText.textContent = "Obteniendo satélite...";
+      statusText.textContent = "Obteniendo GPS...";
 
       navigator.geolocation.getCurrentPosition(
         (pos) => {
           const lat = pos.coords.latitude.toFixed(6);
           const lng = pos.coords.longitude.toFixed(6);
           clientGpsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
-          statusText.textContent = "Ubicación GPS Lista";
+          statusText.textContent = "Actualizar GPS";
           document.getElementById("gps-result-box").classList.remove("hidden");
-          showToast("Ubicación satelital adjuntada correctamente");
+          showToast("Ubicación satelital GPS adjuntada");
         },
         () => {
           statusText.textContent = "Adjuntar mi Ubicación GPS";
-          showToast("Permite el acceso a tu ubicación para adjuntar el GPS", "error");
+          showToast("Permiso de ubicación denegado o sin señal GPS", "error");
         },
         { enableHighAccuracy: true, timeout: 10000 }
       );
@@ -2570,73 +2686,55 @@
 
     window.clearClientLocation = function () {
       clientGpsUrl = "";
-      document.getElementById("gps-status-text").textContent = "Adjuntar mi Ubicación GPS";
       document.getElementById("gps-result-box").classList.add("hidden");
+      document.getElementById("gps-status-text").textContent = "Adjuntar mi Ubicación GPS";
     };
 
-    function copyTextToClipboard(text, successMsg) {
-      const textarea = document.createElement("textarea");
-      textarea.value = text;
-      document.body.appendChild(textarea);
-      textarea.select();
-      document.execCommand("copy");
-      document.body.removeChild(textarea);
-      showToast(successMsg);
-    }
-
-    window.copyBankDetails = function () {
-      copyTextToClipboard(appState.settings.bankInfo, "Datos bancarios copiados al portapapeles");
-    };
-
-    window.copyDeUnaDetails = function () {
-      copyTextToClipboard(appState.settings.deunaPhone || "", "Número de De Una! copiado al portapapeles");
-    };
-
-    // Envío del Pedido por WhatsApp y Registro en Backend/Cloud
-    window.handleOrderSubmit = function (e) {
-      e.preventDefault();
-      if (cart.length === 0) return;
-
-      const name = document.getElementById("client-name").value.trim();
-      const phone = document.getElementById("client-phone").value.trim();
-      const address = document.getElementById("client-address").value.trim();
-      const notes = document.getElementById("client-notes").value.trim() || "Ninguna";
-      const paymentRadio = document.querySelector('input[name="payment-method"]:checked');
-      const paymentMethod = paymentRadio ? paymentRadio.value : "Efectivo";
-      const cashAmount = document.getElementById("cash-amount").value.trim();
-
-      if (!name || !phone || !address) {
-        showToast("Por favor completa los campos obligatorios (*)", "error");
+    window.handleOrderSubmit = function (event) {
+      event.preventDefault();
+      if (cart.length === 0) {
+        showToast("Tu carrito está vacío", "error");
         return;
       }
 
+      const clientName = document.getElementById("client-name").value.trim();
+      const clientPhone = document.getElementById("client-phone").value.trim();
+      const clientAddress = document.getElementById("client-address").value.trim();
+      const clientNotes = document.getElementById("client-notes").value.trim() || "Sin notas adicionales";
+      const paymentRadio = document.querySelector('input[name="payment-method"]:checked');
+      const paymentMethod = paymentRadio ? paymentRadio.value : "Efectivo";
+      const cashAmountVal = parseFloat(document.getElementById("cash-amount").value);
+
       const totals = getCartTotals();
-      let paymentDetail = paymentMethod;
+
+      let paymentDetailText = paymentMethod;
       if (paymentMethod === "Efectivo") {
-        if (cashAmount && Number(cashAmount) > totals.grandTotal) {
-          const change = (Number(cashAmount) - totals.grandTotal).toFixed(2);
-          paymentDetail = `Efectivo (Paga con $${Number(cashAmount).toFixed(2)} -> Llevar cambio de $${change})`;
+        if (!isNaN(cashAmountVal) && cashAmountVal >= totals.grandTotal) {
+          const change = cashAmountVal - totals.grandTotal;
+          paymentDetailText = `Efectivo (Paga con $${cashAmountVal.toFixed(2)} -> Cambio: $${change.toFixed(2)})`;
         } else {
-          paymentDetail = "Efectivo (Pago exacto)";
+          paymentDetailText = "Efectivo (Monto exacto)";
         }
       } else if (paymentMethod === "De Una!") {
-        paymentDetail = `De Una! (QR / Cuenta: ${appState.settings.deunaPhone || "Ver comprobante"})`;
+        paymentDetailText = `De Una! QR (${appState.settings.deunaPhone})`;
+      } else if (paymentMethod === "Transferencia") {
+        paymentDetailText = "Transferencia Bancaria";
       }
 
       const newOrder = {
         id: `ORD-${Date.now().toString().slice(-5)}`,
-        createdAt: new Date().toLocaleString(),
-        clientName: name,
-        clientPhone: phone,
-        clientAddress: address,
-        clientNotes: notes,
+        createdAt: new Date().toLocaleString("es-EC"),
+        clientName,
+        clientPhone,
+        clientAddress,
+        clientNotes,
         gpsUrl: clientGpsUrl || "",
-        paymentBaseType: paymentMethod, // Efectivo | Transferencia | De Una!
-        paymentMethod: paymentDetail,
+        paymentMethod,
+        paymentDetail: paymentDetailText,
         items: structuredClone(cart),
         subtotal: totals.subtotal,
-        discountCode: appliedCoupon ? appliedCoupon.code : null,
         discountPercent: totals.discountPercent,
+        discountCode: appliedCoupon ? appliedCoupon.code : "",
         discountAmount: totals.discountAmount,
         shipping: totals.shipping,
         total: totals.grandTotal,
@@ -2647,36 +2745,39 @@
       saveState(true);
       renderAdminAll();
 
-      const lines = [
-        `🛍️ *NUEVO PEDIDO EN LÍNEA - ${appState.settings.businessName}* 🛍️`,
-        `👤 *Cliente:* ${name}`,
-        `📞 *Teléfono:* ${phone}`,
-        `📍 *Dirección:* ${address}`,
-        clientGpsUrl ? `🛰️ *Ubicación Satelital GPS:* ${clientGpsUrl}` : null,
-        `📄 *Notas:* ${notes}`,
-        `----------------------------------`,
-        `🛒 *Detalle del Pedido:*`
-      ].filter(Boolean);
+      const lines = [];
+      lines.push("🛍️ *NUEVO PEDIDO EN LÍNEA* 🛍️");
+      lines.push(`👤 *Cliente:* ${clientName}`);
+      lines.push(`📞 *Teléfono:* ${clientPhone}`);
+      lines.push(`📍 *Dirección:* ${clientAddress}`);
+      if (clientGpsUrl) {
+        lines.push(`🛰️ *Ubicación GPS:* ${clientGpsUrl}`);
+      }
+      lines.push(`📄 *Notas:* ${clientNotes}`);
+      lines.push("----------------------------------");
+      lines.push("🛒 *Detalle del Pedido:*");
 
       cart.forEach((item) => {
-        const itemSubtotal = (item.unitPrice * item.quantity).toFixed(2);
-        const extrasTxt = item.extras && item.extras.length ? ` [+ ${item.extras.map((x) => x.name).join(", ")}]` : "";
-        const noteTxt = item.notes ? ` (Nota: ${item.notes})` : "";
-        lines.push(`  - ${item.quantity}x ${item.name}${extrasTxt}${noteTxt} ($${item.unitPrice.toFixed(2)}) -> $${itemSubtotal}`);
+        const itemSub = (item.unitPrice * item.quantity).toFixed(2);
+        const extrasTxt =
+          item.extras && item.extras.length
+            ? ` [+ ${item.extras.map((e) => e.name).join(", ")}]`
+            : "";
+        const noteTxt = item.notes ? ` _(Nota: ${item.notes})_` : "";
+        lines.push(`- ${item.quantity}x ${item.name}${extrasTxt}${noteTxt} ($${item.unitPrice.toFixed(2)}) -> $${itemSub}`);
       });
 
-      lines.push(`----------------------------------`);
+      lines.push("----------------------------------");
       lines.push(`🧾 *Subtotal:* $${totals.subtotal.toFixed(2)}`);
       if (totals.discountPercent > 0) {
         lines.push(`🎟️ *Descuento (${appliedCoupon.code} -${totals.discountPercent}%):* -$${totals.discountAmount.toFixed(2)}`);
       }
       lines.push(`🛵 *Envío:* ${totals.qualifiesFreeShipping ? "¡GRATIS!" : "$" + totals.shipping.toFixed(2)}`);
-      lines.push(`💵 *Forma de Pago:* ${paymentDetail}`);
+      lines.push(`💵 *Forma de Pago:* ${paymentDetailText}`);
       lines.push(`💰 *TOTAL A PAGAR:* $${totals.grandTotal.toFixed(2)}`);
 
       const targetPhone = (appState.settings.storeWhatsapp || STORE_WHATSAPP_PHONE).replace(/\D/g, "");
-      const encodedMsg = encodeURIComponent(lines.join("\n"));
-      const whatsappUrl = `https://wa.me/${targetPhone}?text=${encodedMsg}`;
+      const whatsappUrl = `https://wa.me/${targetPhone}?text=${encodeURIComponent(lines.join("\n"))}`;
 
       cart = [];
       appliedCoupon = null;
@@ -2684,12 +2785,13 @@
       document.getElementById("order-form").reset();
       closeCheckoutModal();
       renderCartUI();
-      showToast("Redirigiendo a WhatsApp con tu pedido...");
+      showToast("¡Pedido confirmado! Abriendo WhatsApp...");
+
       window.open(whatsappUrl, "_blank");
     };
 
     // ============================================================================
-    // 6. AUTENTICACIÓN, JERARQUÍA DE USUARIOS Y PANEL ADMINISTRATIVO (BACKEND)
+    // 6. AUTENTICACIÓN, JERARQUÍA DE USUARIOS Y PANEL DE ADMINISTRACIÓN (BACKEND)
     // ============================================================================
     window.handleAdminButtonClick = function () {
       if (currentUser) {
@@ -2707,8 +2809,8 @@
       modal.classList.remove("flex");
     };
 
-    window.handleLoginSubmit = function (e) {
-      e.preventDefault();
+    window.handleLoginSubmit = function (event) {
+      event.preventDefault();
       const u = document.getElementById("login-username").value.trim();
       const p = document.getElementById("login-password").value.trim();
 
@@ -2721,9 +2823,8 @@
       currentUser = found;
       document.getElementById("admin-btn-label").textContent = `Panel (${found.username})`;
       closeLoginModal();
-      applyRolePermissions();
       switchView("admin");
-      showToast(`Bienvenido ${found.username} (${found.role.toUpperCase()})`);
+      showToast(`Bienvenido, ${found.username}`);
     };
 
     window.handleLogout = function () {
@@ -2736,39 +2837,41 @@
     window.switchView = function (view) {
       const clientEl = document.getElementById("client-view");
       const adminEl = document.getElementById("admin-panel-view");
-      if (view === "admin") {
+      const mobileBar = document.getElementById("mobile-cart-bar");
+
+      if (view === "admin" && currentUser) {
         clientEl.classList.add("hidden");
         adminEl.classList.remove("hidden");
+        if (mobileBar) mobileBar.classList.add("hidden");
+        applyRolePermissions();
         renderAdminAll();
       } else {
         adminEl.classList.add("hidden");
         clientEl.classList.remove("hidden");
+        if (mobileBar) mobileBar.classList.remove("hidden");
       }
     };
 
     function applyRolePermissions() {
       if (!currentUser) return;
-      const role = currentUser.role;
-      document.getElementById("current-user-role-badge").textContent = role;
       document.getElementById("current-username-display").textContent = currentUser.username;
+      document.getElementById("current-user-role-badge").textContent = currentUser.role;
 
-      const tabs = {
-        orders: role === "master" || role === "cajero",
-        products: role === "master" || role === "menu_admin",
-        categories: role === "master" || role === "menu_admin",
-        extras: role === "master" || role === "menu_admin",
-        identity: role === "master",
-        users: role === "master",
-        cloud: role === "master"
-      };
+      const role = currentUser.role;
+      const showOrders = role === "master" || role === "cajero";
+      const showMenu = role === "master" || role === "menu_admin";
+      const showMaster = role === "master";
 
-      Object.entries(tabs).forEach(([tabName, allowed]) => {
-        const btn = document.getElementById(`tab-btn-${tabName}`);
-        if (btn) btn.classList.toggle("hidden", !allowed);
-      });
+      document.getElementById("tab-btn-orders").classList.toggle("hidden", !showOrders);
+      document.getElementById("tab-btn-products").classList.toggle("hidden", !showMenu);
+      document.getElementById("tab-btn-categories").classList.toggle("hidden", !showMenu);
+      document.getElementById("tab-btn-extras").classList.toggle("hidden", !showMenu);
+      document.getElementById("tab-btn-identity").classList.toggle("hidden", !showMaster);
+      document.getElementById("tab-btn-users").classList.toggle("hidden", !showMaster);
+      document.getElementById("tab-btn-cloud").classList.toggle("hidden", !showMaster);
 
-      const firstAllowed = Object.keys(tabs).find((k) => tabs[k]) || "orders";
-      switchAdminTab(firstAllowed);
+      if (showOrders) switchAdminTab("orders");
+      else if (showMenu) switchAdminTab("products");
     }
 
     window.switchAdminTab = function (tabName) {
@@ -2777,83 +2880,56 @@
       if (target) target.classList.remove("hidden");
 
       document.querySelectorAll(".admin-tab-btn").forEach((btn) => {
-        btn.className = "admin-tab-btn px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 bg-slate-900 text-slate-400 hover:text-white border border-slate-800 cursor-pointer";
+        btn.classList.remove("bg-brand-600", "text-white");
+        btn.classList.add("bg-slate-900", "text-slate-400");
       });
       const activeBtn = document.getElementById(`tab-btn-${tabName}`);
       if (activeBtn) {
-        activeBtn.className = "admin-tab-btn px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 bg-brand-600 text-white cursor-pointer";
+        activeBtn.classList.add("bg-brand-600", "text-white");
+        activeBtn.classList.remove("bg-slate-900", "text-slate-400");
       }
     };
 
-    function renderAdminAll() {
-      renderCashRegisterSummary();
-      renderAdminOrders();
-      renderAdminProducts();
-      renderAdminCategories();
-      renderAdminExtras();
-      renderAdminIdentityForm();
-      renderAdminUsers();
-      updateCloudMetricsUI();
-      if (window.lucide) lucide.createIcons();
-    }
-
     // ============================================================================
-    // 7. CIERRE DE CAJA DIARIO, ARQUEO Y GESTIÓN DE PEDIDOS (BACKEND)
+    // 7. GESTIÓN DE PEDIDOS, MOTORIZADO Y CIERRE DE CAJA DIARIO
     // ============================================================================
-    function classifyOrderPayment(order) {
-      if (order.paymentBaseType) return order.paymentBaseType;
-      const raw = String(order.paymentMethod || "").toLowerCase();
-      if (raw.includes("transferencia")) return "Transferencia";
-      if (raw.includes("de una") || raw.includes("yape") || raw.includes("qr")) return "De Una!";
-      return "Efectivo";
-    }
+    function calculateShiftFinancials() {
+      const allOrders = appState.orders || [];
+      const validOrders = allOrders.filter((o) => o.status !== "Cancelado");
+      const cancelledOrders = allOrders.filter((o) => o.status === "Cancelado");
 
-    function calculateCurrentShiftTotals() {
       let totalSales = 0;
-      let validOrdersCount = 0;
-      let cancelledCount = 0;
-
       let cashTotal = 0;
       let cashCount = 0;
-
       let transferTotal = 0;
       let transferCount = 0;
-
       let deunaTotal = 0;
       let deunaCount = 0;
-
       let shippingTotal = 0;
-      let discountTotal = 0;
+      let discountsTotal = 0;
 
-      appState.orders.forEach((ord) => {
-        if (ord.status === "Cancelado") {
-          cancelledCount++;
-          return;
-        }
-        const amount = Number(ord.total) || 0;
-        totalSales += amount;
-        validOrdersCount++;
+      validOrders.forEach((o) => {
+        const orderTotal = Number(o.total) || 0;
+        totalSales += orderTotal;
+        shippingTotal += Number(o.shipping) || 0;
+        discountsTotal += Number(o.discountAmount) || 0;
 
-        shippingTotal += Number(ord.shipping) || 0;
-        discountTotal += Number(ord.discountAmount) || 0;
-
-        const pType = classifyOrderPayment(ord);
-        if (pType === "Transferencia") {
-          transferTotal += amount;
-          transferCount++;
-        } else if (pType === "De Una!") {
-          deunaTotal += amount;
-          deunaCount++;
-        } else {
-          cashTotal += amount;
+        if (o.paymentMethod === "Efectivo") {
+          cashTotal += orderTotal;
           cashCount++;
+        } else if (o.paymentMethod === "Transferencia") {
+          transferTotal += orderTotal;
+          transferCount++;
+        } else if (o.paymentMethod === "De Una!") {
+          deunaTotal += orderTotal;
+          deunaCount++;
         }
       });
 
       return {
         totalSales,
-        validOrdersCount,
-        cancelledCount,
+        validCount: validOrders.length,
+        cancelledCount: cancelledOrders.length,
         cashTotal,
         cashCount,
         transferTotal,
@@ -2861,53 +2937,49 @@
         deunaTotal,
         deunaCount,
         shippingTotal,
-        discountTotal
+        discountsTotal
       };
     }
 
-    function renderCashRegisterSummary() {
-      const stats = calculateCurrentShiftTotals();
+    function renderCashRegisterKPIs() {
+      const stats = calculateShiftFinancials();
       const dateBadge = document.getElementById("cash-current-date-badge");
       if (dateBadge) {
         dateBadge.textContent = new Date().toLocaleDateString("es-EC", {
           weekday: "short",
           day: "2-digit",
-          month: "short",
-          year: "numeric"
+          month: "short"
         });
       }
 
-      const setEl = (id, val) => {
+      const setTxt = (id, val) => {
         const el = document.getElementById(id);
         if (el) el.textContent = val;
       };
 
-      setEl("cash-kpi-total", `$${stats.totalSales.toFixed(2)}`);
-      setEl("cash-kpi-orders", `${stats.validOrdersCount} pedidos válidos`);
-      setEl("cash-kpi-efectivo", `$${stats.cashTotal.toFixed(2)}`);
-      setEl("cash-kpi-efectivo-count", `${stats.cashCount} órdenes`);
-      setEl("cash-kpi-transfer", `$${stats.transferTotal.toFixed(2)}`);
-      setEl("cash-kpi-transfer-count", `${stats.transferCount} órdenes`);
-      setEl("cash-kpi-deuna", `$${stats.deunaTotal.toFixed(2)}`);
-      setEl("cash-kpi-deuna-count", `${stats.deunaCount} órdenes`);
-      setEl("cash-kpi-shipping", `$${stats.shippingTotal.toFixed(2)}`);
-      setEl("cash-kpi-discounts", `-$${stats.discountTotal.toFixed(2)}`);
-      setEl("cash-kpi-cancelled", `${stats.cancelledCount} cancelados`);
+      setTxt("cash-kpi-total", `$${stats.totalSales.toFixed(2)}`);
+      setTxt("cash-kpi-orders", `${stats.validCount} pedidos válidos`);
+      setTxt("cash-kpi-efectivo", `$${stats.cashTotal.toFixed(2)}`);
+      setTxt("cash-kpi-efectivo-count", `${stats.cashCount} órdenes`);
+      setTxt("cash-kpi-transfer", `$${stats.transferTotal.toFixed(2)}`);
+      setTxt("cash-kpi-transfer-count", `${stats.transferCount} órdenes`);
+      setTxt("cash-kpi-deuna", `$${stats.deunaTotal.toFixed(2)}`);
+      setTxt("cash-kpi-deuna-count", `${stats.deunaCount} órdenes`);
+      setTxt("cash-kpi-shipping", `$${stats.shippingTotal.toFixed(2)}`);
+      setTxt("cash-kpi-discounts", `-$${stats.discountsTotal.toFixed(2)}`);
+      setTxt("cash-kpi-cancelled", `${stats.cancelledCount} cancelados`);
+      setTxt("closings-history-count", String((appState.cashClosings || []).length));
 
-      const closings = Array.isArray(appState.cashClosings) ? appState.cashClosings : [];
-      setEl("closings-history-count", String(closings.length));
-      renderCashClosingsHistoryTable();
+      renderClosingHistoryTable();
     }
 
     window.toggleClosingHistoryPanel = function () {
       const panel = document.getElementById("closing-history-panel");
-      if (!panel) return;
-      panel.classList.toggle("hidden");
+      if (panel) panel.classList.toggle("hidden");
     };
 
     window.openCashClosingModal = function () {
-      const stats = calculateCurrentShiftTotals();
-
+      const stats = calculateShiftFinancials();
       document.getElementById("modal-close-expected-cash").textContent = `$${stats.cashTotal.toFixed(2)}`;
       document.getElementById("modal-close-transfer").textContent = `$${stats.transferTotal.toFixed(2)}`;
       document.getElementById("modal-close-deuna").textContent = `$${stats.deunaTotal.toFixed(2)}`;
@@ -2918,7 +2990,6 @@
       document.getElementById("close-notes-input").value = "";
 
       updateCashClosingDiffUI();
-
       const modal = document.getElementById("cash-closing-modal");
       modal.classList.remove("hidden");
       modal.classList.add("flex");
@@ -2931,61 +3002,58 @@
     };
 
     window.updateCashClosingDiffUI = function () {
-      const stats = calculateCurrentShiftTotals();
+      const stats = calculateShiftFinancials();
       const opening = parseFloat(document.getElementById("close-opening-cash").value) || 0;
       const counted = parseFloat(document.getElementById("close-counted-cash").value) || 0;
-
       const expectedInDrawer = opening + stats.cashTotal;
       const diff = counted - expectedInDrawer;
 
       document.getElementById("close-total-drawer-expected").textContent = `$${expectedInDrawer.toFixed(2)}`;
-      const diffTextEl = document.getElementById("close-diff-text");
+      const diffText = document.getElementById("close-diff-text");
 
       if (Math.abs(diff) < 0.009) {
-        diffTextEl.textContent = "Caja Exacta / Cuadrada ($0.00)";
-        diffTextEl.className = "font-black text-emerald-400";
+        diffText.textContent = "Exacto / Caja Cuadrada ($0.00)";
+        diffText.className = "font-black text-emerald-400";
       } else if (diff > 0) {
-        diffTextEl.textContent = `Sobrante en Caja (+$${diff.toFixed(2)})`;
-        diffTextEl.className = "font-black text-sky-400";
+        diffText.textContent = `Sobrante en Caja (+$${diff.toFixed(2)})`;
+        diffText.className = "font-black text-sky-400";
       } else {
-        diffTextEl.textContent = `Faltante en Caja (-$${Math.abs(diff).toFixed(2)})`;
-        diffTextEl.className = "font-black text-rose-400";
+        diffText.textContent = `Faltante en Caja (-$${Math.abs(diff).toFixed(2)})`;
+        diffText.className = "font-black text-rose-400";
       }
     };
 
-    window.handleConfirmCashClosing = function (e) {
-      e.preventDefault();
-      const stats = calculateCurrentShiftTotals();
+    window.handleConfirmCashClosing = function (event) {
+      event.preventDefault();
+      const stats = calculateShiftFinancials();
       const openingCash = parseFloat(document.getElementById("close-opening-cash").value) || 0;
       const countedCash = parseFloat(document.getElementById("close-counted-cash").value) || 0;
-      const expectedInDrawer = openingCash + stats.cashTotal;
-      const difference = countedCash - expectedInDrawer;
+      const expectedDrawer = openingCash + stats.cashTotal;
+      const difference = countedCash - expectedDrawer;
       const notes = document.getElementById("close-notes-input").value.trim() || "Sin novedades";
       const archiveOrders = document.getElementById("close-archive-orders-cb").checked;
       const sendWhatsapp = document.getElementById("close-send-whatsapp-cb").checked;
 
       const closingRecord = {
         id: `CIE-${Date.now().toString().slice(-5)}`,
-        closedAt: new Date().toLocaleString(),
-        closedBy: currentUser ? currentUser.username : "master",
-        validOrdersCount: stats.validOrdersCount,
-        cancelledCount: stats.cancelledCount,
+        closedAt: new Date().toLocaleString("es-EC"),
+        closedBy: currentUser ? currentUser.username : "admin",
+        validOrdersCount: stats.validCount,
+        cancelledOrdersCount: stats.cancelledCount,
         openingCash,
         expectedCashSales: stats.cashTotal,
-        expectedInDrawer,
+        expectedDrawer,
         countedCash,
         difference,
         transferTotal: stats.transferTotal,
         deunaTotal: stats.deunaTotal,
         shippingTotal: stats.shippingTotal,
-        discountTotal: stats.discountTotal,
+        discountsTotal: stats.discountsTotal,
         totalSales: stats.totalSales,
         notes
       };
 
-      if (!Array.isArray(appState.cashClosings)) {
-        appState.cashClosings = [];
-      }
+      if (!Array.isArray(appState.cashClosings)) appState.cashClosings = [];
       appState.cashClosings.unshift(closingRecord);
 
       if (archiveOrders) {
@@ -2995,36 +3063,81 @@
       saveState(true);
       closeCashClosingModal();
       renderAdminAll();
-
-      const historyPanel = document.getElementById("closing-history-panel");
-      if (historyPanel) historyPanel.classList.remove("hidden");
-
-      showToast(`Cierre de caja ${closingRecord.id} registrado con éxito`);
+      showToast("¡Cierre de Caja Diario registrado con éxito!");
 
       if (sendWhatsapp) {
-        sendClosingReportWhatsApp(closingRecord.id);
+        sendCashClosingWhatsAppReport(closingRecord);
       }
     };
 
-    function renderCashClosingsHistoryTable() {
+    window.sendCashClosingWhatsAppReport = function (closingIdOrObj) {
+      const record =
+        typeof closingIdOrObj === "string"
+          ? (appState.cashClosings || []).find((c) => c.id === closingIdOrObj)
+          : closingIdOrObj;
+      if (!record) return;
+
+      const diffLabel =
+        Math.abs(record.difference) < 0.01
+          ? "Cuadrada ($0.00)"
+          : record.difference > 0
+          ? `Sobrante +$${record.difference.toFixed(2)}`
+          : `Faltante -$${Math.abs(record.difference).toFixed(2)}`;
+
+      const msg = [
+        `📊 *REPORTE DE CIERRE DE CAJA DIARIO* 📊`,
+        `🏢 *Negocio:* ${appState.settings.businessName}`,
+        `🆔 *Cierre:* ${record.id}`,
+        `📅 *Fecha/Hora:* ${record.closedAt}`,
+        `👤 *Responsable:* ${record.closedBy}`,
+        `----------------------------------`,
+        `📦 *Pedidos Válidos:* ${record.validOrdersCount} _(Cancelados: ${record.cancelledOrdersCount})_`,
+        `💵 *Ventas en Efectivo:* $${Number(record.expectedCashSales).toFixed(2)}`,
+        `🏦 *Transferencias:* $${Number(record.transferTotal).toFixed(2)}`,
+        `📲 *Pagos De Una! (QR):* $${Number(record.deunaTotal).toFixed(2)}`,
+        `🛵 *Envíos Recaudados:* $${Number(record.shippingTotal).toFixed(2)}`,
+        `🎟️ *Descuentos Otorgados:* -$${Number(record.discountsTotal).toFixed(2)}`,
+        `----------------------------------`,
+        `🔐 *ARQUEO DE EFECTIVO EN GAVETA:*`,
+        `• Base Inicial: $${Number(record.openingCash).toFixed(2)}`,
+        `• Efectivo Esperado: $${Number(record.expectedDrawer).toFixed(2)}`,
+        `• Efectivo Físico Contado: $${Number(record.countedCash).toFixed(2)}`,
+        `• Estado: *${diffLabel}*`,
+        `----------------------------------`,
+        `📝 *Observaciones:* ${record.notes}`,
+        `💰 *VENTA TOTAL DEL TURNO:* *$${Number(record.totalSales).toFixed(2)}*`
+      ].join("\n");
+
+      const targetPhone = (appState.settings.storeWhatsapp || STORE_WHATSAPP_PHONE).replace(/\D/g, "");
+      const waUrl = `https://wa.me/${targetPhone}?text=${encodeURIComponent(msg)}`;
+      window.open(waUrl, "_blank");
+    };
+
+    function renderClosingHistoryTable() {
       const tbody = document.getElementById("closing-history-tbody");
       if (!tbody) return;
+      const list = appState.cashClosings || [];
 
-      const closings = Array.isArray(appState.cashClosings) ? appState.cashClosings : [];
-      if (closings.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-slate-500">Aún no se han registrado cierres de caja.</td></tr>`;
+      if (list.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="8" class="p-6 text-center text-slate-500 text-xs">
+              Aún no se han registrado cierres de caja.
+            </td>
+          </tr>
+        `;
         return;
       }
 
-      tbody.innerHTML = closings
+      tbody.innerHTML = list
         .map((c) => {
-          const diffVal = Number(c.difference) || 0;
+          const diff = Number(c.difference) || 0;
           const diffBadge =
-            Math.abs(diffVal) < 0.009
-              ? `<span class="text-emerald-400 font-bold">Cuadrada ($0.00)</span>`
-              : diffVal > 0
-              ? `<span class="text-sky-400 font-bold">+$${diffVal.toFixed(2)}</span>`
-              : `<span class="text-rose-400 font-bold">-$${Math.abs(diffVal).toFixed(2)}</span>`;
+            Math.abs(diff) < 0.01
+              ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400">Cuadrada $0.00</span>`
+              : diff > 0
+              ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-500/20 text-sky-400">+$${diff.toFixed(2)}</span>`
+              : `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/20 text-rose-400">-$${Math.abs(diff).toFixed(2)}</span>`;
 
           return `
             <tr class="hover:bg-slate-900/60">
@@ -3032,11 +3145,11 @@
                 <span class="font-black text-brand-400 block">${escapeHtml(c.id)}</span>
                 <span class="text-[10px] text-slate-400">${escapeHtml(c.closedAt)}</span>
               </td>
-              <td class="p-3 font-semibold text-white uppercase">${escapeHtml(c.closedBy)}</td>
-              <td class="p-3 text-slate-300">${c.validOrdersCount} vál. / ${c.cancelledCount} canc.</td>
+              <td class="p-3 font-semibold text-white">${escapeHtml(c.closedBy)}</td>
+              <td class="p-3 text-slate-300">${c.validOrdersCount} vál. / ${c.cancelledOrdersCount} canc.</td>
               <td class="p-3 text-slate-300">
-                Esp: <b>$${Number(c.expectedInDrawer).toFixed(2)}</b><br>
-                Fís: <b class="text-emerald-400">$${Number(c.countedCash).toFixed(2)}</b>
+                Esp: $${Number(c.expectedDrawer).toFixed(2)}<br>
+                <span class="text-emerald-400 font-bold">Fís: $${Number(c.countedCash).toFixed(2)}</span>
               </td>
               <td class="p-3 text-slate-300">
                 🏦 $${Number(c.transferTotal).toFixed(2)}<br>
@@ -3044,12 +3157,9 @@
               </td>
               <td class="p-3">${diffBadge}</td>
               <td class="p-3 font-black text-brand-500 text-sm">$${Number(c.totalSales).toFixed(2)}</td>
-              <td class="p-3 text-right space-x-1 whitespace-nowrap">
-                <button type="button" onclick="sendClosingReportWhatsApp('${escapeHtml(c.id)}')" class="px-2.5 py-1 rounded-lg bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 text-[11px] font-bold cursor-pointer">
+              <td class="p-3 text-right space-x-1">
+                <button type="button" onclick="sendCashClosingWhatsAppReport('${escapeHtml(c.id)}')" class="px-2.5 py-1 rounded-lg bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 text-[11px] font-bold cursor-pointer">
                   WhatsApp
-                </button>
-                <button type="button" onclick="deleteClosingRecord('${escapeHtml(c.id)}')" class="px-2 py-1 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 text-[11px] cursor-pointer">
-                  Borrar
                 </button>
               </td>
             </tr>
@@ -3058,73 +3168,30 @@
         .join("");
     }
 
-    window.sendClosingReportWhatsApp = function (closingId) {
-      const c = (appState.cashClosings || []).find((x) => x.id === closingId);
-      if (!c) return;
-
-      const diffVal = Number(c.difference) || 0;
-      const diffTxt =
-        Math.abs(diffVal) < 0.009
-          ? "Caja Cuadrada ($0.00)"
-          : diffVal > 0
-          ? `Sobrante +$${diffVal.toFixed(2)}`
-          : `Faltante -$${Math.abs(diffVal).toFixed(2)}`;
-
-      const lines = [
-        `📊 *REPORTE DE CIERRE DE CAJA DIARIO - ${appState.settings.businessName}* 📊`,
-        `🆔 *Cierre:* ${c.id}`,
-        `📅 *Fecha y Hora:* ${c.closedAt}`,
-        `👤 *Responsable:* ${c.closedBy}`,
-        `----------------------------------`,
-        `📦 *Pedidos Válidos:* ${c.validOrdersCount} (Cancelados: ${c.cancelledCount})`,
-        `💵 *Ventas en Efectivo:* $${Number(c.expectedCashSales).toFixed(2)}`,
-        `🏦 *Ventas por Transferencia:* $${Number(c.transferTotal).toFixed(2)}`,
-        `📲 *Ventas por De Una! (QR):* $${Number(c.deunaTotal).toFixed(2)}`,
-        `🛵 *Total Envíos:* $${Number(c.shippingTotal).toFixed(2)}`,
-        `🎟️ *Descuentos Otorgados:* -$${Number(c.discountTotal).toFixed(2)}`,
-        `----------------------------------`,
-        `🔐 *ARQUEO DE GAVETA (EFECTIVO):*`,
-        `  • Base Inicial: $${Number(c.openingCash).toFixed(2)}`,
-        `  • Efectivo Esperado en Caja: $${Number(c.expectedInDrawer).toFixed(2)}`,
-        `  • Efectivo Físico Contado: $${Number(c.countedCash).toFixed(2)}`,
-        `  • Resultado Arqueo: *${diffTxt}*`,
-        `----------------------------------`,
-        `📝 *Observaciones:* ${c.notes}`,
-        `💰 *VENTA TOTAL DEL DÍA:* $${Number(c.totalSales).toFixed(2)}`
-      ];
-
-      const phone = (appState.settings.storeWhatsapp || STORE_WHATSAPP_PHONE).replace(/\D/g, "");
-      const url = `https://wa.me/${phone}?text=${encodeURIComponent(lines.join("\n"))}`;
-      window.open(url, "_blank");
-    };
-
-    window.deleteClosingRecord = function (closingId) {
-      appState.cashClosings = (appState.cashClosings || []).filter((c) => c.id !== closingId);
-      saveState(true);
-      renderCashRegisterSummary();
-      showToast("Registro de cierre eliminado");
-    };
-
     window.clearCashClosingsHistory = function () {
       appState.cashClosings = [];
       saveState(true);
-      renderCashRegisterSummary();
-      showToast("Historial de cierres vaciado");
+      renderCashRegisterKPIs();
+      showToast("Historial de cierres eliminado");
     };
 
     function renderAdminOrders() {
+      const list = document.getElementById("admin-orders-list");
       const countEl = document.getElementById("admin-orders-count");
       if (countEl) countEl.textContent = String(appState.orders.length);
-
-      const listEl = document.getElementById("admin-orders-list");
-      if (!listEl) return;
+      renderCashRegisterKPIs();
+      if (!list) return;
 
       if (appState.orders.length === 0) {
-        listEl.innerHTML = `<div class="col-span-full p-10 text-center bg-slate-900 border border-slate-800 rounded-3xl text-xs text-slate-400">No hay pedidos activos en este turno.</div>`;
+        list.innerHTML = `
+          <div class="col-span-full p-12 text-center bg-slate-900 border border-slate-800 rounded-3xl text-slate-400 text-xs">
+            No hay pedidos registrados en este turno.
+          </div>
+        `;
         return;
       }
 
-      listEl.innerHTML = appState.orders
+      list.innerHTML = appState.orders
         .map((ord) => {
           const itemsHtml = ord.items
             .map((it) => {
@@ -3133,51 +3200,46 @@
             })
             .join("");
 
-          const gpsBtn = ord.gpsUrl
-            ? `<a href="${escapeHtml(ord.gpsUrl)}" target="_blank" class="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-400 hover:underline mt-1">🛰️ Ver Ubicación Satelital GPS en Google Maps</a>`
-            : `<span class="text-[10px] text-slate-500 block mt-1">Sin GPS adjunto</span>`;
+          const gpsBadge = ord.gpsUrl
+            ? `<a href="${escapeHtml(ord.gpsUrl)}" target="_blank" class="inline-flex items-center gap-1 text-[11px] text-emerald-400 hover:underline font-bold mt-1">🛰️ Ver Ubicación GPS en Google Maps</a>`
+            : "";
 
           return `
-            <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 space-y-3 flex flex-col justify-between shadow-xl">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl sm:rounded-3xl p-4 sm:p-5 flex flex-col justify-between space-y-4 shadow-xl">
               <div class="space-y-2">
-                <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-2 gap-2">
                   <span class="font-black text-brand-400 text-xs">${escapeHtml(ord.id)}</span>
                   <span class="text-[10px] text-slate-400">${escapeHtml(ord.createdAt)}</span>
                 </div>
-
-                <div class="text-xs space-y-1">
+                <div class="text-xs space-y-1 break-words">
                   <p class="font-bold text-white">👤 ${escapeHtml(ord.clientName)} (${escapeHtml(ord.clientPhone)})</p>
                   <p class="text-slate-300">📍 ${escapeHtml(ord.clientAddress)}</p>
-                  <p class="text-slate-400 text-[11px]">📄 Notas: ${escapeHtml(ord.clientNotes)}</p>
-                  ${gpsBtn}
+                  ${gpsBadge}
+                  <p class="text-slate-400 italic">📄 ${escapeHtml(ord.clientNotes)}</p>
                 </div>
-
-                <ul class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-[11px] text-slate-300 space-y-1">
+                <ul class="text-xs text-slate-200 bg-slate-950 p-3 rounded-2xl border border-slate-800 space-y-1">
                   ${itemsHtml}
                 </ul>
-
-                <div class="text-xs pt-1 space-y-0.5">
-                  <p class="text-slate-400">💳 Pago: <span class="text-white font-semibold">${escapeHtml(ord.paymentMethod)}</span></p>
-                  <p class="text-sm font-black text-brand-500">Total a Cobrar: $${Number(ord.total).toFixed(2)}</p>
+                <div class="flex items-center justify-between pt-1 text-xs gap-2">
+                  <span class="text-slate-400 truncate">${escapeHtml(ord.paymentDetail)}</span>
+                  <span class="text-base font-black text-brand-500 shrink-0">$${Number(ord.total).toFixed(2)}</span>
                 </div>
               </div>
 
-              <div class="pt-3 border-t border-slate-800 space-y-2">
+              <div class="space-y-2 pt-2 border-t border-slate-800">
                 <div class="flex items-center gap-2">
-                  <select onchange="updateOrderStatus('${escapeHtml(ord.id)}', this.value)" class="flex-1 px-2.5 py-1.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white">
-                    ${["Pendiente", "En Cocina", "En Camino", "Entregado", "Cancelado"]
-                      .map((st) => `<option value="${st}" ${ord.status === st ? "selected" : ""}>${st}</option>`)
-                      .join("")}
+                  <select onchange="updateOrderStatus('${escapeHtml(ord.id)}', this.value)" class="flex-1 min-w-0 px-2.5 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white font-semibold">
+                    <option value="Pendiente" ${ord.status === "Pendiente" ? "selected" : ""}>⏳ Pendiente</option>
+                    <option value="En Cocina" ${ord.status === "En Cocina" ? "selected" : ""}>🔥 En Cocina</option>
+                    <option value="En Camino" ${ord.status === "En Camino" ? "selected" : ""}>🛵 En Camino</option>
+                    <option value="Entregado" ${ord.status === "Entregado" ? "selected" : ""}>✅ Entregado</option>
+                    <option value="Cancelado" ${ord.status === "Cancelado" ? "selected" : ""}>❌ Cancelado</option>
                   </select>
-                </div>
 
-                <button
-                  type="button"
-                  onclick="openRiderDispatchModal('${escapeHtml(ord.id)}')"
-                  class="w-full py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-lg cursor-pointer"
-                >
-                  <span>🛵 Despachar Pedido al Motorizado</span>
-                </button>
+                  <button type="button" onclick="openRiderDispatchModal('${escapeHtml(ord.id)}')" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold flex items-center gap-1 cursor-pointer shrink-0">
+                    <span>🛵 Despachar</span>
+                  </button>
+                </div>
               </div>
             </div>
           `;
@@ -3190,15 +3252,13 @@
       if (!ord) return;
       ord.status = newStatus;
       saveState(true);
-      renderCashRegisterSummary();
       renderAdminOrders();
-      showToast(`Pedido ${orderId} actualizado a: ${newStatus}`);
+      showToast(`Pedido ${orderId} actualizado a ${newStatus}`);
     };
 
     window.clearCompletedOrders = function () {
       appState.orders = appState.orders.filter((o) => o.status !== "Cancelado");
       saveState(true);
-      renderCashRegisterSummary();
       renderAdminOrders();
       showToast("Pedidos cancelados eliminados");
     };
@@ -3210,23 +3270,23 @@
 
       document.getElementById("dispatch-rider-phone").value = appState.settings.riderWhatsapp || "";
 
-      const msgLines = [
-        `🛵 *HOJA DE DESPACHO MOTORIZADO - ${appState.settings.businessName}*`,
+      const lines = [
+        `🛵 *HOJA DE RUTA - ENTREGA A DOMICILIO* 🛵`,
         `📦 *Orden:* ${ord.id}`,
         `👤 *Cliente:* ${ord.clientName}`,
-        `📞 *Teléfono Cliente:* ${ord.clientPhone}`,
+        `📞 *Teléfono:* ${ord.clientPhone}`,
         `📍 *Dirección:* ${ord.clientAddress}`,
-        `📄 *Referencias:* ${ord.clientNotes}`,
-        ord.gpsUrl ? `🛰️ *Mapa GPS Satelital:* ${ord.gpsUrl}` : `🛰️ *GPS:* No adjuntado`,
+        ord.gpsUrl ? `🛰️ *Mapa GPS:* ${ord.gpsUrl}` : `🛰️ *Mapa GPS:* No adjuntado`,
+        `📄 *Referencia:* ${ord.clientNotes}`,
         `----------------------------------`,
-        `🍔 *Detalle a Entregar:*`,
-        ...ord.items.map((it) => `  - ${it.quantity}x ${it.name}${it.extras && it.extras.length ? " (+" + it.extras.map((e) => e.name).join(", ") + ")" : ""}`),
+        `🍔 *Productos:*`,
+        ...ord.items.map((i) => `- ${i.quantity}x ${i.name}`),
         `----------------------------------`,
-        `💵 *Forma de Pago:* ${ord.paymentMethod}`,
+        `💵 *Cobro / Pago:* ${ord.paymentDetail}`,
         `💰 *TOTAL A COBRAR:* $${Number(ord.total).toFixed(2)}`
       ];
 
-      document.getElementById("dispatch-preview-text").textContent = msgLines.join("\n");
+      document.getElementById("dispatch-preview-text").textContent = lines.join("\n");
       const modal = document.getElementById("rider-dispatch-modal");
       modal.classList.remove("hidden");
       modal.classList.add("flex");
@@ -3240,20 +3300,20 @@
     };
 
     window.confirmSendToRider = function () {
-      if (!activeDispatchOrderId) return;
-      const riderPhone = document.getElementById("dispatch-rider-phone").value.replace(/\D/g, "");
+      const phone = document.getElementById("dispatch-rider-phone").value.trim().replace(/\D/g, "");
       const text = document.getElementById("dispatch-preview-text").textContent;
-
-      updateOrderStatus(activeDispatchOrderId, "En Camino");
+      if (activeDispatchOrderId) {
+        updateOrderStatus(activeDispatchOrderId, "En Camino");
+      }
       closeRiderDispatchModal();
-
-      const encoded = encodeURIComponent(text);
-      const url = riderPhone ? `https://wa.me/${riderPhone}?text=${encoded}` : `https://wa.me/?text=${encoded}`;
+      const url = phone
+        ? `https://wa.me/${phone}?text=${encodeURIComponent(text)}`
+        : `https://wa.me/?text=${encodeURIComponent(text)}`;
       window.open(url, "_blank");
     };
 
     // ============================================================================
-    // 8. CRUD DE PRODUCTOS, CATEGORÍAS INFINITAS, EXTRAS, DE UNA! QR Y USUARIOS
+    // 8. CRUD DE PRODUCTOS, CATEGORÍAS, EXTRAS, IDENTIDAD (DE UNA! QR) Y USUARIOS
     // ============================================================================
     function renderAdminProducts() {
       const tbody = document.getElementById("admin-products-table-body");
@@ -3261,16 +3321,16 @@
 
       tbody.innerHTML = appState.products
         .map((p) => {
-          const extrasCount = Array.isArray(p.allowedExtras) ? p.allowedExtras.length : 0;
+          const allowedCount = Array.isArray(p.allowedExtras) ? p.allowedExtras.length : 0;
           return `
             <tr class="hover:bg-slate-950/60">
               <td class="p-3.5 font-bold text-white">${escapeHtml(p.name)}</td>
               <td class="p-3.5 text-brand-400">${escapeHtml(p.category)}</td>
               <td class="p-3.5 font-black text-white">$${Number(p.price).toFixed(2)}</td>
-              <td class="p-3.5 text-slate-400">${extrasCount} extras habilitados</td>
-              <td class="p-3.5 text-right space-x-2">
-                <button type="button" onclick="openProductEditModal('${escapeHtml(p.id)}')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 cursor-pointer">Editar</button>
-                <button type="button" onclick="deleteProduct('${escapeHtml(p.id)}')" class="px-2.5 py-1 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 cursor-pointer">Eliminar</button>
+              <td class="p-3.5 text-slate-400">${allowedCount} extras activos</td>
+              <td class="p-3.5 text-right space-x-2 whitespace-nowrap">
+                <button type="button" onclick="openProductEditModal('${escapeHtml(p.id)}')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold cursor-pointer">Editar</button>
+                <button type="button" onclick="deleteProduct('${escapeHtml(p.id)}')" class="px-2.5 py-1 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 font-semibold cursor-pointer">Eliminar</button>
               </td>
             </tr>
           `;
@@ -3278,27 +3338,30 @@
         .join("");
     }
 
-    window.openProductEditModal = function (prodId) {
-      const prod = prodId ? appState.products.find((p) => p.id === prodId) : null;
+    window.openProductEditModal = function (productId) {
+      const catSelect = document.getElementById("edit-prod-category");
+      catSelect.innerHTML = appState.categories
+        .map((c) => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`)
+        .join("");
+
+      const prod = productId ? appState.products.find((p) => p.id === productId) : null;
       document.getElementById("admin-product-modal-title").textContent = prod ? "Editar Producto" : "Nuevo Producto";
       document.getElementById("edit-prod-id").value = prod ? prod.id : "";
       document.getElementById("edit-prod-name").value = prod ? prod.name : "";
       document.getElementById("edit-prod-price").value = prod ? prod.price : "";
+      document.getElementById("edit-prod-category").value = prod ? prod.category : appState.categories[0] || "";
       document.getElementById("edit-prod-desc").value = prod ? prod.desc : "";
       document.getElementById("edit-prod-img").value = prod ? prod.img : "";
 
-      const catSelect = document.getElementById("edit-prod-category");
-      catSelect.innerHTML = appState.categories
-        .map((c) => `<option value="${escapeHtml(c)}" ${prod && prod.category === c ? "selected" : ""}>${escapeHtml(c)}</option>`)
-        .join("");
-
+      const allowed = prod && Array.isArray(prod.allowedExtras) ? prod.allowedExtras : appState.extras.map((e) => e.id);
       const checksContainer = document.getElementById("edit-prod-extras-checks");
-      const selectedExtras = prod && Array.isArray(prod.allowedExtras) ? prod.allowedExtras : appState.extras.map((e) => e.id);
       checksContainer.innerHTML = appState.extras
         .map(
           (ext) => `
         <label class="flex items-center gap-2 text-xs text-slate-300 cursor-pointer">
-          <input type="checkbox" value="${escapeHtml(ext.id)}" class="edit-prod-extra-cb accent-brand-500" ${selectedExtras.includes(ext.id) ? "checked" : ""}>
+          <input type="checkbox" value="${escapeHtml(ext.id)}" class="edit-prod-extra-cb accent-brand-500" ${
+            allowed.includes(ext.id) ? "checked" : ""
+          }>
           <span>${escapeHtml(ext.name)} (+$${Number(ext.price).toFixed(2)})</span>
         </label>
       `
@@ -3316,8 +3379,8 @@
       modal.classList.remove("flex");
     };
 
-    window.handleSaveProduct = function (e) {
-      e.preventDefault();
+    window.handleSaveProduct = function (event) {
+      event.preventDefault();
       const id = document.getElementById("edit-prod-id").value;
       const name = document.getElementById("edit-prod-name").value.trim();
       const price = parseFloat(document.getElementById("edit-prod-price").value) || 0;
@@ -3350,14 +3413,14 @@
       showToast("Producto guardado correctamente");
     };
 
-    window.deleteProduct = function (prodId) {
-      appState.products = appState.products.filter((p) => p.id !== prodId);
+    window.deleteProduct = function (productId) {
+      appState.products = appState.products.filter((p) => p.id !== productId);
       saveState(true);
       refreshAllUI();
       showToast("Producto eliminado");
     };
 
-    // Categorías Infinitas
+    // Categorías
     function renderAdminCategories() {
       const container = document.getElementById("admin-categories-cards");
       if (!container) return;
@@ -3366,23 +3429,27 @@
         .map((cat) => {
           const count = appState.products.filter((p) => p.category === cat).length;
           return `
-            <div class="p-4 bg-slate-900 border border-slate-800 rounded-2xl flex items-center justify-between">
-              <div>
-                <h4 class="font-bold text-white text-sm">${escapeHtml(cat)}</h4>
+            <div class="p-4 bg-slate-900 border border-slate-800 rounded-2xl flex items-center justify-between gap-2">
+              <div class="min-w-0">
+                <h4 class="font-bold text-white text-sm truncate">${escapeHtml(cat)}</h4>
                 <p class="text-[11px] text-slate-400">${count} productos</p>
               </div>
-              <div class="flex items-center gap-1.5">
-                <button type="button" onclick="openCategoryEditModal('${escapeHtml(cat)}')" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs cursor-pointer">Editar</button>
-                <button type="button" onclick="deleteCategory('${escapeHtml(cat)}')" class="p-2 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 text-xs cursor-pointer">Borrar</button>
+              <div class="flex items-center gap-1.5 shrink-0">
+                <button type="button" onclick="openCategoryEditModal('${escapeHtml(cat)}')" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 cursor-pointer">
+                  <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+                </button>
+                <button type="button" onclick="deleteCategory('${escapeHtml(cat)}')" class="p-2 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 cursor-pointer">
+                  <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                </button>
               </div>
             </div>
           `;
         })
         .join("");
+      if (window.lucide) lucide.createIcons();
     }
 
     window.openCategoryEditModal = function (catName) {
-      document.getElementById("admin-cat-modal-title").textContent = catName ? "Editar Categoría" : "Nueva Categoría";
       document.getElementById("edit-cat-old-name").value = catName || "";
       document.getElementById("edit-cat-name").value = catName || "";
       const modal = document.getElementById("admin-category-modal");
@@ -3396,8 +3463,8 @@
       modal.classList.remove("flex");
     };
 
-    window.handleSaveCategory = function (e) {
-      e.preventDefault();
+    window.handleSaveCategory = function (event) {
+      event.preventDefault();
       const oldName = document.getElementById("edit-cat-old-name").value;
       const newName = document.getElementById("edit-cat-name").value.trim();
       if (!newName) return;
@@ -3425,7 +3492,7 @@
       showToast("Categoría eliminada");
     };
 
-    // Extras CRUD
+    // Extras
     function renderAdminExtras() {
       const container = document.getElementById("admin-extras-cards");
       if (!container) return;
@@ -3433,24 +3500,28 @@
       container.innerHTML = appState.extras
         .map(
           (ext) => `
-        <div class="p-4 bg-slate-900 border border-slate-800 rounded-2xl flex items-center justify-between">
-          <div>
-            <h4 class="font-bold text-white text-sm">${escapeHtml(ext.name)}</h4>
+        <div class="p-4 bg-slate-900 border border-slate-800 rounded-2xl flex items-center justify-between gap-2">
+          <div class="min-w-0">
+            <h4 class="font-bold text-white text-sm truncate">${escapeHtml(ext.name)}</h4>
             <p class="text-xs font-black text-brand-400">+$${Number(ext.price).toFixed(2)}</p>
           </div>
-          <div class="flex items-center gap-1.5">
-            <button type="button" onclick="openExtraEditModal('${escapeHtml(ext.id)}')" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs cursor-pointer">Editar</button>
-            <button type="button" onclick="deleteExtra('${escapeHtml(ext.id)}')" class="p-2 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 text-xs cursor-pointer">Borrar</button>
+          <div class="flex items-center gap-1.5 shrink-0">
+            <button type="button" onclick="openExtraEditModal('${escapeHtml(ext.id)}')" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 cursor-pointer">
+              <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+            </button>
+            <button type="button" onclick="deleteExtra('${escapeHtml(ext.id)}')" class="p-2 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 cursor-pointer">
+              <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+            </button>
           </div>
         </div>
       `
         )
         .join("");
+      if (window.lucide) lucide.createIcons();
     }
 
     window.openExtraEditModal = function (extraId) {
       const ext = extraId ? appState.extras.find((e) => e.id === extraId) : null;
-      document.getElementById("admin-extra-modal-title").textContent = ext ? "Editar Extra" : "Nuevo Extra";
       document.getElementById("edit-extra-id").value = ext ? ext.id : "";
       document.getElementById("edit-extra-name").value = ext ? ext.name : "";
       document.getElementById("edit-extra-price").value = ext ? ext.price : "";
@@ -3465,14 +3536,14 @@
       modal.classList.remove("flex");
     };
 
-    window.handleSaveExtra = function (e) {
-      e.preventDefault();
+    window.handleSaveExtra = function (event) {
+      event.preventDefault();
       const id = document.getElementById("edit-extra-id").value;
       const name = document.getElementById("edit-extra-name").value.trim();
       const price = parseFloat(document.getElementById("edit-extra-price").value) || 0;
 
       if (id) {
-        const idx = appState.extras.findIndex((x) => x.id === id);
+        const idx = appState.extras.findIndex((e) => e.id === id);
         if (idx !== -1) appState.extras[idx] = { id, name, price };
       } else {
         const newId = `ext_${Date.now()}`;
@@ -3492,72 +3563,8 @@
       showToast("Extra eliminado");
     };
 
-    // ============================================================================
-    // GESTIÓN DE IDENTIDAD DEL NEGOCIO, DE UNA! QR (EDITAR/SUBIR/ELIMINAR) Y CUPONES
-    // ============================================================================
-    function renderDeUnaQrAdminPreview() {
-      const s = appState.settings;
-      const previewImg = document.getElementById("cfg-deuna-qr-preview");
-      const emptyBox = document.getElementById("cfg-deuna-qr-empty");
-      const urlInput = document.getElementById("cfg-deuna-qr-url");
-
-      if (s.deunaQrImage && s.deunaQrImage.trim() !== "") {
-        previewImg.src = s.deunaQrImage;
-        previewImg.classList.remove("hidden");
-        emptyBox.classList.add("hidden");
-        if (urlInput && !s.deunaQrImage.startsWith("data:")) {
-          urlInput.value = s.deunaQrImage;
-        }
-      } else {
-        previewImg.src = "";
-        previewImg.classList.add("hidden");
-        emptyBox.classList.remove("hidden");
-        if (urlInput) urlInput.value = "";
-      }
-    }
-
-    window.handleDeUnaQrUpload = function (e) {
-      const file = e.target.files && e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function (evt) {
-        appState.settings.deunaQrImage = evt.target.result;
-        saveState(true);
-        renderDeUnaQrAdminPreview();
-        applyBusinessIdentity();
-        showToast("Código QR de De Una! cargado y actualizado");
-      };
-      reader.readAsDataURL(file);
-    };
-
-    window.handleDeUnaQrUrlInput = function (urlVal) {
-      appState.settings.deunaQrImage = (urlVal || "").trim();
-      renderDeUnaQrAdminPreview();
-      applyBusinessIdentity();
-    };
-
-    window.generateDefaultDeUnaQr = function () {
-      const phone = document.getElementById("cfg-deuna-phone").value.trim() || appState.settings.deunaPhone || "0987654321";
-      const name = document.getElementById("cfg-deuna-name").value.trim() || appState.settings.deunaName || "LaBrutalBurger";
-      const qrData = encodeURIComponent(`DeUna-Pago-${name}-${phone}`);
-      appState.settings.deunaQrImage = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${qrData}`;
-      saveState(true);
-      renderDeUnaQrAdminPreview();
-      applyBusinessIdentity();
-      showToast("Código QR generado automáticamente");
-    };
-
-    window.removeDeUnaQr = function () {
-      appState.settings.deunaQrImage = "";
-      const fileInput = document.getElementById("cfg-deuna-qr-file");
-      if (fileInput) fileInput.value = "";
-      saveState(true);
-      renderDeUnaQrAdminPreview();
-      applyBusinessIdentity();
-      showToast("Código QR de De Una! eliminado");
-    };
-
-    function renderAdminIdentityForm() {
+    // Identidad del Negocio, Cupones y Código QR De Una!
+    function populateBusinessSettingsForm() {
       const s = appState.settings;
       document.getElementById("cfg-business-name").value = s.businessName || "";
       document.getElementById("cfg-business-address").value = s.address || "";
@@ -3566,47 +3573,109 @@
       document.getElementById("cfg-shipping-cost").value = s.shippingCost ?? 2.5;
       document.getElementById("cfg-free-shipping-threshold").value = s.freeShippingThreshold ?? 20.0;
       document.getElementById("cfg-bank-info").value = s.bankInfo || "";
-      document.getElementById("cfg-deuna-phone").value = s.deunaPhone || s.yapePhone || "";
-      document.getElementById("cfg-deuna-name").value = s.deunaName || s.yapeName || "";
+      document.getElementById("cfg-deuna-phone").value = s.deunaPhone || "";
+      document.getElementById("cfg-deuna-name").value = s.deunaName || "";
+      document.getElementById("cfg-deuna-qr-url").value = s.deunaQrImage || "";
       document.getElementById("cfg-marquee-text").value = s.marqueeText || "";
 
-      renderDeUnaQrAdminPreview();
+      updateAdminDeUnaQrPreview(s.deunaQrImage || "");
 
       const coupons = s.coupons || {};
-      [10, 20, 30, 40, 50].forEach((pct) => {
-        const el = document.getElementById(`cfg-coupon-${pct}`);
-        if (el) el.value = coupons[pct] || "";
-      });
+      document.getElementById("cfg-coupon-10").value = coupons[10] || "";
+      document.getElementById("cfg-coupon-20").value = coupons[20] || "";
+      document.getElementById("cfg-coupon-30").value = coupons[30] || "";
+      document.getElementById("cfg-coupon-40").value = coupons[40] || "";
+      document.getElementById("cfg-coupon-50").value = coupons[50] || "";
     }
 
-    window.handleLogoUpload = function (e) {
-      const file = e.target.files && e.target.files[0];
+    function updateAdminDeUnaQrPreview(qrSrc) {
+      const previewImg = document.getElementById("cfg-deuna-qr-preview");
+      const emptyBox = document.getElementById("cfg-deuna-qr-empty");
+      if (qrSrc && qrSrc.trim() !== "") {
+        previewImg.src = qrSrc;
+        previewImg.classList.remove("hidden");
+        emptyBox.classList.add("hidden");
+      } else {
+        previewImg.src = "";
+        previewImg.classList.add("hidden");
+        emptyBox.classList.remove("hidden");
+      }
+    }
+
+    window.handleDeUnaQrUpload = function (event) {
+      const file = event.target.files[0];
       if (!file) return;
       const reader = new FileReader();
-      reader.onload = function (evt) {
-        appState.settings.logoDataUrl = evt.target.result;
-        saveState(true);
+      reader.onload = function (e) {
+        const dataUrl = e.target.result;
+        appState.settings.deunaQrImage = dataUrl;
+        document.getElementById("cfg-deuna-qr-url").value = dataUrl;
+        updateAdminDeUnaQrPreview(dataUrl);
         applyBusinessIdentity();
-        showToast("Logotipo actualizado");
+        saveState(true);
+        showToast("Código QR de De Una! actualizado");
       };
       reader.readAsDataURL(file);
     };
 
-    window.handleSaveBusinessSettings = function (e) {
-      e.preventDefault();
-      const s = appState.settings;
-      s.businessName = document.getElementById("cfg-business-name").value.trim();
-      s.address = document.getElementById("cfg-business-address").value.trim();
-      s.storeWhatsapp = document.getElementById("cfg-store-whatsapp").value.trim();
-      s.riderWhatsapp = document.getElementById("cfg-rider-whatsapp").value.trim();
-      s.shippingCost = parseFloat(document.getElementById("cfg-shipping-cost").value) || 0;
-      s.freeShippingThreshold = parseFloat(document.getElementById("cfg-free-shipping-threshold").value) || 0;
-      s.bankInfo = document.getElementById("cfg-bank-info").value.trim();
-      s.deunaPhone = document.getElementById("cfg-deuna-phone").value.trim();
-      s.deunaName = document.getElementById("cfg-deuna-name").value.trim();
-      s.marqueeText = document.getElementById("cfg-marquee-text").value.trim();
+    window.handleDeUnaQrUrlInput = function (urlValue) {
+      const trimmed = (urlValue || "").trim();
+      appState.settings.deunaQrImage = trimmed;
+      updateAdminDeUnaQrPreview(trimmed);
+      applyBusinessIdentity();
+    };
 
-      s.coupons = {
+    window.generateDefaultDeUnaQr = function () {
+      const phone = document.getElementById("cfg-deuna-phone").value.trim() || "0987654321";
+      const name = document.getElementById("cfg-deuna-name").value.trim() || appState.settings.businessName;
+      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(`DeUna-${name}-${phone}`)}`;
+      appState.settings.deunaQrImage = qrUrl;
+      document.getElementById("cfg-deuna-qr-url").value = qrUrl;
+      updateAdminDeUnaQrPreview(qrUrl);
+      applyBusinessIdentity();
+      saveState(true);
+      showToast("Código QR generado automáticamente");
+    };
+
+    window.removeDeUnaQr = function () {
+      appState.settings.deunaQrImage = "";
+      document.getElementById("cfg-deuna-qr-url").value = "";
+      const fileInput = document.getElementById("cfg-logo-file");
+      if (fileInput) fileInput.value = "";
+      updateAdminDeUnaQrPreview("");
+      applyBusinessIdentity();
+      saveState(true);
+      showToast("Código QR eliminado");
+    };
+
+    window.handleLogoUpload = function (event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        appState.settings.logoDataUrl = e.target.result;
+        applyBusinessIdentity();
+        saveState(true);
+        showToast("Logotipo cargado correctamente");
+      };
+      reader.readAsDataURL(file);
+    };
+
+    window.handleSaveBusinessSettings = function (event) {
+      event.preventDefault();
+      appState.settings.businessName = document.getElementById("cfg-business-name").value.trim();
+      appState.settings.address = document.getElementById("cfg-business-address").value.trim();
+      appState.settings.storeWhatsapp = document.getElementById("cfg-store-whatsapp").value.trim();
+      appState.settings.riderWhatsapp = document.getElementById("cfg-rider-whatsapp").value.trim();
+      appState.settings.shippingCost = parseFloat(document.getElementById("cfg-shipping-cost").value) || 0;
+      appState.settings.freeShippingThreshold = parseFloat(document.getElementById("cfg-free-shipping-threshold").value) || 0;
+      appState.settings.bankInfo = document.getElementById("cfg-bank-info").value.trim();
+      appState.settings.deunaPhone = document.getElementById("cfg-deuna-phone").value.trim();
+      appState.settings.deunaName = document.getElementById("cfg-deuna-name").value.trim();
+      appState.settings.deunaQrImage = document.getElementById("cfg-deuna-qr-url").value.trim();
+      appState.settings.marqueeText = document.getElementById("cfg-marquee-text").value.trim();
+
+      appState.settings.coupons = {
         10: document.getElementById("cfg-coupon-10").value.trim().toUpperCase(),
         20: document.getElementById("cfg-coupon-20").value.trim().toUpperCase(),
         30: document.getElementById("cfg-coupon-30").value.trim().toUpperCase(),
@@ -3616,10 +3685,10 @@
 
       saveState(true);
       refreshAllUI();
-      showToast("Identidad, De Una! QR, envío gratis y cupones actualizados");
+      showToast("Configuración e Identidad actualizadas");
     };
 
-    // Gestión de Usuarios
+    // Usuarios
     function renderAdminUsers() {
       const tbody = document.getElementById("admin-users-table-body");
       if (!tbody) return;
@@ -3627,17 +3696,23 @@
       tbody.innerHTML = appState.users
         .map(
           (u) => `
-        <tr>
+        <tr class="hover:bg-slate-950/60">
           <td class="p-3.5 font-bold text-white">${escapeHtml(u.username)}</td>
           <td class="p-3.5 uppercase text-brand-400 font-bold">${escapeHtml(u.role)}</td>
           <td class="p-3.5 text-slate-400">
-            ${u.role === "master" ? "Acceso Total" : u.role === "menu_admin" ? "Productos, Categorías y Extras" : "Pedidos, Cierre de Caja y Despacho"}
+            ${
+              u.role === "master"
+                ? "Control total del sistema"
+                : u.role === "menu_admin"
+                ? "Productos, categorías y extras"
+                : "Pedidos, cierre de caja y despacho"
+            }
           </td>
-          <td class="p-3.5 text-right space-x-2">
-            <button type="button" onclick="openUserModal('${escapeHtml(u.username)}')" class="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-200 cursor-pointer">Editar</button>
+          <td class="p-3.5 text-right space-x-2 whitespace-nowrap">
+            <button type="button" onclick="openUserModal('${escapeHtml(u.username)}')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 cursor-pointer">Editar</button>
             ${
               u.username !== "master"
-                ? `<button type="button" onclick="deleteUser('${escapeHtml(u.username)}')" class="px-2.5 py-1 rounded-lg bg-rose-500/20 text-rose-400 cursor-pointer">Borrar</button>`
+                ? `<button type="button" onclick="deleteUser('${escapeHtml(u.username)}')" class="px-2.5 py-1 rounded-lg bg-rose-500/20 text-rose-400 cursor-pointer">Eliminar</button>`
                 : ""
             }
           </td>
@@ -3664,8 +3739,8 @@
       modal.classList.remove("flex");
     };
 
-    window.handleSaveUser = function (e) {
-      e.preventDefault();
+    window.handleSaveUser = function (event) {
+      event.preventDefault();
       const orig = document.getElementById("edit-user-original").value;
       const username = document.getElementById("edit-user-username").value.trim();
       const password = document.getElementById("edit-user-password").value.trim();
@@ -3677,6 +3752,7 @@
       } else {
         appState.users.push({ username, password, role });
       }
+
       saveState(true);
       closeUserModal();
       renderAdminUsers();
@@ -3691,14 +3767,26 @@
       showToast("Usuario eliminado");
     };
 
+    function renderAdminAll() {
+      renderAdminOrders();
+      renderAdminProducts();
+      renderAdminCategories();
+      renderAdminExtras();
+      populateBusinessSettingsForm();
+      renderAdminUsers();
+      updateCloudMetricsUI();
+      if (window.lucide) lucide.createIcons();
+    }
+
     function refreshAllUI() {
       applyBusinessIdentity();
       renderCategoryFilters();
       renderProductsGrid();
       renderCartUI();
-      renderAdminAll();
+      if (currentUser) renderAdminAll();
     }
 
+    // Inicialización al cargar
     window.addEventListener("DOMContentLoaded", () => {
       refreshAllUI();
       initGoogleCloudDatabase();
